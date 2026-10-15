@@ -1,0 +1,2370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Materiais e ESCAV</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root { --primary: #2563eb; --primary-dark: #1d4ed8; --success: #16a34a; --danger: #dc2626; --warning: #f59e0b; --info: #0891b2; --purple: #7c3aed; --pink: #db2777; --bg: #f1f5f9; --card: #ffffff; --text: #1e293b; --text-light: #64748b; --border: #e2e8f0; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 20px 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+header h1 { font-size: 1.3rem; font-weight: 700; }
+.user-info { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; flex-wrap: wrap; }
+.user-info .role-badge { background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+.user-info button { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+.user-info button:hover { background: rgba(255,255,255,0.3); }
+nav { display: flex; background: var(--card); border-bottom: 2px solid var(--border); overflow-x: auto; }
+nav button { flex: 1; padding: 14px 20px; border: none; background: none; font-size: 0.9rem; font-weight: 600; color: var(--text-light); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; min-width: 110px; }
+nav button:hover { color: var(--primary); background: #f8fafc; }
+nav button.active { color: var(--primary); border-bottom-color: var(--primary); background: #eff6ff; }
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+.section { display: none; }
+.section.active { display: block; }
+.card { background: var(--card); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.card-header h2 { font-size: 1.15rem; color: var(--text); display: flex; align-items: center; gap: 8px; margin: 0; }
+.export-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn-export { padding: 6px 12px; border: 1.5px solid var(--border); border-radius: 6px; background: white; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; color: var(--text); }
+.btn-export:hover { background: #f8fafc; border-color: var(--primary); color: var(--primary); }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.form-group { display: flex; flex-direction: column; }
+.form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text-light); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.3px; }
+.form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s; background: #fafbfc; font-family: inherit; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+.btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #15803d; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: #b91c1c; }
+.btn-warning { background: var(--warning); color: white; }
+.btn-warning:hover { background: #d97706; }
+.btn-info { background: var(--info); color: white; }
+.btn-info:hover { background: #0e7490; }
+.btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+.btn-group { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+thead th { background: #f8fafc; padding: 12px 10px; text-align: left; font-weight: 700; color: var(--text-light); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border); }
+tbody td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:hover { background: #f8fafc; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+.badge-green { background: #dcfce7; color: #166534; }
+.badge-red { background: #fee2e2; color: #991b1b; }
+.badge-blue { background: #dbeafe; color: #1e40af; }
+.badge-purple { background: #f3e8ff; color: #6b21a8; }
+.badge-teal { background: #ccfbf1; color: #115e59; }
+.badge-gray { background: #f1f5f9; color: #475569; }
+.badge-cyan { background: #cffafe; color: #155e75; }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); }
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
+.modal-overlay.active { display: flex !important; }
+.modal { background: white; border-radius: 16px; padding: 28px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.modal h2 { margin-bottom: 20px; }
+.row-item { display: flex; gap: 10px; align-items: end; margin-bottom: 10px; padding: 10px; background: #f8fafc; border-radius: 8px; flex-wrap: wrap; }
+.row-item .form-group { flex: 1; min-width: 150px; }
+.toast { position: fixed; bottom: 30px; right: 30px; padding: 14px 24px; border-radius: 10px; color: white; font-weight: 600; font-size: 0.9rem; z-index: 2000; transform: translateY(100px); opacity: 0; transition: all 0.3s; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-success { background: var(--success); }
+.toast-error { background: var(--danger); }
+.search-box { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.95rem; margin-bottom: 14px; background: #fafbfc; }
+.search-box:focus { outline: none; border-color: var(--primary); background: white; }
+.tecnicos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
+.tecnico-checkbox { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f8fafc; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.tecnico-checkbox:hover { background: #eff6ff; border-color: var(--primary); }
+.tecnico-checkbox.selected { background: #dbeafe; border-color: var(--primary); }
+.tecnico-checkbox input { width: 18px; height: 18px; cursor: pointer; }
+.tecnico-checkbox .info { flex: 1; }
+.tecnico-checkbox .nome { font-weight: 600; font-size: 0.9rem; }
+.tecnico-checkbox .espec { font-size: 0.75rem; color: var(--text-light); }
+.login-screen { min-height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); padding: 20px; }
+.login-card { background: white; border-radius: 16px; padding: 40px; max-width: 420px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.login-card h1 { text-align: center; color: var(--text); margin-bottom: 8px; font-size: 1.6rem; }
+.login-card p { text-align: center; color: var(--text-light); margin-bottom: 24px; font-size: 0.9rem; }
+.login-card .form-group { margin-bottom: 14px; }
+.login-card .btn { width: 100%; justify-content: center; padding: 12px; }
+.login-toggle { text-align: center; margin-top: 16px; font-size: 0.88rem; color: var(--text-light); }
+.login-toggle a { color: var(--primary); cursor: pointer; font-weight: 600; text-decoration: none; }
+.login-toggle a:hover { text-decoration: underline; }
+.login-error { background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 14px; display: none; }
+.login-error.show { display: block; }
+.login-success { background: #dcfce7; color: #166534; padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 14px; display: none; }
+.login-success.show { display: block; }
+.loading { text-align: center; padding: 40px; color: var(--text-light); }
+.spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.section-title { margin-top: 20px; font-size: 0.95rem; color: var(--text-light); font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.backup-section { background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 2px dashed var(--primary); padding: 20px; border-radius: 12px; margin-top: 20px; }
+.materiais-summaries { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.mat-summary-card { background: white; border-radius: 12px; padding: 16px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+.mat-summary-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+.mat-summary-card.cor-existente::before { background: #2563eb; }
+.mat-summary-card.cor-disponivel::before { background: #16a34a; }
+.mat-summary-card.cor-servico::before { background: #7c3aed; }
+.mat-summary-card.cor-escav::before { background: #f59e0b; }
+.mat-summary-card.cor-erspo::before { background: #db2777; }
+.mat-summary-card.cor-emprest::before { background: #0891b2; }
+.mat-summary-card.cor-indisponivel::before { background: #dc2626; }
+.mat-summary-icon { font-size: 1.3rem; margin-bottom: 6px; }
+.mat-summary-label { font-size: 0.72rem; color: var(--text-light); text-transform: uppercase; font-weight: 600; letter-spacing: 0.3px; margin-bottom: 4px; }
+.mat-summary-value { font-size: 1.8rem; font-weight: 800; color: var(--text); line-height: 1; }
+.mat-table th { text-align: center; }
+.mat-table td.num { text-align: center; font-weight: 600; }
+.mat-table td.nome-col { font-weight: 600; }
+.servico-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.servico-card.servico-encerrado { opacity: 0.85; background: #f8fafc; }
+.servico-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.servico-titulo { font-size: 1.1rem; font-weight: 700; }
+.servico-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.servico-meta-item .label { font-size: 0.72rem; color: var(--text-light); text-transform: uppercase; font-weight: 600; }
+.servico-meta-item .value { font-weight: 600; margin-top: 2px; }
+.cautela-item { background: #f8fafc; border-radius: 8px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+.cautela-item.aberta { border-left: 4px solid var(--danger); background: #fef2f2; }
+.cautela-item.encerrada { border-left: 4px solid var(--primary); background: #eff6ff; }
+.cautela-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
+.cautela-materiais { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 6px; }
+.cautela-material-tag { background: white; padding: 6px 10px; border-radius: 6px; font-size: 0.82rem; border: 1px solid var(--border); }
+.cautela-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.dia-fim-de-semana { color: var(--danger) !important; font-weight: 800 !important; }
+.btn-teclado { transition: all 0.2s; cursor: pointer; }
+.btn-teclado:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.btn-teclado:active { transform: scale(0.95); }
+@media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } nav button { font-size: 0.8rem; padding: 12px 10px; min-width: 90px; } .container { padding: 12px; } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+<div class="login-card">
+<h1> Controle de Materiais</h1>
+<p>Sistema multiusuário na nuvem</p>
+<div class="login-error" id="loginError"></div>
+<div class="login-success" id="loginSuccess"></div>
+<div id="loginForm">
+<div class="form-group"><label>E-mail</label><input type="email" id="loginEmail" placeholder="seu@email.com"></div>
+<div class="form-group"><label>Senha</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+<button class="btn btn-primary" onclick="fazerLogin()">🔐 Entrar</button>
+<div class="login-toggle">Não tem conta? <a onclick="mostrarCadastro()">Criar conta</a></div>
+<div class="login-toggle"><a onclick="mostrarRecuperarSenha()">Esqueci minha senha</a></div>
+</div>
+<div id="cadastroForm" style="display:none">
+<div class="form-group"><label>Nome</label><input type="text" id="cadNome" placeholder="Seu nome"></div>
+<div class="form-group"><label>E-mail</label><input type="email" id="cadEmail" placeholder="seu@email.com"></div>
+<div class="form-group"><label>Senha (mín. 6)</label><input type="password" id="cadPassword" placeholder="••••••••"></div>
+<button class="btn btn-success" onclick="fazerCadastro()">✅ Criar Conta</button>
+<div class="login-toggle">Já tem conta? <a onclick="mostrarLogin()">Fazer login</a></div>
+</div>
+<div id="recuperarForm" style="display:none">
+<div class="form-group"><label>E-mail</label><input type="email" id="recEmail" placeholder="seu@email.com"></div>
+<button class="btn btn-warning" onclick="recuperarSenha()">📧 Enviar Link</button>
+<div class="login-toggle"><a onclick="mostrarLogin()">Fazer login</a></div>
+</div>
+</div>
+</div>
+
+<!-- APP -->
+<div id="appMain" style="display:none">
+<header>
+<div><h1>📦 Controle de Materiais e ESCAV</h1></div>
+<div class="user-info">
+<span id="userEmail"></span>
+<span class="role-badge" id="userRole"></span>
+<button onclick="abrirModalTrocarSenha()">🔑 Trocar Senha</button>
+<button onclick="abrirMeuPin()">🔐 Meu PIN</button>
+<button onclick="fazerLogout()">🚪 Sair</button>
+</div>
+</header>
+<nav>
+<button class="active" onclick="showSection('servicoDiario', this)">📋 Serviço Diário</button>
+<button onclick="showSection('materiais', this)"> Materiais</button>
+<button onclick="showSection('tecnicos', this)">🛡️ AST</button>
+<button onclick="showSection('escav', this)">🚛 ESCAV</button>
+<button onclick="showSection('relatorios', this)"> Relatórios</button>
+<button id="btnAdmin" onclick="showSection('admin', this)" style="display:none">⚙️ Admin</button>
+<button id="btnAuditoria" onclick="showSection('auditoria', this)" style="display:none">📝 Auditoria</button>
+</nav>
+<div class="container">
+
+<!-- SERVIÇO DIÁRIO -->
+<div id="servicoDiario" class="section active">
+<div class="card">
+<div class="card-header">
+<h2>📋 Serviço Diário</h2>
+<div class="export-buttons">
+<button class="btn btn-primary" onclick="abrirNovoServico()">➕ Novo Serviço</button>
+</div>
+</div>
+<div class="form-grid" style="margin-bottom:16px">
+<div class="form-group"><label> Filtrar por Data</label><input type="date" id="filtroDataServico" onchange="renderServicoDiario()"></div>
+<div class="form-group"><label>👷 Filtrar por Técnico</label><select id="filtroTecnicoServico" onchange="renderServicoDiario()"><option value="all">Todos os técnicos</option></select></div>
+<div class="form-group"><label> Status</label><select id="filtroStatusServico" onchange="renderServicoDiario()"><option value="all">Todos</option><option value="aberto">🔴 Abertos</option><option value="encerrado">🔵 Encerrados</option></select></div>
+</div>
+<div id="listaServicosDiarios"><div class="loading"><div class="spinner"></div><p>Carregando...</p></div></div>
+</div>
+</div>
+
+<!-- MATERIAIS -->
+<div id="materiais" class="section">
+<div class="card">
+<div class="card-header">
+<h2>📦 Gestão de Materiais</h2>
+<div class="export-buttons">
+<button class="btn-export" onclick="exportarMateriaisExcel()">📊 Excel</button>
+<button class="btn-export" onclick="exportarMateriaisPDF()">📕 PDF</button>
+<button id="btnNovoMaterial" class="btn btn-primary btn-sm" onclick="abrirModalNovoMaterial()" style="display:none">➕ Novo Material</button>
+</div>
+</div>
+<div class="materiais-summaries" id="materiaisSummaries"></div>
+<input type="text" class="search-box" placeholder="🔍 Buscar material..." oninput="renderMateriais(this.value)">
+<div id="listaMateriais"><div class="loading"><div class="spinner"></div><p>Carregando...</p></div></div>
+</div>
+</div>
+
+<!-- TÉCNICOS -->
+<div id="tecnicos" class="section">
+<div class="card">
+<div class="card-header">
+<h2>️ Lista de Agentes de Segurança Técnica</h2>
+<div class="export-buttons">
+<button class="btn-export" onclick="exportarTecnicosExcel()">📊 Excel</button>
+<button class="btn-export" onclick="exportarTecnicosPDF()"> PDF</button>
+</div>
+</div>
+<input type="text" class="search-box" placeholder="🔍 Buscar..." oninput="renderTecnicos(this.value)">
+<div id="listaTecnicos"><div class="loading"><div class="spinner"></div><p>Carregando...</p></div></div>
+</div>
+</div>
+
+<!-- ESCAV -->
+<div id="escav" class="section">
+<div class="card">
+<h2>➕ Nova ESCAV</h2>
+<div class="form-grid-3" style="margin-bottom:14px">
+<div class="form-group"><label>Tipo ESCAV *</label><select id="escavTipo"><option value="">Selecione...</option><option value="ESCAV PR">ESCAV PR</option><option value="ESCAV VPR">ESCAV VPR</option><option value="Aut Dignitário">Aut Dignitário</option><option value="ESCAV FAM 5">ESCAV FAM 5</option><option value="Adm">Adm</option></select></div>
+<div class="form-group"><label>Destino *</label><input type="text" id="escavDestino" placeholder="Ex: Curitiba"></div>
+<div class="form-group"><label>UF *</label><select id="escavUF"><option value="">Selecione...</option><option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option></select></div>
+</div>
+<div class="form-grid-3" style="margin-bottom:14px">
+<div class="form-group"><label>Evento</label><input type="text" id="escavEvento" placeholder="Ex: Formatura..."></div>
+<div class="form-group"><label>Data Início *</label><input type="date" id="escavDataInicio"></div>
+<div class="form-group"><label>Data Retorno *</label><input type="date" id="escavDataRetorno"></div>
+</div>
+<div class="form-group" style="margin-bottom:14px"><label>Observação</label><textarea id="escavObs" rows="2" placeholder="Observações..."></textarea></div>
+<div class="section-title">👷 Técnicos Participantes</div>
+<div id="tecnicosEscav"></div>
+<div class="section-title">📦 Materiais Utilizados</div>
+<div id="materiaisEscav"></div>
+<button type="button" class="btn btn-warning btn-sm" onclick="adicionarMaterialEscav()" style="margin-top:8px">+ Adicionar Material</button>
+<div class="btn-group"><button class="btn btn-success" onclick="salvarEscav()">🚛 Registrar ESCAV</button></div>
+</div>
+<div class="card">
+<div class="card-header">
+<h2> Histórico de ESCAV</h2>
+<div class="export-buttons">
+<button class="btn-export" onclick="exportarEscavExcel()">📊 Excel</button>
+<button class="btn-export" onclick="exportarEscavPDF()">📕 PDF</button>
+</div>
+</div>
+<input type="text" class="search-box" placeholder=" Buscar..." oninput="renderEscav(this.value)">
+<div id="listaEscav"><div class="loading"><div class="spinner"></div><p>Carregando...</p></div></div>
+</div>
+</div>
+
+<!-- RELATÓRIOS -->
+<div id="relatorios" class="section">
+<div class="card">
+<div class="card-header">
+<h2>📦 Relatório de Gestão de Materiais</h2>
+<div class="export-buttons">
+<button class="btn-export" onclick="exportarRelatorioMateriaisExcel()">📊 Excel</button>
+<button class="btn-export" onclick="exportarRelatorioMateriaisPDF()">📕 PDF</button>
+</div>
+</div>
+<div class="materiais-summaries" id="relMateriaisSummaries"></div>
+<div id="relatorioGestaoMateriais"></div>
+</div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin" class="section">
+<div class="card">
+<h2>⚙️ Gerenciar Usuários
+<button class="btn btn-info btn-sm" onclick="abrirGerenciarPins()" style="margin-left:12px"> Gerenciar PINs</button>
+</h2>
+<div id="listaUsuarios"><div class="loading"><div class="spinner"></div><p>Carregando...</p></div></div>
+</div>
+<div class="card">
+<div class="backup-section">
+<h3>💾 Backup Completo</h3>
+<p>Exporte/importe todos os dados do sistema.</p>
+<div class="btn-group">
+<button class="btn btn-primary" onclick="exportarBackupJSON()">💾 Baixar Backup</button>
+<button class="btn btn-warning" onclick="document.getElementById('importFile').click()">📥 Restaurar</button>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="importarBackup(event)">
+</div>
+</div>
+</div>
+</div>
+
+<!-- AUDITORIA -->
+<div id="auditoria" class="section">
+<div class="card">
+<div class="card-header">
+<h2> Log de Auditoria</h2>
+<div class="export-buttons">
+<button class="btn-export" onclick="exportarAuditoriaExcel()">📊 Excel</button>
+<button class="btn-export" onclick="exportarAuditoriaPDF()">📕 PDF</button>
+<button class="btn btn-danger btn-sm" onclick="limparAuditoria()">🗑️ Limpar Log</button>
+</div>
+</div>
+<div class="form-grid" style="margin-bottom:16px">
+<div class="form-group"><label>🔍 Filtrar por Ação</label>
+<select id="filtroAcaoAuditoria" onchange="renderAuditoria()">
+<option value="all">Todas as ações</option>
+<option value="CRIAR_USUARIO">Criar Usuário</option>
+<option value="EDITAR_USUARIO">Editar Usuário</option>
+<option value="EXCLUIR_USUARIO">Excluir Usuário</option>
+<option value="CRIAR_MATERIAL">Criar Material</option>
+<option value="EDITAR_MATERIAL">Editar Material</option>
+<option value="EXCLUIR_MATERIAL">Excluir Material</option>
+<option value="CRIAR_ESCAV">Criar ESCAV</option>
+<option value="EDITAR_ESCAV">Editar ESCAV</option>
+<option value="EXCLUIR_ESCAV">Excluir ESCAV</option>
+<option value="CRIAR_CAUTELA">Criar Cautela</option>
+<option value="EDITAR_CAUTELA">Editar Cautela</option>
+<option value="ENCERRAR_CAUTELA">Encerrar Cautela</option>
+<option value="ASSINAR_CAUTELA">Assinar Cautela</option>
+<option value="ASSINAR_ESCAV">Assinar ESCAV</option>
+<option value="ENCERRAR_ESCAV">Encerrar ESCAV</option>
+<option value="CRIAR_SERVICO">Criar Serviço</option>
+<option value="ENCERRAR_SERVICO">Encerrar Serviço</option>
+<option value="TROCA_SENHA">Troca de Senha</option>
+<option value="LOGIN">Login</option>
+</select>
+</div>
+<div class="form-group"><label>👷 Filtrar por Usuário</label><input type="text" id="filtroUsuarioAuditoria" placeholder="Nome ou e-mail" oninput="renderAuditoria()"></div>
+</div>
+<div id="listaAuditoria"><div class="loading"><div class="spinner"></div><p>Carregando...</p></div></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- MODAIS -->
+<div class="modal-overlay" id="modalEscav"><div class="modal"><h2>👁️ Detalhes da ESCAV</h2><div id="modalEscavContent"></div><div class="btn-group"><button class="btn btn-primary" onclick="fecharModal('modalEscav')">Fechar</button></div></div></div>
+
+<div class="modal-overlay" id="modalNovoMaterial"><div class="modal"><h2>➕ Novo Material</h2><div class="form-grid">
+<div class="form-group"><label>Nome *</label><input type="text" id="novoMatNome"></div>
+<div class="form-group"><label>Unidade</label><select id="novoMatUnidade"><option value="un">Unidade (un)</option><option value="m">Metro (m)</option><option value="kg">Quilograma (kg)</option></select></div>
+<div class="form-group"><label>Existente</label><input type="number" id="novoMatExistente" value="0" step="0.01"></div>
+<div class="form-group"><label>Em Serviço</label><input type="number" id="novoMatServico" value="0" step="0.01"></div>
+<div class="form-group"><label>Em ESCAV</label><input type="number" id="novoMatEscav" value="0" step="0.01"></div>
+<div class="form-group"><label>Em ERSPO</label><input type="number" id="novoMatERSPO" value="0" step="0.01"></div>
+<div class="form-group"><label>Indisponível</label><input type="number" id="novoMatIndisp" value="0" step="0.01"></div>
+</div><div class="btn-group"><button class="btn btn-success" onclick="salvarNovoMaterial()">💾 Salvar</button><button class="btn btn-danger" onclick="fecharModal('modalNovoMaterial')">Cancelar</button></div></div></div>
+
+<div class="modal-overlay" id="modalAdicionarUsuario"><div class="modal" style="max-width:600px"><h2>➕ Adicionar Novo Usuário</h2>
+<div class="form-grid">
+<div class="form-group"><label>Nome Completo *</label><input type="text" id="novoUserName" placeholder="Ex: João da Silva Santos"></div>
+<div class="form-group"><label>Nome de Guerra *</label><input type="text" id="novoUserNomeGuerra" placeholder="Ex: SILVA"></div>
+<div class="form-group"><label>E-mail (para login) *</label><input type="email" id="novoUserEmail" placeholder="usuario@empresa.com"></div>
+<div class="form-group"><label>Senha Temporária * (mín. 6)</label><input type="text" id="novoUserPassword" placeholder="Senha inicial"></div>
+<div class="form-group"><label>Perfil *</label>
+<select id="novoUserRole" onchange="toggleCampoRadio()">
+<option value="user">👤 Usuário</option>
+<option value="viewer">👁️ Visualizador</option>
+<option value="admin"> Administrador</option>
+<option value="ast">🔧 AST (Técnico)</option>
+<option value="agente">📋 Agente (Assina Cautelas)</option>
+</select>
+</div>
+<div class="form-group" id="campoRadio" style="display:none"><label>📻 Rádio (opcional)</label><input type="text" id="novoUserRadio" placeholder="Ex: HT-1234"></div>
+</div>
+<div style="background:#fef3c7;padding:12px;border-radius:8px;font-size:0.88rem;color:#78350f;margin:16px 0">
+⚠️ <strong>Perfis:</strong><br>
+• <strong>AST</strong>: Técnico que opera o sistema e cria serviços<br>
+• <strong>Agente</strong>: Recebe e assina cautelas (não precisa de login)<br>
+• <strong>Admin</strong>: Acesso total<br>
+• <strong>Usuário</strong>: Acesso padrão<br>
+• <strong>Visualizador</strong>: Apenas visualiza
+</div>
+<div class="btn-group"><button class="btn btn-success" onclick="adicionarUsuario()">➕ Criar Usuário</button><button class="btn btn-danger" onclick="fecharModal('modalAdicionarUsuario')">Cancelar</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modalTrocarSenha"><div class="modal" style="max-width:450px"><h2>🔑 Alterar Senha</h2>
+<div class="form-group" style="margin-bottom:14px"><label>Senha Atual *</label><input type="password" id="senhaAtual"></div>
+<div class="form-group" style="margin-bottom:14px"><label>Nova Senha * (mínimo 6 caracteres)</label><input type="password" id="novaSenha"></div>
+<div class="form-group" style="margin-bottom:14px"><label>Confirmar Nova Senha *</label><input type="password" id="confirmarNovaSenha"></div>
+<div class="btn-group"><button class="btn btn-success" onclick="trocarSenha()">💾 Salvar Nova Senha</button><button class="btn btn-danger" onclick="fecharModal('modalTrocarSenha')">Cancelar</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modalNovoServico"><div class="modal" style="max-width:700px"><h2> Novo Serviço Diário</h2>
+<div class="form-grid">
+<div class="form-group"><label>👷 Técnico Responsável (AST) *</label><select id="servicoTecnico"><option value="">Selecione...</option></select></div>
+<div class="form-group"><label>📅 Data do Serviço *</label><input type="date" id="servicoData"></div>
+<div class="form-group" style="grid-column: span 2"><label> Dia da Semana</label><div id="servicoDiaSemana" style="padding:10px;background:#f8fafc;border-radius:8px;font-weight:600;font-size:1.1rem">-</div></div>
+</div>
+<div class="btn-group"><button class="btn btn-success" onclick="salvarNovoServico()"> Criar Serviço</button><button class="btn btn-danger" onclick="fecharModal('modalNovoServico')">Cancelar</button></div>
+</div></div>
+
+<div class="modal-overlay" id="modalNovaCautela"><div class="modal" style="max-width:900px"><h2> Cautela de Material</h2>
+<input type="hidden" id="cautelaServicoId">
+<input type="hidden" id="cautelaIdxEdit" value="">
+<div class="form-grid" style="margin-bottom:16px">
+<div class="form-group"><label>👤 Nome de Quem Recebe *</label><select id="cautelaRecebedorNome"><option value="">Selecione o agente...</option></select></div>
+<div class="form-group"><label>🎖️ Posto/Graduação</label><input type="text" id="cautelaRecebedorPosto"></div>
+</div>
+<div class="form-group" style="margin-bottom:16px"><label> Texto da Cautela (editável)</label><textarea id="cautelaTextoPersonalizado" rows="3">Recebi da Coordenação Logística de Atuadores Não-Cinéticos, o material abaixo relacionado:</textarea></div>
+<div id="cautelaMateriaisLista"></div>
+<button type="button" class="btn btn-warning btn-sm" onclick="adicionarMaterialCautela()" style="margin-top:8px">+ Adicionar Material</button>
+<div class="form-group" style="margin-top:16px"><label>📋 Observações Adicionais</label><textarea id="cautelaObs" rows="2" placeholder="Observações sobre a cautela..."></textarea></div>
+<div class="btn-group">
+<button class="btn btn-success" onclick="salvarCautela()">💾 Salvar Cautela</button>
+<button class="btn btn-primary" onclick="gerarPDFCautela()"> Gerar PDF</button>
+<button class="btn btn-danger" onclick="fecharModal('modalNovaCautela')">Cancelar</button>
+</div>
+</div></div>
+
+<div class="modal-overlay" id="modalNovoEscavServico">
+<div class="modal" style="max-width:1000px">
+<h2>🚛 ESCAV no Serviço - CAUTELA DE MATERIAL PARA VIAGEM</h2>
+<input type="hidden" id="escavServicoId">
+<input type="hidden" id="escavServIdxEdit" value="">
+
+<div style="background:#fef3c7;padding:12px;border-radius:8px;font-size:0.88rem;color:#78350f;margin-bottom:16px">
+️ <strong>Atenção:</strong> Este formulário gera o documento oficial de cautela para viagem.
+</div>
+
+<div class="form-grid-3" style="margin-bottom:14px">
+<div class="form-group"><label>Tipo ESCAV *</label><select id="escavServTipo"><option value="">Selecione...</option><option value="ESCAV PR">ESCAV PR</option><option value="ESCAV VPR">ESCAV VPR</option><option value="Aut Dignitário">Aut Dignitário</option><option value="ESCAV FAM 5">ESCAV FAM 5</option><option value="Adm">Adm</option></select></div>
+<div class="form-group"><label>Destino (Cidade/UF) *</label><input type="text" id="escavServDestino" placeholder="Ex: RIO DE JANEIRO-RJ"></div>
+<div class="form-group"><label>UF *</label><select id="escavServUF"><option value="">Selecione...</option><option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option></select></div>
+</div>
+<div class="form-grid-3" style="margin-bottom:14px">
+<div class="form-group"><label>Evento</label><input type="text" id="escavServEvento" placeholder="Ex: FAM PR"></div>
+<div class="form-group"><label>Data Início *</label><input type="date" id="escavServDataInicio"></div>
+<div class="form-group"><label>Data Retorno *</label><input type="date" id="escavServDataRetorno"></div>
+</div>
+
+<div class="form-group" style="margin-bottom:14px">
+<label>📝 Texto da Cautela (editável)</label>
+<textarea id="escavServTextoCautela" rows="3" style="width:100%; padding:10px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit;">Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.</textarea>
+</div>
+
+<div class="section-title"> Materiais da Cautela</div>
+<div id="escavServMateriais"></div>
+<button type="button" class="btn btn-warning btn-sm" onclick="adicionarMaterialEscavServ()" style="margin-top:8px">+ Adicionar Material</button>
+
+<div class="section-title"> Responsáveis</div>
+<div class="form-grid-3" style="margin-top:10px">
+<div class="form-group"><label>Responsável pela Montagem</label><input type="text" id="escavServRespMontagem" placeholder="Nome"></div>
+<div class="form-group"><label>Responsável pela Entrega</label><input type="text" id="escavServRespEntrega" placeholder="Nome"></div>
+<div class="form-group"><label>Responsável pelo Recebimento</label><input type="text" id="escavServRespRecebimento" placeholder="Nome"></div>
+</div>
+
+<div class="form-grid-3" style="margin-top:10px">
+<div class="form-group"><label>Cautelou os Rádios no SISPAT?</label>
+<select id="escavServSispatCautelou"><option value="">Selecione...</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select>
+</div>
+<div class="form-group"><label>Descautelou os Rádios no SISPAT?</label>
+<select id="escavServSispatDescautelou"><option value="">Selecione...</option><option value="SIM">SIM</option><option value="NÃO">NÃO</option></select>
+</div>
+<div class="form-group"><label>Visto Ch C Téc</label><input type="text" id="escavServVisto" placeholder="Nome do Ch C Téc"></div>
+</div>
+
+<div class="form-group" style="margin-top:14px"><label>Observação</label><textarea id="escavServObs" rows="2" placeholder="Observações..."></textarea></div>
+
+<div class="section-title">👷 Técnicos Participantes</div>
+<div id="escavServTecnicos"></div>
+
+<div class="btn-group">
+<button class="btn btn-success" onclick="salvarEscavNoServico()">🚛 Registrar ESCAV</button>
+<button class="btn btn-warning" onclick="assinarEscavServico()">✍️ Assinar</button>
+<button class="btn btn-primary" onclick="gerarPDFEscavFam()">📕 Gerar PDF (FAM PR)</button>
+<button class="btn btn-danger" onclick="fecharModal('modalNovoEscavServico')">Cancelar</button>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modalTecladoAssinatura">
+<div class="modal" style="max-width:500px; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: white;">
+<h2 style="color: white; text-align: center; margin-bottom: 10px;">✍️ Assinatura</h2>
+<div style="text-align: center; margin-bottom: 20px;">
+<div style="font-size: 1.1rem; margin-bottom: 8px;"><strong>👤 <span id="tecladoAgenteNomeAssinatura"></span></strong></div>
+<div style="font-size: 0.95rem; opacity: 0.9;"><span id="tecladoDocTipoAssinatura">📄 Cautela</span> #<span id="tecladoCautelaNumeroAssinatura"></span> - <span id="tecladoCautelaMateriaisAssinatura"></span></div>
+</div>
+<div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center;">
+<div id="tecladoDisplayAssinatura" style="font-size: 3rem; letter-spacing: 12px; color: #1e293b; font-weight: 700; min-height: 60px;">• • • •</div>
+<div style="font-size: 0.85rem; color: #64748b; margin-top: 8px;">Digite sua senha de 4 dígitos</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;" id="tecladoNumerosAssinatura"></div>
+<div id="tecladoErroAssinatura" style="background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 16px; display: none; text-align: center; font-weight: 600;"></div>
+<div style="text-align: center;"><button class="btn btn-danger" onclick="fecharModal('modalTecladoAssinatura')" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">✕ Cancelar</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modalCriarPinAgente">
+<div class="modal" style="max-width:450px">
+<h2>🔐 Primeiro Acesso - Criar Senha PIN</h2>
+<p style="color:var(--text-light);margin-bottom:20px">Agente: <strong id="criarPinAgenteNomeAssinatura"></strong><br>Cautela: <strong id="criarPinCautelaNumeroAssinatura"></strong></p>
+<div style="background:#fef3c7;padding:12px;border-radius:8px;font-size:0.9rem;color:#78350f;margin-bottom:16px">⚠️ Esta é sua primeira vez no sistema. Crie uma senha de 4 dígitos que você usará para assinar cautelas.</div>
+<div class="form-group" style="margin-bottom:14px"><label>Criar Senha PIN (4 dígitos)</label><input type="password" id="novoPinCriarAssinatura" maxlength="4" style="font-size:2rem;text-align:center;letter-spacing:8px" placeholder="••••" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+<div class="form-group" style="margin-bottom:14px"><label>Confirmar Senha PIN</label><input type="password" id="confirmarPinCriarAssinatura" maxlength="4" style="font-size:2rem;text-align:center;letter-spacing:8px" placeholder="••••" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+<div id="criarPinErroAssinatura" style="color:var(--danger);margin-bottom:14px;display:none"></div>
+<div class="btn-group"><button class="btn btn-success" onclick="salvarNovoPinAgente()">✅ Criar e Assinar</button><button class="btn btn-danger" onclick="fecharModal('modalCriarPinAgente')">Cancelar</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modalGerenciarPins">
+<div class="modal" style="max-width:800px">
+<h2>🔐 Gerenciar Senhas PIN dos Agentes</h2>
+<p style="color:var(--text-light);margin-bottom:20px;font-size:0.9rem">Defina ou altere a senha PIN de 4 dígitos para cada agente.</p>
+<div style="max-height:500px;overflow-y:auto"><table><thead><tr><th>Agente</th><th>E-mail</th><th>Role</th><th>PIN Atual</th><th>Ação</th></tr></thead><tbody id="tabelaPinsAgentes"></tbody></table></div>
+<div class="btn-group"><button class="btn btn-danger" onclick="fecharModal('modalGerenciarPins')">Fechar</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="modalMeuPin">
+<div class="modal" style="max-width:450px">
+<h2>🔐 Minha Senha PIN</h2>
+<p style="color:var(--text-light);margin-bottom:20px;font-size:0.9rem">Esta senha será usada para assinar cautelas de material.</p>
+<div class="form-group" style="margin-bottom:14px"><label>Senha PIN Atual (4 dígitos) - <em>deixe vazio se for a primeira vez</em></label><input type="password" id="pinAtual" maxlength="4" style="font-size:1.5rem;text-align:center;letter-spacing:8px" placeholder="••••" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+<div class="form-group" style="margin-bottom:14px"><label>Nova Senha PIN (4 dígitos)</label><input type="password" id="novoPin" maxlength="4" style="font-size:1.5rem;text-align:center;letter-spacing:8px" placeholder="••••" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+<div class="form-group" style="margin-bottom:14px"><label>Confirmar Nova Senha PIN</label><input type="password" id="confirmarPin" maxlength="4" style="font-size:1.5rem;text-align:center;letter-spacing:8px" placeholder="••••" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+<div id="pinErro" style="color:var(--danger);margin-bottom:14px;display:none"></div>
+<div class="btn-group"><button class="btn btn-success" onclick="salvarMeuPin()">💾 Salvar</button><button class="btn btn-danger" onclick="fecharModal('modalMeuPin')">Cancelar</button></div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDoc, setDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyAv_2hVwrfUgTkpWcv4AX2eeJMoDzLUcwA",
+authDomain: "controle-materiais-f8d2f.firebaseapp.com",
+projectId: "controle-materiais-f8d2f",
+storageBucket: "controle-materiais-f8d2f.firebasestorage.app",
+messagingSenderId: "365352213660",
+appId: "1:365352213660:web:8c8e2c28cab0e3d136e159"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let currentUserRole = 'user';
+let materiaisCache = [], tecnicosCache = [], escavCache = [], usuariosCache = [], servicosDiariosCache = [], auditoriaCache = [];
+let materiaisEscavTemp = [], tecnicosEscavSelecionados = new Set(), cautelasTemp = [];
+let cautelaAtualPDF = null;
+const diasSemana = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+
+let pinDigitado = '';
+let mapaTeclado = [];
+let timerTeclado = null;
+let cautelaAssinaturaAtual = null;
+let escavServMateriaisTemp = [];
+let escavServTecnicosSelecionados = new Set();
+let pinsCache = {};
+
+function calcEmpregados(m) { return (parseFloat(m.emServico) || 0) + (parseFloat(m.emEscav) || 0) + (parseFloat(m.emERSPO) || 0); }
+function calcDisponivel(m) { const empregados = calcEmpregados(m); const indisponivel = parseFloat(m.indisponivel) || 0; const existente = parseFloat(m.existente) || 0; return Math.round((existente - (empregados + indisponivel)) * 100) / 100; }
+function migrarMaterial(m) {
+if (m.existente === undefined) m.existente = 0;
+if (m.emServico === undefined) m.emServico = 0;
+if (m.emEscav === undefined) m.emEscav = 0;
+if (m.emERSPO === undefined) m.emERSPO = 0;
+if (m.indisponivel === undefined) m.indisponivel = 0;
+return m;
+}
+function traduzirErro(code) {
+const msgs = { 'auth/invalid-email': 'E-mail inválido.', 'auth/user-not-found': 'Usuário não encontrado.', 'auth/wrong-password': 'Senha incorreta.', 'auth/invalid-credential': 'E-mail ou senha incorretos.', 'auth/email-already-in-use': 'E-mail já em uso.', 'auth/weak-password': 'Senha fraca (mín. 6).', 'auth/too-many-requests': 'Muitas tentativas. Aguarde.' };
+return msgs[code] || 'Erro: ' + code;
+}
+
+async function registrarAuditoria(acao, detalhes, dadosAdicionais = {}) {
+try {
+await addDoc(collection(db, 'auditoria'), { acao, detalhes, usuarioUid: currentUser?.uid || 'sistema', usuarioNome: currentUser?.displayName || currentUser?.email || 'Sistema', usuarioEmail: currentUser?.email || '', dados: dadosAdicionais, timestamp: new Date().toISOString(), dataFormatada: new Date().toLocaleString('pt-BR') });
+} catch (err) { console.error('Erro ao registrar auditoria:', err); }
+}
+
+window.fazerLogin = async function() {
+const email = document.getElementById('loginEmail').value.trim();
+const password = document.getElementById('loginPassword').value;
+const errorEl = document.getElementById('loginError');
+errorEl.classList.remove('show');
+if (!email || !password) { errorEl.textContent = 'Preencha e-mail e senha!'; errorEl.classList.add('show'); return; }
+try { await signInWithEmailAndPassword(auth, email, password); await registrarAuditoria('LOGIN', 'Login realizado com sucesso'); }
+catch (err) { errorEl.textContent = traduzirErro(err.code); errorEl.classList.add('show'); }
+};
+
+window.fazerCadastro = async function() {
+const nome = document.getElementById('cadNome').value.trim();
+const email = document.getElementById('cadEmail').value.trim();
+const password = document.getElementById('cadPassword').value;
+const errorEl = document.getElementById('loginError');
+errorEl.classList.remove('show');
+if (!nome || !email || !password) { errorEl.textContent = 'Preencha todos os campos!'; errorEl.classList.add('show'); return; }
+if (password.length < 6) { errorEl.textContent = 'Senha com mínimo 6 caracteres!'; errorEl.classList.add('show'); return; }
+try {
+const cred = await createUserWithEmailAndPassword(auth, email, password);
+await updateProfile(cred.user, { displayName: nome });
+await setDoc(doc(db, 'usuarios', cred.user.uid), { nome, nomeGuerra: nome.split(' ')[0].toUpperCase(), email, role: 'user', criadoEm: new Date().toISOString() });
+} catch (err) { errorEl.textContent = traduzirErro(err.code); errorEl.classList.add('show'); }
+};
+
+window.recuperarSenha = async function() {
+const email = document.getElementById('recEmail').value.trim();
+const errorEl = document.getElementById('loginError');
+const successEl = document.getElementById('loginSuccess');
+errorEl.classList.remove('show'); successEl.classList.remove('show');
+if (!email) { errorEl.textContent = 'Informe seu e-mail!'; errorEl.classList.add('show'); return; }
+try { await sendPasswordResetEmail(auth, email); successEl.textContent = 'Link enviado!'; successEl.classList.add('show'); }
+catch (err) { errorEl.textContent = traduzirErro(err.code); errorEl.classList.add('show'); }
+};
+
+window.fazerLogout = async function() { if (confirm('Sair?')) await signOut(auth); };
+window.mostrarCadastro = function() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('cadastroForm').style.display = 'block'; document.getElementById('recuperarForm').style.display = 'none'; };
+window.mostrarLogin = function() { document.getElementById('loginForm').style.display = 'block'; document.getElementById('cadastroForm').style.display = 'none'; document.getElementById('recuperarForm').style.display = 'none'; };
+window.mostrarRecuperarSenha = function() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('cadastroForm').style.display = 'none'; document.getElementById('recuperarForm').style.display = 'block'; };
+
+onAuthStateChanged(auth, async (user) => {
+if (user) {
+currentUser = user;
+document.getElementById('loginScreen').style.display = 'none';
+document.getElementById('appMain').style.display = 'block';
+document.getElementById('userEmail').textContent = user.displayName || user.email;
+try { const userDoc = await getDoc(doc(db, 'usuarios', user.uid)); currentUserRole = userDoc.exists() ? (userDoc.data().role || 'user') : 'user'; }
+catch (err) { currentUserRole = 'user'; }
+const isViewer = currentUserRole === 'viewer';
+const isAdmin = currentUserRole === 'admin';
+document.getElementById('btnAdmin').style.display = isAdmin ? 'block' : 'none';
+document.getElementById('btnAuditoria').style.display = isAdmin ? 'block' : 'none';
+document.getElementById('btnNovoMaterial').style.display = isAdmin ? 'inline-flex' : 'none';
+if (isViewer) {
+document.querySelectorAll('nav button').forEach(btn => {
+const sectionId = btn.getAttribute('onclick')?.match(/showSection\('([^']+)'/)?.[1];
+if (sectionId && sectionId !== 'servicoDiario') btn.style.display = 'none';
+});
+} else {
+document.querySelectorAll('nav button').forEach(btn => btn.style.display = '');
+}
+const roleEl = document.getElementById('userRole');
+if (isAdmin) { roleEl.textContent = '👑 Admin'; roleEl.style.background = 'rgba(250,204,21,0.3)'; }
+else if (currentUserRole === 'ast') { roleEl.textContent = '🔧 AST'; roleEl.style.background = 'rgba(20,184,166,0.3)'; }
+else if (isViewer) { roleEl.textContent = '️ Visualizador'; roleEl.style.background = 'rgba(103,232,249,0.3)'; }
+else { roleEl.textContent = '👤 Usuário'; roleEl.style.background = 'rgba(255,255,255,0.2)'; }
+iniciarListeners();
+} else {
+currentUser = null; currentUserRole = 'user';
+document.getElementById('loginScreen').style.display = 'flex';
+document.getElementById('appMain').style.display = 'none';
+}
+});
+
+function iniciarListeners() {
+onSnapshot(query(collection(db, 'materiais'), orderBy('nome')), (s) => {
+materiaisCache = s.docs.map(d => migrarMaterial({ id: d.id, ...d.data() }));
+renderMateriais(); renderMateriaisEscav(); renderRelatorios();
+});
+onSnapshot(query(collection(db, 'tecnicos'), orderBy('nome')), (s) => {
+tecnicosCache = s.docs.map(d => ({ id: d.id, ...d.data() }));
+renderRelatorios();
+});
+onSnapshot(query(collection(db, 'escav'), orderBy('dataInicio', 'desc')), (s) => {
+escavCache = s.docs.map(d => ({ id: d.id, ...d.data() }));
+renderEscav(); renderRelatorios();
+});
+onSnapshot(query(collection(db, 'servicosDiarios'), orderBy('data', 'desc')), (s) => {
+servicosDiariosCache = s.docs.map(d => ({ id: d.id, ...d.data() }));
+if (document.getElementById('servicoDiario').classList.contains('active')) renderServicoDiario();
+});
+if (currentUserRole === 'admin') {
+onSnapshot(query(collection(db, 'usuarios'), orderBy('nome')), (s) => {
+usuariosCache = s.docs.map(d => ({ id: d.id, ...d.data() }));
+renderUsuarios(); renderTecnicos();
+});
+onSnapshot(query(collection(db, 'auditoria'), orderBy('timestamp', 'desc')), (s) => {
+auditoriaCache = s.docs.map(d => ({ id: d.id, ...d.data() }));
+if (document.getElementById('auditoria').classList.contains('active')) renderAuditoria();
+});
+} else {
+onSnapshot(query(collection(db, 'usuarios'), orderBy('nome')), (s) => {
+usuariosCache = s.docs.map(d => ({ id: d.id, ...d.data() }));
+renderTecnicos();
+});
+}
+}
+
+window.showSection = function(id, btn) {
+document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+if (btn) btn.classList.add('active');
+if (id === 'escav') {
+const hoje = new Date().toISOString().split('T')[0];
+document.getElementById('escavDataInicio').value = hoje;
+document.getElementById('escavDataRetorno').value = hoje;
+materiaisEscavTemp = []; tecnicosEscavSelecionados = new Set();
+renderMateriaisEscav(); renderTecnicosEscav();
+}
+if (id === 'materiais') renderMateriais();
+if (id === 'relatorios') renderRelatorios();
+if (id === 'servicoDiario') renderServicoDiario();
+if (id === 'tecnicos') renderTecnicos();
+if (id === 'admin') renderUsuarios();
+if (id === 'auditoria') renderAuditoria();
+};
+
+window.showToast = function(msg, type = 'success') {
+const t = document.getElementById('toast');
+t.textContent = msg;
+t.className = `toast toast-${type} show`;
+setTimeout(() => t.classList.remove('show'), 3000);
+};
+window.fecharModal = function(id) { document.getElementById(id).classList.remove('active'); };
+
+window.toggleCampoRadio = function() {
+const role = document.getElementById('novoUserRole').value;
+const campoRadio = document.getElementById('campoRadio');
+if (role === 'agente') {
+campoRadio.style.display = 'flex';
+} else {
+campoRadio.style.display = 'none';
+document.getElementById('novoUserRadio').value = '';
+}
+};
+
+// === MATERIAIS ===
+window.abrirModalNovoMaterial = function() {
+if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+document.getElementById('novoMatNome').value = '';
+document.getElementById('novoMatUnidade').value = 'un';
+['novoMatExistente','novoMatServico','novoMatEscav','novoMatERSPO','novoMatIndisp'].forEach(id => document.getElementById(id).value = 0);
+document.getElementById('modalNovoMaterial').classList.add('active');
+};
+
+window.salvarNovoMaterial = async function() {
+if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+const nome = document.getElementById('novoMatNome').value.trim();
+const unidade = document.getElementById('novoMatUnidade').value;
+const existente = parseFloat(document.getElementById('novoMatExistente').value) || 0;
+const emServico = parseFloat(document.getElementById('novoMatServico').value) || 0;
+const emEscav = parseFloat(document.getElementById('novoMatEscav').value) || 0;
+const emERSPO = parseFloat(document.getElementById('novoMatERSPO').value) || 0;
+const indisponivel = parseFloat(document.getElementById('novoMatIndisp').value) || 0;
+if (!nome) return showToast('Informe o nome!', 'error');
+try {
+await addDoc(collection(db, 'materiais'), { nome, unidade, existente, emServico, emEscav, emERSPO, indisponivel, criadoPor: currentUser.uid, criadoEm: new Date().toISOString() });
+fecharModal('modalNovoMaterial');
+showToast('Material cadastrado!');
+await registrarAuditoria('CRIAR_MATERIAL', `Criou material "${nome}"`, { nome, unidade });
+} catch (err) { showToast('Erro: ' + err.message, 'error'); }
+};
+
+window.renderMateriais = function(filtro = '') {
+const container = document.getElementById('listaMateriais');
+const f = filtro.toLowerCase();
+const filtered = materiaisCache.filter(m => m.nome.toLowerCase().includes(f));
+const sumExistente = materiaisCache.reduce((s, m) => s + (parseFloat(m.existente) || 0), 0);
+const sumDisponivel = materiaisCache.reduce((s, m) => s + calcDisponivel(m), 0);
+const sumServico = materiaisCache.reduce((s, m) => s + (parseFloat(m.emServico) || 0), 0);
+const sumEscav = materiaisCache.reduce((s, m) => s + (parseFloat(m.emEscav) || 0), 0);
+const sumERSPO = materiaisCache.reduce((s, m) => s + (parseFloat(m.emERSPO) || 0), 0);
+const sumEmpregados = materiaisCache.reduce((s, m) => s + calcEmpregados(m), 0);
+const sumIndisponivel = materiaisCache.reduce((s, m) => s + (parseFloat(m.indisponivel) || 0), 0);
+document.getElementById('materiaisSummaries').innerHTML = `
+<div class="mat-summary-card cor-existente"><div class="mat-summary-icon">📥</div><div class="mat-summary-label">Existente</div><div class="mat-summary-value">${sumExistente.toLocaleString('pt-BR')}</div></div>
+<div class="mat-summary-card cor-disponivel"><div class="mat-summary-icon">✅</div><div class="mat-summary-label">Disponível</div><div class="mat-summary-value">${sumDisponivel.toLocaleString('pt-BR')}</div></div>
+<div class="mat-summary-card cor-servico"><div class="mat-summary-icon"></div><div class="mat-summary-label">Em Serviço</div><div class="mat-summary-value">${sumServico.toLocaleString('pt-BR')}</div></div>
+<div class="mat-summary-card cor-escav"><div class="mat-summary-icon">🚛</div><div class="mat-summary-label">Em ESCAV</div><div class="mat-summary-value">${sumEscav.toLocaleString('pt-BR')}</div></div>
+<div class="mat-summary-card cor-erspo"><div class="mat-summary-icon">🏢</div><div class="mat-summary-label">Em ERSPO</div><div class="mat-summary-value">${sumERSPO.toLocaleString('pt-BR')}</div></div>
+<div class="mat-summary-card cor-emprest"><div class="mat-summary-icon">📊</div><div class="mat-summary-label">Empregados</div><div class="mat-summary-value">${sumEmpregados.toLocaleString('pt-BR')}</div></div>
+<div class="mat-summary-card cor-indisponivel"><div class="mat-summary-icon"></div><div class="mat-summary-label">Indisponível</div><div class="mat-summary-value">${sumIndisponivel.toLocaleString('pt-BR')}</div></div>`;
+if (filtered.length === 0) { container.innerHTML = `<div class="empty-state"><div class="icon">📦</div><p>${materiaisCache.length === 0 ? 'Nenhum material.' : 'Nenhum encontrado.'}</p></div>`; return; }
+let html = `<div style="overflow-x:auto"><table class="mat-table"><thead><tr><th>Material</th><th>Existente</th><th>Disponível</th><th>Em Serviço</th><th>Em ESCAV</th><th>Em ERSPO</th><th>Empregados</th><th>Indisponível</th>${currentUserRole === 'admin' ? '<th>Ações</th>' : ''}</tr></thead><tbody>`;
+filtered.forEach(m => {
+const empregados = calcEmpregados(m);
+const disponivel = calcDisponivel(m);
+const dispClass = disponivel < 0 ? 'color:#991b1b;font-weight:800' : disponivel === 0 ? 'color:#92400e' : '';
+html += `<tr><td class="nome-col">${m.nome} <span style="color:var(--text-light);font-size:0.75rem;font-weight:400">(${m.unidade || 'un'})</span></td><td class="num">${(parseFloat(m.existente) || 0).toLocaleString('pt-BR')}</td><td class="num" style="${dispClass}">${disponivel.toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.emServico) || 0).toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.emEscav) || 0).toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.emERSPO) || 0).toLocaleString('pt-BR')}</td><td class="num">${empregados.toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.indisponivel) || 0).toLocaleString('pt-BR')}</td>`;
+if (currentUserRole === 'admin') html += `<td><button class="btn btn-danger btn-sm" onclick="excluirMaterial('${m.id}')">🗑️</button></td>`;
+html += '</tr>';
+});
+html += '</tbody></table></div>';
+container.innerHTML = html;
+};
+
+window.excluirMaterial = async function(id) {
+if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+if (!confirm('Excluir este material?')) return;
+try { await deleteDoc(doc(db, 'materiais', id)); showToast('Excluído!'); }
+catch (err) { showToast('Erro: ' + err.message, 'error'); }
+};
+
+// === TÉCNICOS (AST) ===
+window.renderTecnicos = function(filtro = '') {
+const container = document.getElementById('listaTecnicos');
+if (!container) return;
+const f = filtro.toLowerCase();
+const tecnicosAST = usuariosCache.filter(u => u.role === 'ast');
+const filtered = tecnicosAST.filter(t =>
+(t.nome || '').toLowerCase().includes(f) ||
+(t.nomeGuerra || '').toLowerCase().includes(f)
+);
+if (filtered.length === 0) {
+container.innerHTML = `<div class="empty-state"><div class="icon">🛡️</div><p>${tecnicosAST.length === 0 ? 'Nenhum AST cadastrado. Peça ao admin para cadastrar.' : 'Nenhum encontrado.'}</p></div>`;
+return;
+}
+let html = `<table>
+<thead>
+<tr>
+<th>Nome Completo</th>
+<th>Nome de Guerra</th>
+<th>E-mail</th>
+<th>ESCAV</th>
+</tr>
+</thead>
+<tbody>`;
+filtered.forEach(t => {
+const qtd = escavCache.filter(e => e.tecnicos && e.tecnicos.some(tec => tec.tecnicoId === t.id)).length;
+html += `<tr>
+<td><strong>${t.nome}</strong></td>
+<td><strong>${t.nomeGuerra || '-'}</strong></td>
+<td>${t.email || '-'}</td>
+<td><span class="badge badge-teal">${qtd}</span></td>
+</tr>`;
+});
+html += '</tbody></table>';
+container.innerHTML = html;
+};
+
+// === ESCAV ===
+window.toggleTecnicoEscav = function(id) { if (tecnicosEscavSelecionados.has(id)) tecnicosEscavSelecionados.delete(id); else tecnicosEscavSelecionados.add(id); renderTecnicosEscav(); };
+window.renderTecnicosEscav = function() {
+const container = document.getElementById('tecnicosEscav');
+if (!container) return;
+const tecnicosAST = usuariosCache.filter(u => u.role === 'ast');
+if (tecnicosAST.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.9rem;margin:10px 0">⚠️ Nenhum técnico AST cadastrado.</p>'; return; }
+let html = '<div class="tecnicos-grid">';
+tecnicosAST.forEach(t => {
+const selected = tecnicosEscavSelecionados.has(t.id);
+html += `<label class="tecnico-checkbox ${selected ? 'selected' : ''}" onclick="toggleTecnicoEscav('${t.id}')"><input type="checkbox" ${selected ? 'checked' : ''} onclick="event.stopPropagation(); toggleTecnicoEscav('${t.id}')"><div class="info"><div class="nome">${t.nome}</div><div class="espec">${t.nomeGuerra || ''}</div></div></label>`;
+});
+html += '</div>';
+if (tecnicosEscavSelecionados.size > 0) html += `<p style="margin-top:10px;font-size:0.85rem;color:var(--primary);font-weight:600">✓ ${tecnicosEscavSelecionados.size} técnico(s)</p>`;
+container.innerHTML = html;
+};
+
+window.adicionarMaterialEscav = function() { materiaisEscavTemp.push({ materialId: '', quantidade: '', serie: '' }); renderMateriaisEscav(); };
+window.removerMaterialEscav = function(i) { materiaisEscavTemp.splice(i, 1); renderMateriaisEscav(); };
+window.atualizarMaterialEscav = function(i, campo, valor) { if (materiaisEscavTemp[i]) materiaisEscavTemp[i][campo] = valor; };
+window.renderMateriaisEscav = function() {
+const container = document.getElementById('materiaisEscav');
+if (!container) return;
+if (materiaisCache.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.9rem;margin:10px 0">⚠️ Nenhum material.</p>'; return; }
+if (materiaisEscavTemp.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.88rem;margin:10px 0;font-style:italic">Clique em "+ Adicionar Material".</p>'; return; }
+let html = '';
+materiaisEscavTemp.forEach((item, i) => {
+html += `<div class="row-item"><div class="form-group"><label>Material</label><select onchange="atualizarMaterialEscav(${i}, 'materialId', this.value)"><option value="">Selecione...</option>${materiaisCache.map(m => { const disp = calcDisponivel(m); return `<option value="${m.id}" ${item.materialId === m.id ? 'selected' : ''}>${m.nome} (Disp: ${disp} ${m.unidade || 'un'})</option>`; }).join('')}</select></div><div class="form-group" style="max-width:100px"><label>Qtd</label><input type="number" min="0.01" step="0.01" value="${item.quantidade}" onchange="atualizarMaterialEscav(${i}, 'quantidade', this.value)"></div><div class="form-group" style="max-width:180px"><label>Nº PR</label><input type="text" value="${item.serie || ''}" onchange="atualizarMaterialEscav(${i}, 'serie', this.value)" placeholder="Ex: 140-175"></div><button type="button" class="btn btn-danger btn-sm" onclick="removerMaterialEscav(${i})"></button></div>`;
+});
+container.innerHTML = html;
+};
+
+window.salvarEscav = async function() {
+const tipo = document.getElementById('escavTipo').value;
+const destino = document.getElementById('escavDestino').value.trim();
+const uf = document.getElementById('escavUF').value;
+const evento = document.getElementById('escavEvento').value.trim();
+const dataInicio = document.getElementById('escavDataInicio').value;
+const dataRetorno = document.getElementById('escavDataRetorno').value;
+const obs = document.getElementById('escavObs').value.trim();
+if (!tipo || !destino || !uf || !dataInicio || !dataRetorno) return showToast('Preencha campos obrigatórios!', 'error');
+if (dataRetorno < dataInicio) return showToast('Data retorno anterior à início!', 'error');
+const itens = materiaisEscavTemp.filter(i => i.materialId && parseFloat(i.quantidade) > 0);
+for (const item of itens) {
+const mat = materiaisCache.find(m => m.id === item.materialId);
+const disponivel = mat ? calcDisponivel(mat) : 0;
+if (mat && parseFloat(item.quantidade) > disponivel) return showToast(`Disponível insuficiente de "${mat.nome}"! Disponível: ${disponivel}`, 'error');
+}
+try {
+const tecnicosList = Array.from(tecnicosEscavSelecionados).map(id => {
+const t = usuariosCache.find(x => x.id === id);
+return { tecnicoId: id, tecnicoNome: t?.nome || 'Desconhecido', tecnicoNomeGuerra: t?.nomeGuerra || '', especialidade: 'AST' };
+});
+const escavDoc = await addDoc(collection(db, 'escav'), {
+tipo, destino, uf, evento, dataInicio, dataRetorno, obs,
+materiais: itens.map(i => { const mat = materiaisCache.find(m => m.id === i.materialId); return { materialId: i.materialId, materialNome: mat?.nome || 'Desconhecido', unidade: mat?.unidade || '', quantidade: parseFloat(i.quantidade), serie: i.serie || '' }; }),
+tecnicos: tecnicosList, criadaPor: currentUser.uid, criadaPorNome: currentUser.displayName || currentUser.email, criadaEm: new Date().toISOString(),
+encerradaPor: null, encerradaPorNome: null, encerradaEm: null, status: 'aberta'
+});
+for (const item of itens) {
+const mat = materiaisCache.find(m => m.id === item.materialId);
+if (mat) { const novoEmEscav = Math.round(((parseFloat(mat.emEscav) || 0) + parseFloat(item.quantidade)) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emEscav: novoEmEscav }); }
+}
+['escavTipo','escavDestino','escavUF','escavEvento','escavObs'].forEach(id => document.getElementById(id).value = '');
+materiaisEscavTemp = []; tecnicosEscavSelecionados = new Set();
+renderMateriaisEscav(); renderTecnicosEscav();
+showToast('ESCAV registrada!');
+await registrarAuditoria('CRIAR_ESCAV', `Criou ESCAV para ${destino}/${uf}`, { destino, uf, tipo });
+} catch (err) { showToast('Erro: ' + err.message, 'error'); }
+};
+
+window.renderEscav = function(filtro = '') {
+const container = document.getElementById('listaEscav');
+const f = filtro.toLowerCase();
+const filtered = escavCache.filter(e => {
+const tecnicosNomes = (e.tecnicos || []).map(t => t.tecnicoNome.toLowerCase()).join(' ');
+const materiaisNomes = (e.materiais || []).map(m => m.materialNome.toLowerCase()).join(' ');
+return (e.destino || '').toLowerCase().includes(f) || (e.tipo || '').toLowerCase().includes(f) || (e.uf || '').toLowerCase().includes(f) || (e.evento || '').toLowerCase().includes(f) || tecnicosNomes.includes(f) || materiaisNomes.includes(f);
+});
+if (filtered.length === 0) { container.innerHTML = `<div class="empty-state"><div class="icon">🚛</div><p>${escavCache.length === 0 ? 'Nenhuma ESCAV.' : 'Nenhuma encontrada.'}</p></div>`; return; }
+let html = '';
+filtered.forEach(e => {
+const di = e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '-';
+const dr = e.dataRetorno ? e.dataRetorno.split('-').reverse().join('/') : '-';
+const statusBadge = e.status === 'encerrada' ? '<span class="badge badge-blue">🔵 Encerrada</span>' : '<span class="badge badge-red"> Aberta</span>';
+html += `<div class="escav-card-item"><div class="escav-card-header"><div class="escav-card-title"> <strong>${e.destino || '-'}</strong> / ${e.uf || '-'} <span class="badge badge-blue">${e.tipo || '-'}</span> ${statusBadge}</div><div class="escav-actions"><button class="btn btn-primary btn-sm" onclick="verEscav('${e.id}')">👁️ Ver</button>${currentUserRole === 'admin' ? `<button class="btn btn-danger btn-sm" onclick="excluirEscav('${e.id}')">🗑️</button>` : ''}</div></div><div class="escav-card-meta"><div class="escav-meta-item"><div class="label">📅 Período</div><div class="value">${di} → ${dr}</div></div>${e.evento ? `<div class="escav-meta-item"><div class="label">🎯 Evento</div><div class="value">${e.evento}</div></div>` : ''}<div class="escav-meta-item"><div class="label">👷 Técnicos</div><div class="value">${(e.tecnicos || []).length}</div></div><div class="escav-meta-item"><div class="label">📦 Materiais</div><div class="value">${(e.materiais || []).length}</div></div></div>`;
+if (e.tecnicos && e.tecnicos.length > 0) html += `<div class="escav-card-section"><h4>👷 Técnicos</h4><div class="escav-tecnicos-list">${e.tecnicos.map(t => `<span class="escav-tecnico-tag">${t.tecnicoNome}${t.tecnicoNomeGuerra ? ' (' + t.tecnicoNomeGuerra + ')' : ''}</span>`).join('')}</div></div>`;
+if (e.materiais && e.materiais.length > 0) html += `<div class="escav-card-section"><h4>📦 Materiais Empregados</h4><div class="escav-materiais-list">${e.materiais.map(m => `<div class="escav-material-tag">${m.materialNome} — <strong>${m.quantidade} ${m.unidade}</strong> ${m.serie ? '(PR: ' + m.serie + ')' : ''}</div>`).join('')}</div></div>`;
+if (e.obs) html += `<div class="escav-obs">📝 ${e.obs}</div>`;
+html += `</div>`;
+});
+container.innerHTML = html;
+};
+
+window.verEscav = function(id) {
+const e = escavCache.find(x => x.id === id);
+if (!e) return;
+const di = e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '-';
+const dr = e.dataRetorno ? e.dataRetorno.split('-').reverse().join('/') : '-';
+let html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px"><div><strong>Tipo:</strong><br><span class="badge badge-blue">${e.tipo || '-'}</span></div><div><strong>UF:</strong><br>${e.uf || '-'}</div><div><strong>Destino:</strong><br>${e.destino || '-'}</div><div><strong>Evento:</strong><br>${e.evento || '-'}</div><div><strong>Início:</strong><br>${di}</div><div><strong>Retorno:</strong><br>${dr}</div></div>${e.criadaPorNome ? `<p><strong>👥 Por:</strong> ${e.criadaPorNome}</p>` : ''}${e.obs ? `<p style="margin-top:10px"><strong>📝 Obs:</strong><br>${e.obs}</p>` : ''}<h3 style="margin-top:16px">👷 Técnicos:</h3>`;
+if (e.tecnicos && e.tecnicos.length > 0) { html += '<table><thead><tr><th>Nome</th><th>Nome de Guerra</th></tr></thead><tbody>'; e.tecnicos.forEach(t => { html += `<tr><td><strong>${t.tecnicoNome}</strong></td><td>${t.tecnicoNomeGuerra || '-'}</td></tr>`; }); html += '</tbody></table>'; } else html += '<p style="color:var(--text-light)">Nenhum.</p>';
+html += '<h3 style="margin-top:16px">📦 Materiais:</h3>';
+if (e.materiais && e.materiais.length > 0) { html += '<table><thead><tr><th>Material</th><th>Qtd</th><th>Un</th><th>PR</th></tr></thead><tbody>'; e.materiais.forEach(m => { html += `<tr><td>${m.materialNome}</td><td><strong>${m.quantidade}</strong></td><td>${m.unidade}</td><td>${m.serie || '-'}</td></tr>`; }); html += '</tbody></table>'; } else html += '<p style="color:var(--text-light)">Nenhum.</p>';
+document.getElementById('modalEscavContent').innerHTML = html;
+document.getElementById('modalEscav').classList.add('active');
+};
+
+window.excluirEscav = async function(id) {
+if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+if (!confirm('Excluir esta ESCAV?')) return;
+try { await deleteDoc(doc(db, 'escav', id)); showToast('Excluída!'); }
+catch (err) { showToast('Erro: ' + err.message, 'error'); }
+};
+
+// === RELATÓRIOS ===
+window.renderRelatorios = function() {
+const container = document.getElementById('relatorioGestaoMateriais');
+const sumContainer = document.getElementById('relMateriaisSummaries');
+if (!container || !sumContainer) return;
+const sumExistente = materiaisCache.reduce((s, m) => s + (parseFloat(m.existente) || 0), 0);
+const sumDisponivel = materiaisCache.reduce((s, m) => s + calcDisponivel(m), 0);
+const sumServico = materiaisCache.reduce((s, m) => s + (parseFloat(m.emServico) || 0), 0);
+const sumEscav = materiaisCache.reduce((s, m) => s + (parseFloat(m.emEscav) || 0), 0);
+const sumERSPO = materiaisCache.reduce((s, m) => s + (parseFloat(m.emERSPO) || 0), 0);
+const sumEmpregados = materiaisCache.reduce((s, m) => s + calcEmpregados(m), 0);
+const sumIndisponivel = materiaisCache.reduce((s, m) => s + (parseFloat(m.indisponivel) || 0), 0);
+sumContainer.innerHTML = `<div class="mat-summary-card cor-existente"><div class="mat-summary-icon"></div><div class="mat-summary-label">Existente</div><div class="mat-summary-value">${sumExistente.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-disponivel"><div class="mat-summary-icon">✅</div><div class="mat-summary-label">Disponível</div><div class="mat-summary-value">${sumDisponivel.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-servico"><div class="mat-summary-icon">🔧</div><div class="mat-summary-label">Em Serviço</div><div class="mat-summary-value">${sumServico.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-escav"><div class="mat-summary-icon">🚛</div><div class="mat-summary-label">Em ESCAV</div><div class="mat-summary-value">${sumEscav.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-erspo"><div class="mat-summary-icon"></div><div class="mat-summary-label">Em ERSPO</div><div class="mat-summary-value">${sumERSPO.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-emprest"><div class="mat-summary-icon">📊</div><div class="mat-summary-label">Empregados</div><div class="mat-summary-value">${sumEmpregados.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-indisponivel"><div class="mat-summary-icon">🚫</div><div class="mat-summary-label">Indisponível</div><div class="mat-summary-value">${sumIndisponivel.toLocaleString('pt-BR')}</div></div>`;
+if (materiaisCache.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon"></div><p>Nenhum material cadastrado.</p></div>'; return; }
+let html = `<div style="overflow-x:auto"><table class="mat-table"><thead><tr><th>Material</th><th>Existente</th><th>Disponível</th><th>Em Serviço</th><th>Em ESCAV</th><th>Em ERSPO</th><th>Empregados</th><th>Indisponível</th></tr></thead><tbody>`;
+materiaisCache.forEach(m => {
+const empregados = calcEmpregados(m);
+const disponivel = calcDisponivel(m);
+const dispClass = disponivel < 0 ? 'color:#991b1b;font-weight:800' : disponivel === 0 ? 'color:#92400e' : '';
+html += `<tr><td class="nome-col">${m.nome} <span style="color:var(--text-light);font-size:0.75rem;font-weight:400">(${m.unidade || 'un'})</span></td><td class="num">${(parseFloat(m.existente) || 0).toLocaleString('pt-BR')}</td><td class="num" style="${dispClass}">${disponivel.toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.emServico) || 0).toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.emEscav) || 0).toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.emERSPO) || 0).toLocaleString('pt-BR')}</td><td class="num">${empregados.toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.indisponivel) || 0).toLocaleString('pt-BR')}</td></tr>`;
+});
+html += `<tr style="background:#1e293b;color:white;font-weight:800"><td class="nome-col" style="background:#0f172a;color:white">TOTAL GERAL</td><td class="num">${sumExistente.toLocaleString('pt-BR')}</td><td class="num" style="color:#4ade80">${sumDisponivel.toLocaleString('pt-BR')}</td><td class="num">${sumServico.toLocaleString('pt-BR')}</td><td class="num">${sumEscav.toLocaleString('pt-BR')}</td><td class="num">${sumERSPO.toLocaleString('pt-BR')}</td><td class="num" style="color:#67e8f9">${sumEmpregados.toLocaleString('pt-BR')}</td><td class="num">${sumIndisponivel.toLocaleString('pt-BR')}</td></tr></tbody></table></div>`;
+container.innerHTML = html;
+};
+
+// === USUÁRIOS ===
+window.renderUsuarios = function() {
+const container = document.getElementById('listaUsuarios');
+if (currentUserRole !== 'admin') {
+container.innerHTML = `<div style="text-align:center;padding:60px 20px;"><div style="font-size:4rem;margin-bottom:20px;">🔒</div><h3 style="color:var(--danger);margin-bottom:12px;">Acesso Restrito</h3><p>Esta área é exclusiva para <strong>Administradores</strong>.</p></div>`;
+return;
+}
+if (usuariosCache.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>Nenhum usuário cadastrado.</p></div>'; return; }
+let html = `<div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;"><div><strong>Total:</strong> ${usuariosCache.length} usuário(s)</div><button class="btn btn-primary btn-sm" onclick="abrirModalAdicionarUsuario()">➕ Adicionar Usuário</button></div><div style="overflow-x:auto"><table><thead><tr><th>Nome Completo</th><th>Nome de Guerra</th><th>E-mail</th><th>Perfil</th><th>Rádio</th><th>Ações</th></tr></thead><tbody>`;
+usuariosCache.forEach(u => {
+let roleBadge = u.role === 'admin' ? '<span class="badge badge-purple">👑 Admin</span>' : (u.role === 'viewer' ? '<span class="badge badge-cyan">👁️ Viewer</span>' : (u.role === 'ast' ? '<span class="badge badge-teal">🔧 AST</span>' : (u.role === 'agente' ? '<span class="badge badge-blue"> Agente</span>' : '<span class="badge badge-gray">👤 Usuário</span>')));
+html += `<tr><td><strong>${u.nome || '-'}</strong></td><td><strong>${u.nomeGuerra || '-'}</strong></td><td>${u.email || '-'}</td><td>${roleBadge}</td><td>${u.radio || '-'}</td><td style="white-space:nowrap">${u.id !== currentUser.uid ? `<button class="btn btn-danger btn-sm" onclick="excluirUsuarioCompleto('${u.id}')">🗑️</button>` : '<em>(você)</em>'}</td></tr>`;
+});
+html += '</tbody></table></div>';
+container.innerHTML = html;
+};
+
+window.abrirModalAdicionarUsuario = function() {
+if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+document.getElementById('novoUserName').value = '';
+document.getElementById('novoUserNomeGuerra').value = '';
+document.getElementById('novoUserEmail').value = '';
+document.getElementById('novoUserPassword').value = '';
+document.getElementById('novoUserRole').value = 'user';
+document.getElementById('novoUserRadio').value = '';
+document.getElementById('campoRadio').style.display = 'none';
+document.getElementById('modalAdicionarUsuario').classList.add('active');
+};
+
+window.adicionarUsuario = async function() {
+if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+const nome = document.getElementById('novoUserName').value.trim();
+const nomeGuerra = document.getElementById('novoUserNomeGuerra').value.trim();
+const email = document.getElementById('novoUserEmail').value.trim();
+const password = document.getElementById('novoUserPassword').value;
+const role = document.getElementById('novoUserRole').value;
+const radio = document.getElementById('novoUserRadio').value.trim();
+if (!nome || !nomeGuerra || !email || !password) return showToast('Preencha todos os campos obrigatórios!', 'error');
+if (password.length < 6) return showToast('A senha deve ter pelo menos 6 caracteres!', 'error');
+try {
+showToast('Criando usuário...', 'success');
+const usuariosRef = collection(db, 'usuarios');
+const q = query(usuariosRef, where('nomeGuerra', '==', nomeGuerra.toUpperCase()));
+const snapshot = await getDocs(q);
+if (!snapshot.empty) { showToast('❌ Já existe um usuário com este nome de guerra!', 'error'); return; }
+const appSecundario = initializeApp(firebaseConfig, 'Secundario' + Date.now());
+const authSecundario = getAuth(appSecundario);
+const userCredential = await createUserWithEmailAndPassword(authSecundario, email, password);
+await updateProfile(userCredential.user, { displayName: nome });
+const novoUid = userCredential.user.uid;
+await signOut(authSecundario);
+await deleteApp(appSecundario);
+await setDoc(doc(db, 'usuarios', novoUid), {
+nome, nomeGuerra: nomeGuerra.toUpperCase(), email, role,
+radio: role === 'agente' ? radio : '',
+criadoPor: currentUser.uid, criadoPorNome: currentUser.displayName || currentUser.email, criadoEm: new Date().toISOString()
+});
+fecharModal('modalAdicionarUsuario');
+showToast(`✅ Usuário "${nomeGuerra}" criado com sucesso!`, 'success');
+await registrarAuditoria('CRIAR_USUARIO', `Criou usuário "${nomeGuerra}" com perfil "${role}"`, { nome, nomeGuerra, email, role, radio });
+document.getElementById('novoUserName').value = '';
+document.getElementById('novoUserNomeGuerra').value = '';
+document.getElementById('novoUserEmail').value = '';
+document.getElementById('novoUserPassword').value = '';
+document.getElementById('novoUserRole').value = 'user';
+document.getElementById('novoUserRadio').value = '';
+document.getElementById('campoRadio').style.display = 'none';
+renderUsuarios();
+} catch (err) {
+console.error('Erro ao criar usuário:', err);
+if (err.code === 'auth/email-already-in-use') showToast('❌ Este e-mail já está cadastrado!', 'error');
+else showToast('Erro: ' + traduzirErro(err.code), 'error');
+}
+};
+
+window.excluirUsuarioCompleto = async function(uid) {
+if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+if (!confirm('Excluir este usuário?')) return;
+try { await deleteDoc(doc(db, 'usuarios', uid)); showToast('Usuário removido!'); }
+catch (err) { showToast('Erro: ' + err.message, 'error'); }
+};
+
+// === GERENCIAMENTO DE PINS ===
+async function carregarPinsCache() {
+try {
+const snapshot = await getDocs(collection(db, 'usuarios'));
+pinsCache = {};
+snapshot.forEach(doc => {
+const data = doc.data();
+pinsCache[doc.id] = { nome: data.nome || '', email: data.email || '', role: data.role || 'user', senhaPin: data.senhaPin || '', pinDefinidoEm: data.pinDefinidoEm || '' };
+});
+} catch (err) { console.error('Erro ao carregar PINs:', err); }
+}
+
+window.abrirGerenciarPins = async function() {
+if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+await carregarPinsCache();
+renderTabelaPins();
+document.getElementById('modalGerenciarPins').classList.add('active');
+};
+
+function renderTabelaPins() {
+const tbody = document.getElementById('tabelaPinsAgentes');
+const usuarios = Object.entries(pinsCache);
+if (usuarios.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-light)">Nenhum usuário cadastrado.</td></tr>'; return; }
+let html = '';
+usuarios.forEach(([id, data]) => {
+const pinMascarado = data.senhaPin ? '••••' : '<span style="color:var(--warning);font-weight:600">Não definido</span>';
+const roleBadge = data.role === 'admin' ? '<span class="badge badge-purple"> Admin</span>' : (data.role === 'viewer' ? '<span class="badge badge-cyan">👁️ Viewer</span>' : (data.role === 'ast' ? '<span class="badge badge-teal">🔧 AST</span>' : (data.role === 'agente' ? '<span class="badge badge-blue">📋 Agente</span>' : '<span class="badge badge-gray"> Usuário</span>')));
+html += `<tr><td><strong>${data.nome}</strong></td><td>${data.email}</td><td>${roleBadge}</td><td style="font-size:1.2rem;letter-spacing:4px;font-family:monospace">${pinMascarado}</td><td><button class="btn btn-primary btn-sm" onclick="definirPinAgente('${id}')">${data.senhaPin ? '🔄 Trocar' : '➕ Definir'}</button></td></tr>`;
+});
+tbody.innerHTML = html;
+}
+
+window.definirPinAgente = async function(usuarioId) {
+const agente = pinsCache[usuarioId];
+if (!agente) return showToast('Agente não encontrado!', 'error');
+const novoPin = prompt(`Definir nova senha PIN (4 dígitos) para ${agente.nome}:`);
+if (novoPin === null) return;
+if (novoPin.length !== 4 || !/^\d{4}$/.test(novoPin)) return showToast('O PIN deve ter exatamente 4 dígitos numéricos!', 'error');
+try {
+await updateDoc(doc(db, 'usuarios', usuarioId), { senhaPin: novoPin, pinDefinidoEm: new Date().toISOString(), pinDefinidoPor: currentUser.displayName || currentUser.email });
+pinsCache[usuarioId].senhaPin = novoPin;
+renderTabelaPins();
+showToast(`✅ PIN de ${agente.nome} definido com sucesso!`, 'success');
+await registrarAuditoria('DEFINIR_PIN', `Definiu PIN para ${agente.nome}`, { agente: agente.nome });
+} catch (err) { showToast('Erro: ' + err.message, 'error'); }
+};
+
+window.abrirMeuPin = function() {
+document.getElementById('pinAtual').value = '';
+document.getElementById('novoPin').value = '';
+document.getElementById('confirmarPin').value = '';
+document.getElementById('pinErro').style.display = 'none';
+document.getElementById('modalMeuPin').classList.add('active');
+};
+
+window.salvarMeuPin = async function() {
+const pinAtual = document.getElementById('pinAtual').value;
+const novoPin = document.getElementById('novoPin').value;
+const confirmar = document.getElementById('confirmarPin').value;
+const erroDiv = document.getElementById('pinErro');
+erroDiv.style.display = 'none';
+if (novoPin.length !== 4 || !/^\d{4}$/.test(novoPin)) { erroDiv.textContent = 'A nova senha deve ter exatamente 4 dígitos numéricos!'; erroDiv.style.display = 'block'; return; }
+if (novoPin !== confirmar) { erroDiv.textContent = 'As senhas não coincidem!'; erroDiv.style.display = 'block'; return; }
+try {
+const userDoc = await getDoc(doc(db, 'usuarios', currentUser.uid));
+if (!userDoc.exists()) { erroDiv.textContent = 'Usuário não encontrado!'; erroDiv.style.display = 'block'; return; }
+const userData = userDoc.data();
+if (userData.senhaPin && userData.senhaPin !== pinAtual) { erroDiv.textContent = 'Senha PIN atual incorreta!'; erroDiv.style.display = 'block'; return; }
+await updateDoc(doc(db, 'usuarios', currentUser.uid), { senhaPin: novoPin, pinDefinidoEm: new Date().toISOString() });
+fecharModal('modalMeuPin');
+showToast('✅ Senha PIN alterada com sucesso!', 'success');
+} catch (err) { erroDiv.textContent = 'Erro: ' + err.message; erroDiv.style.display = 'block'; }
+};
+
+// === SERVIÇO DIÁRIO ===
+window.abrirNovoServico = function() {
+if (currentUserRole === 'viewer') return showToast('Acesso restrito!', 'error');
+const select = document.getElementById('servicoTecnico');
+select.innerHTML = '<option value="">Selecione o técnico...</option>';
+const tecnicosAST = usuariosCache.filter(u => u.role === 'ast');
+if (tecnicosAST.length === 0) {
+select.innerHTML = '<option value="">⚠️ Nenhum técnico AST cadastrado. Peça ao admin para cadastrar.</option>';
+} else {
+tecnicosAST.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+tecnicosAST.forEach(t => { select.innerHTML += `<option value="${t.id}">${t.nome} (${t.nomeGuerra || '-'})</option>`; });
+}
+document.getElementById('servicoData').value = new Date().toISOString().split('T')[0];
+document.getElementById('modalNovoServico').classList.add('active');
+};
+
+window.salvarNovoServico = async function() {
+const tecnicoId = document.getElementById('servicoTecnico').value;
+const data = document.getElementById('servicoData').value;
+if (!tecnicoId || !data) return showToast('Preencha técnico e data!', 'error');
+const tecnico = usuariosCache.find(t => t.id === tecnicoId && t.role === 'ast');
+if (!tecnico) return showToast('Técnico AST não encontrado!', 'error');
+const diaSemana = diasSemana[new Date(data + 'T12:00:00').getDay()];
+try {
+showToast('Buscando itens para transferir...', 'success');
+const servicosRef = collection(db, 'servicosDiarios');
+const q = query(servicosRef, where('status', '==', 'encerrado'));
+const snapshot = await getDocs(q);
+let cautelasTransferidas = [];
+let escavsTransferidas = [];
+let resumoTransferencias = [];
+let servicosParaAtualizar = [];
+snapshot.forEach(docSnap => {
+const s = { id: docSnap.id, ...docSnap.data() };
+const cautelasTransf = (s.cautelas || []).filter(c => c.transferida && !c.encerradaPor && !c.transferidaPara);
+const escavsTransf = (s.escavs || []).filter(e => e.transferida && e.status !== 'encerrada' && !e.transferidaPara);
+if (cautelasTransf.length > 0 || escavsTransf.length > 0) {
+servicosParaAtualizar.push(s);
+resumoTransferencias.push({ tecnicoOrigem: s.tecnicoNome, dataOrigem: s.data, cautelas: cautelasTransf.length, escavs: escavsTransf.length });
+cautelasTransferidas = [...cautelasTransferidas, ...cautelasTransf];
+escavsTransferidas = [...escavsTransferidas, ...escavsTransf];
+}
+});
+const novoServico = await addDoc(collection(db, 'servicosDiarios'), {
+tecnicoId, tecnicoNome: tecnico.nome, tecnicoNomeGuerra: tecnico.nomeGuerra || '', tecnicoEspecialidade: 'AST', data, diaSemana, status: 'aberto',
+cautelas: cautelasTransferidas, escavs: escavsTransferidas,
+criadoPor: currentUser.uid, criadoPorNome: currentUser.displayName || currentUser.email, criadoEm: new Date().toISOString()
+});
+if (cautelasTransferidas.length > 0 || escavsTransferidas.length > 0) {
+for (const servicoAnt of servicosParaAtualizar) {
+const atualizacoes = {};
+if (cautelasTransferidas.length > 0) {
+atualizacoes.cautelas = servicoAnt.cautelas.map(c => {
+if (c.transferida && !c.encerradaPor && cautelasTransferidas.find(ct => ct.id === c.id)) {
+return { ...c, transferidaPara: novoServico.id, transferidaParaData: data, transferidaParaTecnico: tecnico.nome };
+}
+return c;
+});
+}
+if (escavsTransferidas.length > 0) {
+atualizacoes.escavs = servicoAnt.escavs.map(e => {
+if (e.transferida && e.status !== 'encerrada' && escavsTransferidas.find(et => et.escavId === e.escavId)) {
+return { ...e, transferidaPara: novoServico.id, transferidaParaData: data, transferidaParaTecnico: tecnico.nome };
+}
+return e;
+});
+}
+if (Object.keys(atualizacoes).length > 0) {
+await updateDoc(doc(db, 'servicosDiarios', servicoAnt.id), { ...atualizacoes, editadoEm: new Date().toISOString() });
+}
+}
+}
+fecharModal('modalNovoServico');
+let msgSucesso = '✅ Serviço criado!';
+if (cautelasTransferidas.length > 0 || escavsTransferidas.length > 0) {
+msgSucesso += `\n\n📥 Transferências recebidas:`;
+resumoTransferencias.forEach(r => {
+const dataFmt = r.dataOrigem ? r.dataOrigem.split('-').reverse().join('/') : '-';
+msgSucesso += `\n• De ${r.tecnicoOrigem} (${dataFmt}): ${r.cautelas} cautela(s), ${r.escavs} ESCAV(s)`;
+});
+}
+showToast(msgSucesso, 'success');
+await registrarAuditoria('CRIAR_SERVICO', `Criou serviço para ${tecnico.nomeGuerra || tecnico.nome} em ${data}`, { tecnicoNome: tecnico.nome, tecnicoNomeGuerra: tecnico.nomeGuerra, data, cautelasTransferidas: cautelasTransferidas.length, escavsTransferidas: escavsTransferidas.length, origens: resumoTransferencias });
+} catch (err) {
+console.error('Erro ao criar serviço:', err);
+if (err.code === 'permission-denied') showToast('❌ Erro de permissão! Verifique as regras do Firestore.', 'error');
+else showToast('Erro: ' + err.message, 'error');
+}
+};
+
+window.renderServicoDiario = function() {
+const container = document.getElementById('listaServicosDiarios');
+const filtroData = document.getElementById('filtroDataServico').value;
+const filtroTecnico = document.getElementById('filtroTecnicoServico').value;
+const filtroStatus = document.getElementById('filtroStatusServico').value;
+const selectFiltro = document.getElementById('filtroTecnicoServico');
+const currentFiltro = selectFiltro.value;
+selectFiltro.innerHTML = '<option value="all">Todos os técnicos</option>';
+const tecnicosAST = usuariosCache.filter(u => u.role === 'ast');
+tecnicosAST.forEach(t => { selectFiltro.innerHTML += `<option value="${t.id}" ${t.id === currentFiltro ? 'selected' : ''}>${t.nome} (${t.nomeGuerra || '-'})</option>`; });
+let filtered = servicosDiariosCache.slice();
+if (filtroData) filtered = filtered.filter(s => s.data === filtroData);
+if (filtroTecnico !== 'all') filtered = filtered.filter(s => s.tecnicoId === filtroTecnico);
+if (filtroStatus !== 'all') filtered = filtered.filter(s => s.status === filtroStatus);
+filtered.sort((a, b) => {
+if (a.status !== 'encerrado' && b.status === 'encerrado') return -1;
+if (a.status === 'encerrado' && b.status !== 'encerrado') return 1;
+return (b.data || '').localeCompare(a.data || '');
+});
+if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon"></div><p>Nenhum serviço diário encontrado.</p></div>'; return; }
+let html = '';
+filtered.forEach(s => {
+const dataFmt = s.data ? s.data.split('-').reverse().join('/') : '-';
+const isFimDeSemana = s.diaSemana === 'Sábado' || s.diaSemana === 'Domingo';
+const diaClass = isFimDeSemana ? 'dia-fim-de-semana' : '';
+const statusClass = s.status || 'aberto';
+const isEncerrado = s.status === 'encerrado';
+const statusBadge = isEncerrado ? '<span class="badge badge-blue">🔵 Encerrado</span>' : '<span class="badge badge-red">🔴 Aberto</span>';
+const servicoId = 'servico-card-' + s.id;
+html += `<div class="servico-card ${statusClass} ${isEncerrado ? 'servico-encerrado' : ''}" id="${servicoId}">
+<div class="servico-header" onclick="${isEncerrado ? `toggleServicoCard('${servicoId}')` : ''}" style="${isEncerrado ? 'cursor:pointer' : ''}">
+<div class="servico-titulo">📋 Serviço de ${s.tecnicoNome} <span class="${diaClass}">(${s.diaSemana})</span> ${isEncerrado ? '<span style="font-size:0.75rem;color:var(--text-light);margin-left:8px">▼ Clique para expandir</span>' : ''}</div>
+<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${statusBadge}<span style="font-size:0.9rem">📅 ${dataFmt}</span></div>
+</div>
+<div class="servico-details" style="${isEncerrado ? 'display:none' : ''}">
+<div class="servico-meta">
+<div class="servico-meta-item"><div class="label">Técnico</div><div class="value">${s.tecnicoNome} ${s.tecnicoNomeGuerra ? '(' + s.tecnicoNomeGuerra + ')' : ''}</div></div>
+<div class="servico-meta-item"><div class="label">Especialidade</div><div class="value">${s.tecnicoEspecialidade || 'AST'}</div></div>
+<div class="servico-meta-item"><div class="label">Cautelas</div><div class="value">${(s.cautelas || []).length}</div></div>
+<div class="servico-meta-item"><div class="label">ESCAVs</div><div class="value">${(s.escavs || []).length}</div></div>
+</div>`;
+if (s.escavs && s.escavs.length > 0) {
+html += `<div style="margin-top:16px;padding-top:12px;border-top:2px dashed var(--border);"><h4 style="font-size:0.9rem;color:var(--primary);margin-bottom:8px;font-weight:700;">🚛 ESCAV(s) Vinculada(s):</h4>`;
+s.escavs.forEach((esc, idx) => {
+const escStatus = esc.status === 'encerrada' ? 'encerrada' : 'aberta';
+const escStatusBadge = esc.status === 'encerrada' ? '<span class="badge badge-blue">🔵 Encerrada</span>' : '<span class="badge badge-red">🔴 Aberta</span>';
+html += `<div class="cautela-item ${escStatus}" style="margin-bottom:10px;">
+<div class="cautela-header">
+<div><strong>🚛 ESCAV #${idx + 1}: ${esc.destino || '-'}/${esc.uf || '-'}</strong> ${escStatusBadge} <span class="badge badge-blue" style="margin-left:8px;">${esc.tipo || '-'}</span></div>
+<div class="cautela-actions">
+<button class="btn btn-primary btn-sm" onclick="verEscav('${esc.escavId}')">👁️ Ver</button>
+${esc.status !== 'encerrada' ? `<button class="btn btn-info btn-sm" onclick="editarEscavNoServico('${s.id}', ${idx})">✏️ Editar</button>` : ''}
+${!esc.assinaturaValidada && esc.status !== 'encerrada' ? `<button class="btn btn-warning btn-sm" onclick="abrirAssinaturaEscav('${s.id}', ${idx})">✍️ ASSINAR</button>` : ''}
+${esc.assinaturaValidada ? `<span class="badge badge-green" style="margin-left:8px">✅ Assinada</span>` : ''}
+${esc.status !== 'encerrada' ? `<button class="btn btn-success btn-sm" onclick="encerrarEscavNoServico('${s.id}', ${idx})">✅ Encerrar</button>` : ''}
+<button class="btn btn-primary btn-sm" onclick="gerarPDFEscavFamDireta('${s.id}', ${idx})">📕 PDF</button>
+</div>
+</div>
+<div style="font-size:0.8rem;color:var(--text-light);margin-top:6px;"> Montada por: <strong>${esc.abertaPor || '-'}</strong> em ${esc.abertaEm ? new Date(esc.abertaEm).toLocaleString('pt-BR') : '-'}</div>
+${esc.materiais && esc.materiais.length > 0 ? `<div class="cautela-materiais" style="margin-top:8px">${esc.materiais.map(m => `<div class="cautela-material-tag"><strong>${m.materialNome}</strong><br>Série: ${m.serie || '-'} | Qtd: ${m.quantidade} ${m.unidade || ''}</div>`).join('')}</div>` : ''}
+${esc.transferidaPara ? `<div style="background:#fef3c7;border-left:3px solid #f59e0b;padding:6px 12px;border-radius:6px;margin-top:8px;font-size:0.85rem;color:#78350f">🔄 <strong>Transferida para:</strong> ${esc.transferidaParaTecnico || 'Outro técnico'} em ${esc.transferidaParaData ? esc.transferidaParaData.split('-').reverse().join('/') : '-'}</div>` : ''}
+</div>`;
+});
+html += `</div>`;
+}
+if (s.cautelas && s.cautelas.length > 0) {
+html += `<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);"><h4 style="font-size:0.9rem;color:var(--text);margin-bottom:8px;font-weight:700;">📄 Cautelas de Material:</h4>`;
+s.cautelas.forEach((c, idx) => {
+const cStatus = c.encerradaPor ? 'encerrada' : 'aberta';
+const cStatusBadge = c.encerradaPor ? '<span class="badge badge-blue">🔵 Encerrada</span>' : '<span class="badge badge-red"> Aberta</span>';
+html += `<div class="cautela-item ${cStatus}">
+<div class="cautela-header">
+<div><strong>📄 Cautela #${idx + 1} - ${c.recebedorNome || '-'}</strong> ${cStatusBadge}</div>
+<div class="cautela-actions">
+<button class="btn btn-primary btn-sm" onclick="verCautela('${s.id}', ${idx})">👁️ Ver</button>
+${!c.encerradaPor ? `<button class="btn btn-info btn-sm" onclick="editarCautela('${s.id}', ${idx})">✏️ Editar</button>` : ''}
+${!c.encerradaPor && !c.assinaturaValidada ? `<button class="btn btn-warning btn-sm" onclick="abrirAssinaturaCautela('${s.id}', ${idx})">✍️ ASSINAR</button>` : ''}
+${c.assinaturaValidada ? `<span class="badge badge-green" style="margin-left:8px">✅ Assinada</span>` : ''}
+${!c.encerradaPor ? `<button class="btn btn-success btn-sm" onclick="encerrarCautela('${s.id}', ${idx})">✅ Encerrar</button>` : ''}
+<button class="btn btn-primary btn-sm" onclick="gerarPDFCautelaDireta('${s.id}', ${idx})">📕 PDF</button>
+</div>
+</div>
+<div class="cautela-materiais">`;
+if (c.materiais && c.materiais.length > 0) {
+c.materiais.forEach(m => { html += `<div class="cautela-material-tag"><strong>${m.materialNome}</strong><br>Série: ${m.serie || '-'} | Qtd: ${m.quantidade} ${m.unidade || ''}</div>`; });
+} else { html += '<em style="color:var(--text-light);font-size:0.85rem">Nenhum material adicionado</em>'; }
+html += `</div><div style="margin-top:8px;font-size:0.8rem;color:var(--text-light)"> Aberta por: <strong>${c.abertaPorNome || '-'}</strong> em ${c.abertaEm ? new Date(c.abertaEm).toLocaleString('pt-BR') : '-'}`;
+if (c.encerradaPor) html += `<br>📥 Encerrada por: <strong>${c.encerradaPorNome}</strong> em ${new Date(c.encerradaEm).toLocaleString('pt-BR')}`;
+html += `</div>`;
+if (c.transferidaPara) { html += `<div style="background:#fef3c7;border-left:3px solid #f59e0b;padding:6px 12px;border-radius:6px;margin-top:8px;font-size:0.85rem;color:#78350f">🔄 <strong>Transferida para:</strong> ${c.transferidaParaTecnico || 'Outro técnico'} em ${c.transferidaParaData ? c.transferidaParaData.split('-').reverse().join('/') : '-'}</div>`; }
+html += `</div>`;
+});
+html += `</div>`;
+} else { html += '<p style="color:var(--text-light);font-style:italic;margin-top:12px;">Nenhuma cautela registrada neste serviço.</p>'; }
+html += `<div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">
+<button class="btn btn-warning btn-sm" onclick="adicionarCautela('${s.id}')">➕ Nova Cautela</button>
+${!isEncerrado ? `<button class="btn btn-info btn-sm" onclick="abrirNovoEscavNoServico('${s.id}')">🚛 Novo ESCAV</button>` : ''}
+<button class="btn btn-primary btn-sm" onclick="gerarPDFServico('${s.id}')">📕 PDF Serviço</button>
+${!isEncerrado ? `<button class="btn btn-success btn-sm" onclick="encerrarServico('${s.id}')">✅ Encerrar Serviço</button>` : ''}
+${currentUserRole === 'admin' ? `<button class="btn btn-danger btn-sm" onclick="excluirServicoDiario('${s.id}')">️ Excluir Serviço</button>` : ''}
+</div></div></div>`;
+});
+container.innerHTML = html;
+};
+
+window.toggleServicoCard = function(servicoId) {
+const card = document.getElementById(servicoId);
+if (!card) return;
+const details = card.querySelector('.servico-details');
+const header = card.querySelector('.servico-header');
+if (details.style.display === 'none') {
+details.style.display = 'block';
+const titulo = header.querySelector('.servico-titulo');
+titulo.innerHTML = titulo.innerHTML.replace('▼ Clique para expandir', '▲ Clique para recolher');
+} else {
+details.style.display = 'none';
+const titulo = header.querySelector('.servico-titulo');
+titulo.innerHTML = titulo.innerHTML.replace('▲ Clique para recolher', '▼ Clique para expandir');
+}
+};
+
+// === CAUTELAS ===
+window.adicionarCautela = function(servicoId) {
+if (currentUserRole === 'viewer') return showToast('Acesso restrito!', 'error');
+document.getElementById('cautelaServicoId').value = servicoId;
+document.getElementById('cautelaIdxEdit').value = '';
+cautelasTemp = [];
+const selectAgente = document.getElementById('cautelaRecebedorNome');
+selectAgente.innerHTML = '<option value="">Selecione o agente...</option>';
+const agentes = usuariosCache.filter(u => u.role === 'agente');
+if (agentes.length === 0) {
+selectAgente.innerHTML = '<option value="">⚠️ Nenhum agente cadastrado. Peça ao admin para cadastrar.</option>';
+} else {
+agentes.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+agentes.forEach(agente => {
+const option = document.createElement('option');
+option.value = agente.nome;
+option.textContent = `${agente.nome} ${agente.radio ? '(' + agente.radio + ')' : ''}`;
+selectAgente.appendChild(option);
+});
+}
+document.getElementById('cautelaRecebedorPosto').value = '';
+document.getElementById('cautelaTextoPersonalizado').value = 'Recebi da Coordenação Logística de Atuadores Não-Cinéticos, o material abaixo relacionado:';
+document.getElementById('cautelaObs').value = '';
+renderCautelaMateriaisTemp();
+document.getElementById('modalNovaCautela').classList.add('active');
+};
+
+window.adicionarMaterialCautela = function() { cautelasTemp.push({ materialId: '', serie: '', quantidade: '' }); renderCautelaMateriaisTemp(); };
+window.removerMaterialCautela = function(i) { cautelasTemp.splice(i, 1); renderCautelaMateriaisTemp(); };
+window.atualizarMaterialCautela = function(i, campo, valor) { if (cautelasTemp[i]) cautelasTemp[i][campo] = valor; };
+
+function renderCautelaMateriaisTemp() {
+const container = document.getElementById('cautelaMateriaisLista');
+if (!container) return;
+if (cautelasTemp.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-style:italic">Clique em "+ Adicionar Material" para começar.</p>'; return; }
+let html = '';
+cautelasTemp.forEach((item, i) => {
+html += `<div class="row-item">
+<div class="form-group"><label>Material</label><select onchange="atualizarMaterialCautela(${i}, 'materialId', this.value)"><option value="">Selecione...</option>${materiaisCache.map(m => { const disp = calcDisponivel(m); return `<option value="${m.id}" ${item.materialId === m.id ? 'selected' : ''}>${m.nome} (Disp: ${disp} ${m.unidade || 'un'})</option>`; }).join('')}</select></div>
+<div class="form-group" style="max-width:180px"><label>Nº Série/PR</label><input type="text" value="${item.serie}" onchange="atualizarMaterialCautela(${i}, 'serie', this.value)" placeholder="Ex: 211-212"></div>
+<div class="form-group" style="max-width:120px"><label>Qtd</label><input type="number" min="0.01" step="0.01" value="${item.quantidade}" onchange="atualizarMaterialCautela(${i}, 'quantidade', this.value)"></div>
+<button type="button" class="btn btn-danger btn-sm" onclick="removerMaterialCautela(${i})">✕</button>
+</div>`;
+});
+container.innerHTML = html;
+}
+
+window.salvarCautela = async function() {
+const servicoId = document.getElementById('cautelaServicoId').value;
+const cautelaIdxEdit = document.getElementById('cautelaIdxEdit').value;
+const recebedorNome = document.getElementById('cautelaRecebedorNome').value.trim();
+const recebedorPosto = document.getElementById('cautelaRecebedorPosto').value.trim();
+const textoPersonalizado = document.getElementById('cautelaTextoPersonalizado').value.trim();
+const obs = document.getElementById('cautelaObs').value.trim();
+const itens = cautelasTemp.filter(i => i.materialId && parseFloat(i.quantidade) > 0);
+if (!recebedorNome || recebedorNome === '') return showToast('Selecione um agente na lista!', 'error');
+if (itens.length === 0) return showToast('Adicione pelo menos um material!', 'error');
+try {
+const servicoDoc = await getDoc(doc(db, 'servicosDiarios', servicoId));
+if (!servicoDoc.exists()) return showToast('Serviço não encontrado!', 'error');
+const servicoData = servicoDoc.data();
+const cautelasAtuais = servicoData.cautelas || [];
+if (cautelaIdxEdit !== '') {
+const idx = parseInt(cautelaIdxEdit);
+const cautelaAnterior = cautelasAtuais[idx];
+if (cautelaAnterior.materiais) {
+for (const m of cautelaAnterior.materiais) {
+const mat = materiaisCache.find(x => x.id === m.materialId);
+if (mat) { const novaEmServico = Math.max(0, Math.round(((parseFloat(mat.emServico) || 0) - m.quantidade) * 100) / 100); await updateDoc(doc(db, 'materiais', m.materialId), { emServico: novaEmServico }); }
+}
+}
+cautelasAtuais[idx] = {
+...cautelaAnterior,
+recebedorNome, recebedorPosto, textoPersonalizado, observacoes: obs,
+materiais: itens.map(i => { const mat = materiaisCache.find(m => m.id === i.materialId); return { materialId: i.materialId, materialNome: mat?.nome || 'Desconhecido', unidade: mat?.unidade || '', serie: i.serie, quantidade: parseFloat(i.quantidade) }; }),
+editadaPor: currentUser.uid, editadaPorNome: currentUser.displayName || currentUser.email, editadaEm: new Date().toISOString()
+};
+for (const item of itens) {
+const mat = materiaisCache.find(m => m.id === item.materialId);
+if (mat) { const novaEmServico = Math.round(((parseFloat(mat.emServico) || 0) + parseFloat(item.quantidade)) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emServico: novaEmServico }); }
+}
+await updateDoc(doc(db, 'servicosDiarios', servicoId), { cautelas: cautelasAtuais, editadoEm: new Date().toISOString() });
+showToast('✅ Cautela editada com sucesso!');
+await registrarAuditoria('EDITAR_CAUTELA', `Editou cautela de ${recebedorNome}`, { recebedorNome });
+} else {
+const novaCautela = {
+id: 'cautela_' + Date.now(), recebedorNome, recebedorPosto, textoPersonalizado, observacoes: obs,
+materiais: itens.map(i => { const mat = materiaisCache.find(m => m.id === i.materialId); return { materialId: i.materialId, materialNome: mat?.nome || 'Desconhecido', unidade: mat?.unidade || '', serie: i.serie, quantidade: parseFloat(i.quantidade) }; }),
+abertaPor: currentUser.uid, abertaPorNome: currentUser.displayName || currentUser.email, abertaEm: new Date().toISOString(),
+encerradaPor: null, encerradaPorNome: null, encerradaEm: null, assinaturaValidada: false
+};
+cautelasAtuais.push(novaCautela);
+await updateDoc(doc(db, 'servicosDiarios', servicoId), { cautelas: cautelasAtuais, editadoEm: new Date().toISOString() });
+for (const item of itens) {
+const mat = materiaisCache.find(m => m.id === item.materialId);
+if (mat) { const novaEmServico = Math.round(((parseFloat(mat.emServico) || 0) + parseFloat(item.quantidade)) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emServico: novaEmServico }); }
+}
+showToast('✅ Cautela adicionada com sucesso!');
+await registrarAuditoria('CRIAR_CAUTELA', `Criou cautela para ${recebedorNome}`, { recebedorNome });
+}
+fecharModal('modalNovaCautela');
+document.getElementById('cautelaIdxEdit').value = '';
+} catch (err) { console.error('Erro ao salvar cautela:', err); showToast('Erro: ' + err.message, 'error'); }
+};
+
+window.editarCautela = function(servicoId, cautelaIdx) {
+if (currentUserRole === 'viewer') return showToast('Acesso restrito!', 'error');
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s || !s.cautelas[cautelaIdx]) return showToast('Cautela não encontrada!', 'error');
+const cautela = s.cautelas[cautelaIdx];
+document.getElementById('cautelaServicoId').value = servicoId;
+document.getElementById('cautelaIdxEdit').value = cautelaIdx;
+const selectAgente = document.getElementById('cautelaRecebedorNome');
+selectAgente.innerHTML = '<option value="">Selecione o agente...</option>';
+const agentes = usuariosCache.filter(u => u.role === 'agente');
+agentes.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+agentes.forEach(agente => {
+const option = document.createElement('option');
+option.value = agente.nome;
+option.textContent = `${agente.nome} ${agente.radio ? '(' + agente.radio + ')' : ''}`;
+if (agente.nome === cautela.recebedorNome) option.selected = true;
+selectAgente.appendChild(option);
+});
+document.getElementById('cautelaRecebedorPosto').value = cautela.recebedorPosto || '';
+document.getElementById('cautelaTextoPersonalizado').value = cautela.textoPersonalizado || 'Recebi da Coordenação Logística de Atuadores Não-Cinéticos, o material abaixo relacionado:';
+document.getElementById('cautelaObs').value = cautela.observacoes || '';
+cautelasTemp = (cautela.materiais || []).map(m => ({ materialId: m.materialId, serie: m.serie || '', quantidade: m.quantidade }));
+renderCautelaMateriaisTemp();
+document.getElementById('modalNovaCautela').classList.add('active');
+};
+
+window.encerrarCautela = async function(servicoId, cautelaIdx) {
+if (currentUserRole === 'viewer') return showToast('Visualizadores não podem encerrar!', 'error');
+if (!confirm('Encerrar esta cautela? Os materiais serão devolvidos ao estoque.')) return;
+try {
+const servicoDoc = await getDoc(doc(db, 'servicosDiarios', servicoId));
+if (!servicoDoc.exists()) return showToast('Serviço não encontrado!', 'error');
+const servicoData = servicoDoc.data();
+const cautela = servicoData.cautelas[cautelaIdx];
+if (!cautela) return showToast('Cautela não encontrada!', 'error');
+for (const m of cautela.materiais) {
+const mat = materiaisCache.find(x => x.id === m.materialId);
+if (mat) { const novaEmServico = Math.max(0, Math.round(((parseFloat(mat.emServico) || 0) - m.quantidade) * 100) / 100); await updateDoc(doc(db, 'materiais', m.materialId), { emServico: novaEmServico }); }
+}
+cautela.encerradaPor = currentUser.uid;
+cautela.encerradaPorNome = currentUser.displayName || currentUser.email;
+cautela.encerradaEm = new Date().toISOString();
+await updateDoc(doc(db, 'servicosDiarios', servicoId), { cautelas: servicoData.cautelas, editadoEm: new Date().toISOString() });
+showToast('Cautela encerrada! Materiais devolvidos ao estoque.');
+await registrarAuditoria('ENCERRAR_CAUTELA', `Encerrou cautela de ${cautela.recebedorNome}`, { recebedorNome: cautela.recebedorNome });
+} catch (err) { showToast('Erro: ' + err.message, 'error'); }
+};
+
+window.encerrarServico = async function(servicoId) {
+if (currentUserRole === 'viewer') return showToast('Acesso restrito!', 'error');
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s) return;
+const cautelasAbertas = (s.cautelas || []).filter(c => !c.encerradaPor);
+const escavsAbertas = (s.escavs || []).filter(e => e.status !== 'encerrada');
+let mensagem = 'Encerrar este serviço?';
+if (cautelasAbertas.length > 0 || escavsAbertas.length > 0) {
+mensagem = `️ ATENÇÃO: Existem ${cautelasAbertas.length} cautela(s) e ${escavsAbertas.length} ESCAV(s) aberta(s).\n\nAo encerrar, elas serão marcadas para transferência automática ao próximo serviço.\n\nDeseja continuar?`;
+}
+if (!confirm(mensagem)) return;
+try {
+const atualizacoes = { status: 'encerrado', editadoEm: new Date().toISOString() };
+if (cautelasAbertas.length > 0) {
+const cautelasAtualizadas = s.cautelas.map(c => {
+if (!c.encerradaPor && cautelasAbertas.includes(c)) {
+return { ...c, transferida: true, transferidaEm: new Date().toISOString(), transferidaDeServico: s.id, transferidaDeTecnico: s.tecnicoNome, transferidaDeData: s.data, transferidaPara: null };
+}
+return c;
+});
+atualizacoes.cautelas = cautelasAtualizadas;
+}
+if (escavsAbertas.length > 0) {
+const escavsAtualizadas = s.escavs.map(e => {
+if (e.status !== 'encerrada' && escavsAbertas.includes(e)) {
+return { ...e, transferida: true, transferidaEm: new Date().toISOString(), transferidaDeServico: s.id, transferidaDeTecnico: s.tecnicoNome, transferidaDeData: s.data, transferidaPara: null };
+}
+return e;
+});
+atualizacoes.escavs = escavsAtualizadas;
+}
+await updateDoc(doc(db, 'servicosDiarios', servicoId), atualizacoes);
+let msgSucesso = '✅ Serviço encerrado!';
+if (cautelasAbertas.length > 0 || escavsAbertas.length > 0) { msgSucesso += ` ${cautelasAbertas.length} cautela(s) e ${escavsAbertas.length} ESCAV(s) serão transferidas ao próximo serviço.`; }
+showToast(msgSucesso);
+await registrarAuditoria('ENCERRAR_SERVICO', `Encerrou serviço de ${s.tecnicoNome} em ${s.data}`, { tecnicoNome: s.tecnicoNome, data: s.data, cautelasTransferidas: cautelasAbertas.length, escavsTransferidas: escavsAbertas.length });
+} catch (err) { console.error('Erro ao encerrar serviço:', err); showToast('Erro: ' + err.message, 'error'); }
+};
+
+window.excluirServicoDiario = async function(servicoId) {
+if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+if (!confirm('⚠️ ATENÇÃO: Excluir este serviço diário? Esta ação não pode ser desfeita!')) return;
+try {
+const servicoDoc = await getDoc(doc(db, 'servicosDiarios', servicoId));
+if (!servicoDoc.exists()) return showToast('Serviço não encontrado!', 'error');
+const servicoData = servicoDoc.data();
+for (const c of servicoData.cautelas || []) {
+for (const m of c.materiais || []) {
+const mat = materiaisCache.find(x => x.id === m.materialId);
+if (mat) { const novaEmServico = Math.max(0, Math.round(((parseFloat(mat.emServico) || 0) - m.quantidade) * 100) / 100); await updateDoc(doc(db, 'materiais', m.materialId), { emServico: novaEmServico }); }
+}
+}
+for (const e of servicoData.escavs || []) {
+if (e.escavId) { try { await deleteDoc(doc(db, 'escav', e.escavId)); } catch (err) { console.error('Erro ao excluir ESCAV:', err); } }
+}
+await deleteDoc(doc(db, 'servicosDiarios', servicoId));
+showToast('Serviço diário excluído!');
+} catch (err) { showToast('Erro: ' + err.message, 'error'); }
+};
+
+// === NOVO ESCAV NO SERVIÇO ===
+window.abrirNovoEscavNoServico = function(servicoId) {
+if (currentUserRole === 'viewer') return showToast('Acesso restrito!', 'error');
+document.getElementById('escavServicoId').value = servicoId;
+document.getElementById('escavServIdxEdit').value = '';
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (s) {
+document.getElementById('escavServDataInicio').value = s.data;
+document.getElementById('escavServDataRetorno').value = s.data;
+}
+escavServMateriaisTemp = [];
+escavServTecnicosSelecionados = new Set();
+document.getElementById('escavServRespMontagem').value = '';
+document.getElementById('escavServRespEntrega').value = '';
+document.getElementById('escavServRespRecebimento').value = '';
+document.getElementById('escavServSispatCautelou').value = '';
+document.getElementById('escavServSispatDescautelou').value = '';
+document.getElementById('escavServVisto').value = '';
+document.getElementById('escavServTextoCautela').value = 'Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.';
+renderTecnicosEscavServ();
+renderMateriaisEscavServ();
+document.getElementById('modalNovoEscavServico').classList.add('active');
+};
+
+window.toggleTecnicoEscavServ = function(id) { if (escavServTecnicosSelecionados.has(id)) escavServTecnicosSelecionados.delete(id); else escavServTecnicosSelecionados.add(id); renderTecnicosEscavServ(); };
+
+window.renderTecnicosEscavServ = function() {
+const container = document.getElementById('escavServTecnicos');
+if (!container) return;
+const tecnicosAST = usuariosCache.filter(u => u.role === 'ast');
+if (tecnicosAST.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.9rem;margin:10px 0">⚠️ Nenhum técnico AST cadastrado.</p>'; return; }
+let html = '<div class="tecnicos-grid">';
+tecnicosAST.forEach(t => {
+const selected = escavServTecnicosSelecionados.has(t.id);
+html += `<label class="tecnico-checkbox ${selected ? 'selected' : ''}" onclick="toggleTecnicoEscavServ('${t.id}')"><input type="checkbox" ${selected ? 'checked' : ''} onclick="event.stopPropagation(); toggleTecnicoEscavServ('${t.id}')"><div class="info"><div class="nome">${t.nome}</div><div class="espec">${t.nomeGuerra || ''}</div></div></label>`;
+});
+html += '</div>';
+if (escavServTecnicosSelecionados.size > 0) html += `<p style="margin-top:10px;font-size:0.85rem;color:var(--primary);font-weight:600">✓ ${escavServTecnicosSelecionados.size} técnico(s) selecionado(s)</p>`;
+container.innerHTML = html;
+};
+
+window.adicionarMaterialEscavServ = function() { escavServMateriaisTemp.push({ materialId: '', quantidade: '', serie: '' }); renderMateriaisEscavServ(); };
+window.removerMaterialEscavServ = function(i) { escavServMateriaisTemp.splice(i, 1); renderMateriaisEscavServ(); };
+window.atualizarMaterialEscavServ = function(i, campo, valor) { if (escavServMateriaisTemp[i]) escavServMateriaisTemp[i][campo] = valor; };
+
+window.renderMateriaisEscavServ = function() {
+const container = document.getElementById('escavServMateriais');
+if (!container) return;
+if (materiaisCache.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.9rem;margin:10px 0">⚠️ Nenhum material cadastrado.</p>'; return; }
+if (escavServMateriaisTemp.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.88rem;margin:10px 0;font-style:italic">Clique em "+ Adicionar Material".</p>'; return; }
+let html = '';
+escavServMateriaisTemp.forEach((item, i) => {
+html += `<div class="row-item"><div class="form-group"><label>Material</label><select onchange="atualizarMaterialEscavServ(${i}, 'materialId', this.value)"><option value="">Selecione...</option>${materiaisCache.map(m => { const disp = calcDisponivel(m); return `<option value="${m.id}" ${item.materialId === m.id ? 'selected' : ''}>${m.nome} (Disp: ${disp} ${m.unidade || 'un'})</option>`; }).join('')}</select></div><div class="form-group" style="max-width:100px"><label>Qtd</label><input type="number" min="0.01" step="0.01" value="${item.quantidade}" onchange="atualizarMaterialEscavServ(${i}, 'quantidade', this.value)"></div><div class="form-group" style="max-width:180px"><label>Nº PR</label><input type="text" value="${item.serie || ''}" onchange="atualizarMaterialEscavServ(${i}, 'serie', this.value)" placeholder="Ex: 140-175"></div><button type="button" class="btn btn-danger btn-sm" onclick="removerMaterialEscavServ(${i})">✕</button></div>`;
+});
+container.innerHTML = html;
+};
+
+window.salvarEscavNoServico = async function() {
+const servicoId = document.getElementById('escavServicoId').value;
+const escavIdxEdit = document.getElementById('escavServIdxEdit').value;
+const tipo = document.getElementById('escavServTipo').value;
+const destino = document.getElementById('escavServDestino').value.trim();
+const uf = document.getElementById('escavServUF').value;
+const evento = document.getElementById('escavServEvento').value.trim();
+const dataInicio = document.getElementById('escavServDataInicio').value;
+const dataRetorno = document.getElementById('escavServDataRetorno').value;
+const obs = document.getElementById('escavServObs').value.trim();
+const textoCautela = document.getElementById('escavServTextoCautela').value.trim();
+const respMontagem = document.getElementById('escavServRespMontagem').value.trim();
+const respEntrega = document.getElementById('escavServRespEntrega').value.trim();
+const respRecebimento = document.getElementById('escavServRespRecebimento').value.trim();
+const sispatCautelou = document.getElementById('escavServSispatCautelou').value;
+const sispatDescautelou = document.getElementById('escavServSispatDescautelou').value;
+const visto = document.getElementById('escavServVisto').value.trim();
+if (!tipo || !destino || !uf || !dataInicio || !dataRetorno) return showToast('Preencha todos os campos obrigatórios!', 'error');
+if (dataRetorno < dataInicio) return showToast('Data de retorno não pode ser anterior à data de início!', 'error');
+const itens = escavServMateriaisTemp.filter(i => i.materialId && parseFloat(i.quantidade) > 0);
+for (const item of itens) {
+const mat = materiaisCache.find(m => m.id === item.materialId);
+const disponivel = mat ? calcDisponivel(mat) : 0;
+if (mat && parseFloat(item.quantidade) > disponivel) return showToast(`Disponível insuficiente de "${mat.nome}"! Disponível: ${disponivel}`, 'error');
+}
+try {
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s) return showToast('Serviço não encontrado!', 'error');
+const tecnicosList = Array.from(escavServTecnicosSelecionados).map(id => {
+const t = usuariosCache.find(x => x.id === id);
+return { tecnicoId: id, tecnicoNome: t?.nome || 'Desconhecido', tecnicoNomeGuerra: t?.nomeGuerra || '', especialidade: 'AST' };
+});
+const escavsAtuais = s.escavs || [];
+const materiaisFormatados = itens.map(i => { const mat = materiaisCache.find(m => m.id === i.materialId); return { materialId: i.materialId, materialNome: mat?.nome || 'Desconhecido', unidade: mat?.unidade || '', quantidade: parseFloat(i.quantidade), serie: i.serie || '' }; });
+if (escavIdxEdit !== '') {
+const idx = parseInt(escavIdxEdit);
+const escavAnterior = escavsAtuais[idx];
+if (escavAnterior.materiais) {
+for (const m of escavAnterior.materiais) {
+const mat = materiaisCache.find(x => x.id === m.materialId);
+if (mat) { const novoEmEscav = Math.max(0, Math.round(((parseFloat(mat.emEscav) || 0) - m.quantidade) * 100) / 100); await updateDoc(doc(db, 'materiais', m.materialId), { emEscav: novoEmEscav }); }
+}
+}
+escavsAtuais[idx] = {
+...escavAnterior, tipo, destino, uf, evento, dataInicio, dataRetorno, obs,
+textoCautela, respMontagem, respEntrega, respRecebimento, sispatCautelou, sispatDescautelou, visto,
+tecnicosParticipantes: tecnicosList.map(t => t.tecnicoNome).join(', '),
+materiais: materiaisFormatados,
+editadaPor: currentUser.displayName || currentUser.email, editadaEm: new Date().toISOString()
+};
+for (const item of itens) {
+const mat = materiaisCache.find(m => m.id === item.materialId);
+if (mat) { const novoEmEscav = Math.round(((parseFloat(mat.emEscav) || 0) + parseFloat(item.quantidade)) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emEscav: novoEmEscav }); }
+}
+await updateDoc(doc(db, 'servicosDiarios', servicoId), { escavs: escavsAtuais, editadoEm: new Date().toISOString() });
+showToast('✅ ESCAV editada com sucesso!');
+await registrarAuditoria('EDITAR_ESCAV', `Editou ESCAV ${destino}/${uf} no serviço de ${s.tecnicoNome}`, { destino, uf, tipo });
+} else {
+const escavDoc = await addDoc(collection(db, 'escav'), {
+tipo, destino, uf, evento, dataInicio, dataRetorno, obs,
+textoCautela, respMontagem, respEntrega, respRecebimento, sispatCautelou, sispatDescautelou, visto,
+tecnicoCriadorId: s.tecnicoId, tecnicoCriadorNome: s.tecnicoNome,
+materiais: materiaisFormatados,
+tecnicos: tecnicosList,
+criadaPor: currentUser.uid, criadaPorNome: currentUser.displayName || currentUser.email, criadaEm: new Date().toISOString(),
+encerradaPor: null, encerradaPorNome: null, encerradaEm: null, status: 'aberta'
+});
+for (const item of itens) {
+const mat = materiaisCache.find(m => m.id === item.materialId);
+if (mat) { const novoEmEscav = Math.round(((parseFloat(mat.emEscav) || 0) + parseFloat(item.quantidade)) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emEscav: novoEmEscav }); }
+}
+const novoEscavRegistro = {
+escavId: escavDoc.id, destino, uf, tipo, evento, dataInicio, dataRetorno,
+textoCautela, respMontagem, respEntrega, respRecebimento, sispatCautelou, sispatDescautelou, visto,
+tecnicosParticipantes: tecnicosList.map(t => t.tecnicoNome).join(', '),
+materiais: materiaisFormatados,
+abertaPor: currentUser.displayName || currentUser.email, abertaEm: new Date().toISOString(),
+encerradaPor: null, encerradaEm: null, status: 'aberta', assinaturaValidada: false
+};
+escavsAtuais.push(novoEscavRegistro);
+await updateDoc(doc(db, 'servicosDiarios', servicoId), { escavs: escavsAtuais, editadoEm: new Date().toISOString() });
+showToast('🚛 ESCAV registrada e vinculada ao Serviço com sucesso!');
+await registrarAuditoria('CRIAR_ESCAV', `Criou ESCAV para ${destino}/${uf} no serviço de ${s.tecnicoNome}`, { destino, uf, tipo });
+}
+fecharModal('modalNovoEscavServico');
+document.getElementById('escavServIdxEdit').value = '';
+} catch (err) { console.error('Erro ao salvar ESCAV no serviço:', err); showToast('Erro: ' + err.message, 'error'); }
+};
+
+window.editarEscavNoServico = function(servicoId, escavIdx) {
+if (currentUserRole === 'viewer') return showToast('Acesso restrito!', 'error');
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s || !s.escavs[escavIdx]) return showToast('ESCAV não encontrada!', 'error');
+const escav = s.escavs[escavIdx];
+document.getElementById('escavServicoId').value = servicoId;
+document.getElementById('escavServIdxEdit').value = escavIdx;
+document.getElementById('escavServTipo').value = escav.tipo || '';
+document.getElementById('escavServDestino').value = escav.destino || '';
+document.getElementById('escavServUF').value = escav.uf || '';
+document.getElementById('escavServEvento').value = escav.evento || '';
+document.getElementById('escavServDataInicio').value = escav.dataInicio || '';
+document.getElementById('escavServDataRetorno').value = escav.dataRetorno || '';
+document.getElementById('escavServObs').value = escav.obs || '';
+document.getElementById('escavServTextoCautela').value = escav.textoCautela || 'Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.';
+document.getElementById('escavServRespMontagem').value = escav.respMontagem || '';
+document.getElementById('escavServRespEntrega').value = escav.respEntrega || '';
+document.getElementById('escavServRespRecebimento').value = escav.respRecebimento || '';
+document.getElementById('escavServSispatCautelou').value = escav.sispatCautelou || '';
+document.getElementById('escavServSispatDescautelou').value = escav.sispatDescautelou || '';
+document.getElementById('escavServVisto').value = escav.visto || '';
+escavServTecnicosSelecionados = new Set();
+if (escav.tecnicos) { escav.tecnicos.forEach(t => { if (t.tecnicoId) escavServTecnicosSelecionados.add(t.tecnicoId); }); }
+renderTecnicosEscavServ();
+escavServMateriaisTemp = (escav.materiais || []).map(m => ({ materialId: m.materialId, quantidade: m.quantidade, serie: m.serie || '' }));
+renderMateriaisEscavServ();
+document.getElementById('modalNovoEscavServico').classList.add('active');
+};
+
+window.encerrarEscavNoServico = async function(servicoId, escavIdx) {
+if (currentUserRole === 'viewer') return showToast('Acesso restrito!', 'error');
+if (!confirm('Encerrar esta ESCAV? Os materiais serão devolvidos ao estoque.')) return;
+try {
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s || !s.escavs[escavIdx]) return showToast('ESCAV não encontrada!', 'error');
+const escav = s.escavs[escavIdx];
+if (escav.materiais) {
+for (const m of escav.materiais) {
+const mat = materiaisCache.find(x => x.id === m.materialId);
+if (mat) { const novoEmEscav = Math.max(0, Math.round(((parseFloat(mat.emEscav) || 0) - m.quantidade) * 100) / 100); await updateDoc(doc(db, 'materiais', m.materialId), { emEscav: novoEmEscav }); }
+}
+}
+escav.status = 'encerrada';
+escav.encerradaPor = currentUser.displayName || currentUser.email;
+escav.encerradaEm = new Date().toISOString();
+const escavsAtualizadas = s.escavs.map((e, idx) => idx === escavIdx ? escav : e);
+await updateDoc(doc(db, 'servicosDiarios', servicoId), { escavs: escavsAtualizadas, editadoEm: new Date().toISOString() });
+showToast('✅ ESCAV encerrada! Materiais devolvidos ao estoque.');
+await registrarAuditoria('ENCERRAR_ESCAV', `Encerrou ESCAV ${escav.destino}/${escav.uf} no serviço de ${s.tecnicoNome}`, { destino: escav.destino, uf: escav.uf });
+} catch (err) { console.error('Erro ao encerrar ESCAV:', err); showToast('Erro: ' + err.message, 'error'); }
+};
+
+// === ASSINATURA ESCAV ===
+window.assinarEscavServico = function() {
+const servicoId = document.getElementById('escavServicoId').value;
+const escavIdx = document.getElementById('escavServIdxEdit').value;
+if (!servicoId) return showToast('Selecione uma ESCAV primeiro!', 'error');
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s) return showToast('Serviço não encontrado!', 'error');
+const escav = escavIdx !== '' ? s.escavs[parseInt(escavIdx)] : null;
+if (!escav) return showToast('ESCAV não encontrada!', 'error');
+
+const nomeResponsavel = escav.respRecebimento || s.tecnicoNome;
+cautelaAssinaturaAtual = {
+servicoId: servicoId,
+cautelaIdx: parseInt(escavIdx),
+usuarioData: { nome: nomeResponsavel },
+isEscav: true
+};
+
+document.getElementById('tecladoAgenteNomeAssinatura').textContent = nomeResponsavel;
+document.getElementById('tecladoDocTipoAssinatura').textContent = ' ESCAV';
+document.getElementById('tecladoCautelaNumeroAssinatura').textContent = (parseInt(escavIdx) + 1);
+const materiaisResumo = (escav.materiais || []).map(m => m.materialNome).join(', ');
+document.getElementById('tecladoCautelaMateriaisAssinatura').textContent = materiaisResumo.length > 50 ? materiaisResumo.substring(0, 50) + '...' : materiaisResumo;
+
+pinDigitado = '';
+document.getElementById('tecladoDisplayAssinatura').textContent = '• • • •';
+document.getElementById('tecladoErroAssinatura').style.display = 'none';
+embaralharTecladoAssinatura();
+renderizarTecladoAssinatura();
+clearTimeout(timerTeclado);
+timerTeclado = setTimeout(() => { fecharModal('modalTecladoAssinatura'); showToast('⏰ Tempo expirado. Tente novamente.', 'error'); }, 30000);
+document.getElementById('modalTecladoAssinatura').classList.add('active');
+};
+
+// === ASSINATURA DE CAUTELA COM TECLADO NUMÉRICO ===
+function embaralharTecladoAssinatura() {
+const numeros = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+for (let i = numeros.length - 1; i > 0; i--) {
+const j = Math.floor(Math.random() * (i + 1));
+[numeros[i], numeros[j]] = [numeros[j], numeros[i]];
+}
+mapaTeclado = numeros;
+}
+
+function renderizarTecladoAssinatura() {
+const container = document.getElementById('tecladoNumerosAssinatura');
+if (!container) return;
+const botoes = [
+{ valor: mapaTeclado[0], tipo: 'numero' }, { valor: mapaTeclado[1], tipo: 'numero' }, { valor: mapaTeclado[2], tipo: 'numero' },
+{ valor: mapaTeclado[3], tipo: 'numero' }, { valor: mapaTeclado[4], tipo: 'numero' }, { valor: mapaTeclado[5], tipo: 'numero' },
+{ valor: mapaTeclado[6], tipo: 'numero' }, { valor: mapaTeclado[7], tipo: 'numero' }, { valor: mapaTeclado[8], tipo: 'numero' },
+{ valor: '', tipo: 'limpar' }, { valor: mapaTeclado[9], tipo: 'numero' }, { valor: '✓', tipo: 'confirmar' }
+];
+container.innerHTML = botoes.map(btn => {
+let cor = 'background: white; color: #1e293b;';
+let acao = `tecladoDigitarAssinatura('${btn.valor}')`;
+if (btn.tipo === 'limpar') { cor = 'background: #f59e0b; color: white;'; acao = 'tecladoLimparAssinatura()'; }
+else if (btn.tipo === 'confirmar') { cor = 'background: #16a34a; color: white;'; acao = 'tecladoConfirmarAssinatura()'; }
+return `<button class="btn-teclado" onclick="${acao}" style="${cor} border: none; border-radius: 12px; padding: 20px; font-size: 1.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">${btn.valor}</button>`;
+}).join('');
+}
+
+window.tecladoDigitarAssinatura = function(numero) {
+if (pinDigitado.length >= 4) return;
+pinDigitado += numero;
+atualizarDisplayTecladoAssinatura();
+clearTimeout(timerTeclado);
+timerTeclado = setTimeout(() => { fecharModal('modalTecladoAssinatura'); showToast('⏰ Tempo expirado. Tente novamente.', 'error'); }, 30000);
+if (pinDigitado.length === 4) { setTimeout(() => { tecladoConfirmarAssinatura(); }, 300); }
+};
+
+window.tecladoLimparAssinatura = function() {
+pinDigitado = pinDigitado.slice(0, -1);
+atualizarDisplayTecladoAssinatura();
+document.getElementById('tecladoErroAssinatura').style.display = 'none';
+clearTimeout(timerTeclado);
+timerTeclado = setTimeout(() => { fecharModal('modalTecladoAssinatura'); showToast('⏰ Tempo expirado. Tente novamente.', 'error'); }, 30000);
+};
+
+function atualizarDisplayTecladoAssinatura() {
+const display = document.getElementById('tecladoDisplayAssinatura');
+if (!display) return;
+if (pinDigitado.length === 0) { display.textContent = '• • • •'; }
+else { const digitos = pinDigitado.split('').join(' '); const restantes = '• '.repeat(4 - pinDigitado.length).trim(); display.textContent = `${digitos} ${restantes}`.trim(); }
+}
+
+window.tecladoConfirmarAssinatura = async function() {
+const erroDiv = document.getElementById('tecladoErroAssinatura');
+if (pinDigitado.length !== 4) { erroDiv.textContent = '⚠️ Digite todos os 4 dígitos!'; erroDiv.style.display = 'block'; return; }
+if (!cautelaAssinaturaAtual) { erroDiv.textContent = ' Documento não identificado!'; erroDiv.style.display = 'block'; return; }
+try {
+const servicoDoc = await getDoc(doc(db, 'servicosDiarios', cautelaAssinaturaAtual.servicoId));
+if (!servicoDoc.exists()) { showToast('❌ Serviço não encontrado!', 'error'); return; }
+const servicoData = servicoDoc.data();
+
+if (cautelaAssinaturaAtual.isEscav) {
+const escav = servicoData.escavs[cautelaAssinaturaAtual.cautelaIdx];
+escav.assinaturaValidada = true;
+escav.assinaturaPor = cautelaAssinaturaAtual.usuarioData.nome;
+escav.assinaturaEm = new Date().toISOString();
+await updateDoc(doc(db, 'servicosDiarios', cautelaAssinaturaAtual.servicoId), { escavs: servicoData.escavs, editadoEm: new Date().toISOString() });
+fecharModal('modalTecladoAssinatura');
+showToast(`✅ ${cautelaAssinaturaAtual.usuarioData.nome} assinou a ESCAV com sucesso!`, 'success');
+await registrarAuditoria('ASSINAR_ESCAV', `${cautelaAssinaturaAtual.usuarioData.nome} assinou ESCAV ${escav.destino}/${escav.uf}`, { responsavel: cautelaAssinaturaAtual.usuarioData.nome });
+} else {
+const usuarioData = cautelaAssinaturaAtual.usuarioData;
+if (usuarioData.senhaPin !== pinDigitado) { erroDiv.textContent = '❌ Senha incorreta! Tente novamente.'; erroDiv.style.display = 'block'; pinDigitado = ''; setTimeout(() => atualizarDisplayTecladoAssinatura(), 1000); return; }
+const cautela = servicoData.cautelas[cautelaAssinaturaAtual.cautelaIdx];
+cautela.assinaturaValidada = true;
+cautela.assinaturaPor = usuarioData.nome;
+cautela.assinaturaPorUid = cautelaAssinaturaAtual.usuarioId;
+cautela.assinaturaEm = new Date().toISOString();
+await updateDoc(doc(db, 'servicosDiarios', cautelaAssinaturaAtual.servicoId), { cautelas: servicoData.cautelas, editadoEm: new Date().toISOString() });
+fecharModal('modalTecladoAssinatura');
+showToast(`✅ ${usuarioData.nome} assinou a cautela com sucesso!`, 'success');
+await registrarAuditoria('ASSINAR_CAUTELA', `${usuarioData.nome} assinou cautela #${cautelaAssinaturaAtual.cautelaIdx + 1}`, { recebedor: usuarioData.nome, servicoId: cautelaAssinaturaAtual.servicoId });
+}
+} catch (err) { console.error('Erro ao validar assinatura:', err); const erroDiv = document.getElementById('tecladoErroAssinatura'); erroDiv.textContent = 'Erro: ' + err.message; erroDiv.style.display = 'block'; }
+};
+
+window.abrirAssinaturaCautela = async function(servicoId, cautelaIdx) {
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s || !s.cautelas[cautelaIdx]) return showToast('Cautela não encontrada!', 'error');
+const cautela = s.cautelas[cautelaIdx];
+if (cautela.assinaturaValidada) return showToast('Esta cautela já foi assinada!', 'error');
+cautelaAssinaturaAtual = { servicoId: servicoId, cautelaIdx: cautelaIdx, cautelaData: cautela, isEscav: false };
+const nomeRecebedor = cautela.recebedorNome;
+if (!nomeRecebedor) return showToast('Nome do recebedor não informado!', 'error');
+try {
+const usuariosRef = collection(db, 'usuarios');
+const q = query(usuariosRef, where('nome', '==', nomeRecebedor));
+const snapshot = await getDocs(q);
+let usuarioDoc = null;
+let usuarioData = null;
+if (!snapshot.empty) { usuarioDoc = snapshot.docs[0]; usuarioData = usuarioDoc.data(); }
+if (!usuarioData) {
+const todosUsuarios = await getDocs(collection(db, 'usuarios'));
+todosUsuarios.forEach(doc => { const data = doc.data(); if (data.nome && data.nome.toLowerCase() === nomeRecebedor.toLowerCase()) { usuarioDoc = doc; usuarioData = data; } });
+}
+if (!usuarioData) return showToast(`Agente "${nomeRecebedor}" não encontrado no sistema!`, 'error');
+cautelaAssinaturaAtual.usuarioId = usuarioDoc.id;
+cautelaAssinaturaAtual.usuarioData = usuarioData;
+document.getElementById('tecladoAgenteNomeAssinatura').textContent = usuarioData.nome;
+document.getElementById('tecladoDocTipoAssinatura').textContent = '📄 Cautela';
+document.getElementById('tecladoCautelaNumeroAssinatura').textContent = (cautelaIdx + 1);
+const materiaisResumo = (cautela.materiais || []).map(m => m.materialNome).join(', ');
+document.getElementById('tecladoCautelaMateriaisAssinatura').textContent = materiaisResumo.length > 50 ? materiaisResumo.substring(0, 50) + '...' : materiaisResumo;
+if (!usuarioData.senhaPin || usuarioData.senhaPin === '') {
+document.getElementById('criarPinAgenteNomeAssinatura').textContent = usuarioData.nome;
+document.getElementById('criarPinCautelaNumeroAssinatura').textContent = (cautelaIdx + 1);
+document.getElementById('novoPinCriarAssinatura').value = '';
+document.getElementById('confirmarPinCriarAssinatura').value = '';
+document.getElementById('criarPinErroAssinatura').style.display = 'none';
+document.getElementById('modalCriarPinAgente').classList.add('active');
+} else {
+pinDigitado = '';
+document.getElementById('tecladoDisplayAssinatura').textContent = '• • • •';
+document.getElementById('tecladoErroAssinatura').style.display = 'none';
+embaralharTecladoAssinatura();
+renderizarTecladoAssinatura();
+clearTimeout(timerTeclado);
+timerTeclado = setTimeout(() => { fecharModal('modalTecladoAssinatura'); showToast('⏰ Tempo expirado. Tente novamente.', 'error'); }, 30000);
+document.getElementById('modalTecladoAssinatura').classList.add('active');
+}
+} catch (err) { console.error('Erro ao buscar agente:', err); showToast('Erro: ' + err.message, 'error'); }
+};
+
+window.salvarNovoPinAgente = async function() {
+const novoPin = document.getElementById('novoPinCriarAssinatura').value;
+const confirmar = document.getElementById('confirmarPinCriarAssinatura').value;
+const erroDiv = document.getElementById('criarPinErroAssinatura');
+if (novoPin.length !== 4 || !/^\d{4}$/.test(novoPin)) { erroDiv.textContent = 'A senha deve ter exatamente 4 dígitos numéricos!'; erroDiv.style.display = 'block'; return; }
+if (novoPin !== confirmar) { erroDiv.textContent = 'As senhas não coincidem!'; erroDiv.style.display = 'block'; return; }
+try {
+await updateDoc(doc(db, 'usuarios', cautelaAssinaturaAtual.usuarioId), { senhaPin: novoPin, pinCriadoEm: new Date().toISOString(), pinCriadoPor: 'auto-cadastro' });
+fecharModal('modalCriarPinAgente');
+showToast(`✅ PIN criado! Agora assinando cautela...`, 'success');
+await tecladoConfirmarAssinatura();
+} catch (err) { erroDiv.textContent = 'Erro ao salvar PIN: ' + err.message; erroDiv.style.display = 'block'; }
+};
+
+// === VISUALIZAR CAUTELA ===
+window.verCautela = function(servicoId, cautelaIdx) {
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s || !s.cautelas[cautelaIdx]) return;
+const c = s.cautelas[cautelaIdx];
+let html = `<div style="background:#f8fafc;padding:20px;border-radius:10px;margin-bottom:16px">
+<h3>📄 Cautela #${cautelaIdx + 1} - ${s.tecnicoNome}</h3>
+<p><strong>📅 Data:</strong> ${s.data ? s.data.split('-').reverse().join('/') : '-'} (${s.diaSemana})</p>
+<p><strong>👷 Técnico:</strong> ${s.tecnicoNome} ${s.tecnicoNomeGuerra ? '(' + s.tecnicoNomeGuerra + ')' : ''}</p>
+<p><strong> Recebedor:</strong> ${c.recebedorNome || '-'}</p>
+${c.recebedorPosto ? `<p><strong>️ Posto:</strong> ${c.recebedorPosto}</p>` : ''}
+<p><strong>📤 Aberta por:</strong> ${c.abertaPorNome || '-'} em ${c.abertaEm ? new Date(c.abertaEm).toLocaleString('pt-BR') : '-'}</p>`;
+if (c.assinaturaValidada) html += `<p><strong>✍️ Assinada por:</strong> ${c.assinaturaPor || '-'} em ${c.assinaturaEm ? new Date(c.assinaturaEm).toLocaleString('pt-BR') : '-'}</p>`;
+if (c.encerradaPor) html += `<p><strong> Encerrada por:</strong> ${c.encerradaPorNome} em ${new Date(c.encerradaEm).toLocaleString('pt-BR')}</p>`;
+html += `</div>`;
+if (c.textoPersonalizado) html += `<div style="background:#eff6ff;padding:12px;border-radius:8px;margin-bottom:16px;font-style:italic">${c.textoPersonalizado}</div>`;
+if (c.materiais && c.materiais.length > 0) {
+html += `<table><thead><tr><th>Nº</th><th>Material</th><th>Nº Série/PR</th><th>Qtd</th><th>Un</th></tr></thead><tbody>`;
+c.materiais.forEach((m, i) => { html += `<tr><td>${String(i + 1).padStart(2, '0')}</td><td><strong>${m.materialNome}</strong></td><td>${m.serie || '-'}</td><td>${m.quantidade}</td><td>${m.unidade || '-'}</td></tr>`; });
+html += `</tbody></table>`;
+}
+if (c.observacoes) html += `<div class="escav-obs" style="margin-top:12px">📝 <strong>Obs:</strong> ${c.observacoes}</div>`;
+document.getElementById('modalEscavContent').innerHTML = html;
+document.getElementById('modalEscav').classList.add('active');
+};
+
+// === PDFs ===
+window.gerarPDFCautela = function() {
+const servicoId = document.getElementById('cautelaServicoId').value;
+const cautelaIdx = document.getElementById('cautelaIdxEdit').value;
+if (!servicoId) return showToast('Selecione uma cautela primeiro!', 'error');
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s) return showToast('Serviço não encontrado!', 'error');
+const cautela = cautelaIdx !== '' ? s.cautelas[parseInt(cautelaIdx)] : null;
+if (!cautela) return showToast('Cautela não encontrada!', 'error');
+gerarPDFCautelaCompleto(s, cautela);
+};
+
+window.gerarPDFCautelaDireta = function(servicoId, cautelaIdx) {
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s || !s.cautelas[cautelaIdx]) return;
+gerarPDFCautelaCompleto(s, s.cautelas[cautelaIdx]);
+};
+
+function gerarPDFCautelaCompleto(servico, cautela) {
+try {
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+const dataFmt = servico.data ? servico.data.split('-').reverse().join('/') : '';
+const [dia, mes, ano] = dataFmt.split('/');
+const dataExtenso = `${dia} de ${getMesExtenso(mes)} de ${ano}`;
+doc.setFontSize(9);
+doc.setTextColor(60);
+doc.text('Presidência da República', 105, 15, { align: 'center' });
+doc.text('Gabinete de Segurança Institucional', 105, 20, { align: 'center' });
+doc.text('Secretaria de Segurança Presidencial', 105, 25, { align: 'center' });
+doc.text('Coordenação Geral de Logística', 105, 30, { align: 'center' });
+doc.text('Coordenação Logística de Atuadores Não-Cinéticos', 105, 35, { align: 'center' });
+doc.setFontSize(12);
+doc.setTextColor(0);
+doc.setFont(undefined, 'bold');
+doc.text('CAUTELA DE MATERIAL PARA INSTRUÇÃO', 105, 48, { align: 'center' });
+doc.setFont(undefined, 'normal');
+doc.setFontSize(10);
+const textoCautela = cautela.textoPersonalizado || 'Recebi da Coordenação Logística de Atuadores Não-Cinéticos, o material abaixo relacionado:';
+const textoLinhas = doc.splitTextToSize(textoCautela, 180);
+doc.text(textoLinhas, 14, 58);
+const startY = 58 + (textoLinhas.length * 5);
+const headers = [['Nº', 'MATERIAL', 'Nº Serie/PR', 'QTD']];
+const body = cautela.materiais.map((m, i) => [String(i + 1).padStart(2, '0'), m.materialNome, m.serie || 'S/PR', m.quantidade.toString()]);
+doc.autoTable({ head: headers, body: body, startY: startY + 5, styles: { fontSize: 9, cellPadding: 3, halign: 'center' }, headStyles: { fillColor: [200, 200, 200], textColor: 0, fontStyle: 'bold' }, columnStyles: { 0: { cellWidth: 15 }, 1: { halign: 'left', cellWidth: 90 }, 2: { cellWidth: 40 }, 3: { cellWidth: 20 } }, margin: { left: 14, right: 14 } });
+const finalY = doc.lastAutoTable.finalY + 10;
+doc.setFontSize(9);
+doc.text('OBS.: O material acima conferido está em perfeitas condições de funcionamento, pelo que assumo inteira', 14, finalY);
+doc.text('responsabilidade.', 14, finalY + 5);
+const boxY = finalY + 15;
+doc.setDrawColor(0);
+doc.rect(14, boxY, 182, 45);
+doc.setFontSize(10);
+doc.setFont(undefined, 'bold');
+doc.text('RESPONSÁVEL PELO MATERIAL', 105, boxY + 7, { align: 'center' });
+doc.setFont(undefined, 'normal');
+doc.setFontSize(9);
+doc.text(`Recebido em ${dataExtenso}.`, 20, boxY + 15);
+const recebedorNome = cautela.recebedorNome || '_________________________';
+const recebedorPosto = cautela.recebedorPosto ? `${cautela.recebedorPosto} ` : '';
+doc.text(`${recebedorPosto}${recebedorNome}`, 35, boxY + 28, { align: 'center' });
+doc.text('Posto/Grad e Nome', 35, boxY + 38, { align: 'center' });
+doc.text('Assinatura', 150, boxY + 38, { align: 'center' });
+doc.line(20, boxY + 35, 90, boxY + 35);
+doc.line(120, boxY + 35, 180, boxY + 35);
+const box2Y = boxY + 52;
+doc.rect(14, box2Y, 89, 45);
+doc.rect(107, box2Y, 89, 45);
+doc.setFontSize(10);
+doc.setFont(undefined, 'bold');
+doc.text('ENTREGUE PELO TÉCNICO', 58.5, box2Y + 7, { align: 'center' });
+doc.text('RECEBIDO PELO TÉCNICO', 151.5, box2Y + 7, { align: 'center' });
+doc.setFont(undefined, 'normal');
+doc.setFontSize(9);
+doc.text(`Em ___ / ___ / ${ano}.`, 20, box2Y + 15);
+doc.text(`Em ___ / ___ / ${ano}.`, 113, box2Y + 15);
+doc.text('Nome e Assinatura do Técnico', 58.5, box2Y + 38, { align: 'center' });
+doc.text('Nome e Assinatura do Técnico', 151.5, box2Y + 38, { align: 'center' });
+doc.line(20, box2Y + 35, 97, box2Y + 35);
+doc.line(113, box2Y + 35, 190, box2Y + 35);
+doc.setFontSize(9);
+doc.text(`Brasília-DF ${dataExtenso}`, 105, 280, { align: 'center' });
+doc.save(`cautela_${servico.tecnicoNome.replace(/\s+/g, '_')}_${servico.data}.pdf`);
+showToast('📕 PDF gerado com sucesso!');
+} catch (err) { showToast('Erro ao gerar PDF: ' + err.message, 'error'); }
+}
+
+function getMesExtenso(mes) {
+const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+return meses[parseInt(mes) - 1] || '';
+}
+
+// === PDF ESCAV FAM PR (FORMATO EXATO DA IMAGEM) ===
+window.gerarPDFEscavFam = function() {
+const servicoId = document.getElementById('escavServicoId').value;
+const escavIdx = document.getElementById('escavServIdxEdit').value;
+if (!servicoId) return showToast('Selecione uma ESCAV primeiro!', 'error');
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s) return showToast('Serviço não encontrado!', 'error');
+const escav = escavIdx !== '' ? s.escavs[parseInt(escavIdx)] : null;
+if (!escav) return showToast('ESCAV não encontrada!', 'error');
+gerarPDFEscavFamDoc(s, escav);
+};
+
+window.gerarPDFEscavFamDireta = function(servicoId, escavIdx) {
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s || !s.escavs[escavIdx]) return showToast('ESCAV não encontrada!', 'error');
+gerarPDFEscavFamDoc(s, s.escavs[escavIdx]);
+};
+
+function gerarPDFEscavFamDoc(servico, escav) {
+try {
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+// Visto no canto superior direito
+doc.setFontSize(8);
+doc.setTextColor(0);
+doc.text('VISTO:', 170, 10);
+doc.text(`Ch C Téc: ${escav.visto || '_________________'}`, 170, 15);
+
+// Cabeçalho institucional
+doc.setFontSize(9);
+doc.setTextColor(60);
+doc.text('- Presidência da República', 105, 20, { align: 'center' });
+doc.text('Gabinete de Segurança Institucional', 105, 25, { align: 'center' });
+doc.text('Secretaria de Segurança e Coordenação Presidencial', 105, 30, { align: 'center' });
+
+// Título
+doc.setFontSize(12);
+doc.setTextColor(0);
+doc.setFont(undefined, 'bold');
+doc.text('CAUTELA DE MATERIAL PARA VIAGEM', 105, 42, { align: 'center' });
+doc.text('FAM PR', 105, 48, { align: 'center' });
+
+// Texto da cautela (editável)
+doc.setFont(undefined, 'normal');
+doc.setFontSize(10);
+const textoCautela = escav.textoCautela || `Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ${escav.destino || '-'}, no período de ${escav.dataInicio ? escav.dataInicio.split('-').reverse().join('/') : '-'} a ${escav.dataRetorno ? escav.dataRetorno.split('-').reverse().join('/') : '-'}.`;
+const textoLinhas = doc.splitTextToSize(textoCautela, 180);
+doc.text(textoLinhas, 15, 58);
+
+// Tabela de materiais
+const startY = 58 + (textoLinhas.length * 5) + 5;
+const headers = [['Material', 'Quant', 'Número do Patrimônio / "PR"']];
+const body = (escav.materiais || []).map(m => [
+`${m.materialNome}${m.unidade ? ' - ' + m.unidade : ''}`,
+m.quantidade.toString(),
+m.serie || 'SEM PR'
+]);
+
+doc.autoTable({
+head: headers,
+body: body,
+startY: startY,
+styles: { fontSize: 9, cellPadding: 3, halign: 'left' },
+headStyles: { fillColor: [200, 200, 200], textColor: 0, fontStyle: 'bold', halign: 'center' },
+columnStyles: {
+0: { cellWidth: 90 },
+1: { cellWidth: 30, halign: 'center' },
+2: { cellWidth: 70, halign: 'center' }
+},
+margin: { left: 15, right: 15 }
+});
+
+// Seção "RESPONSÁVEL PELO MATERIAL"
+const finalY = doc.lastAutoTable.finalY + 15;
+doc.setDrawColor(0);
+doc.rect(15, finalY, 180, 50);
+doc.setFontSize(10);
+doc.setFont(undefined, 'bold');
+doc.text('RESPONSÁVEL PELO MATERIAL', 105, finalY + 7, { align: 'center' });
+doc.setFont(undefined, 'normal');
+doc.setFontSize(9);
+
+const dataFmt = escav.dataInicio ? escav.dataInicio.split('-').reverse().join('/') : '';
+doc.text(`Em ${dataFmt} / 20__.`, 20, finalY + 15);
+doc.text(`Nome: ${escav.respRecebimento || '_________________'}`, 20, finalY + 25);
+doc.text(`Assinatura: _________________________`, 110, finalY + 25);
+doc.text('RECEBIDO com ou sem alteração: _________________________', 20, finalY + 40);
+
+// Três colunas de responsáveis
+const boxY = finalY + 60;
+doc.rect(15, boxY, 60, 55);
+doc.rect(75, boxY, 60, 55);
+doc.rect(135, boxY, 60, 55);
+
+doc.setFontSize(9);
+doc.setFont(undefined, 'bold');
+doc.text('RESPONSÁVEL PELA', 45, boxY + 7, { align: 'center' });
+doc.text('MONTAGEM', 45, boxY + 12, { align: 'center' });
+doc.text('RESPONSÁVEL PELA', 105, boxY + 7, { align: 'center' });
+doc.text('ENTREGA', 105, boxY + 12, { align: 'center' });
+doc.text('RESPONSÁVEL PELO', 165, boxY + 7, { align: 'center' });
+doc.text('RECEBIMENTO', 165, boxY + 12, { align: 'center' });
+
+doc.setFont(undefined, 'normal');
+doc.setFontSize(8);
+
+// Montagem
+doc.text(`Em ${dataFmt} / 20__.`, 20, boxY + 20);
+doc.text(`Assinatura: _______________`, 20, boxY + 30);
+doc.text(`Nome: ${escav.respMontagem || '_______________'}`, 20, boxY + 40);
+doc.text('CAUTELOU OS RÁDIOS NO SISPAT', 45, boxY + 48, { align: 'center' });
+doc.text(`SIM [${escav.sispatCautelou === 'SIM' ? 'X' : ' '}]  NÃO [${escav.sispatCautelou === 'NÃO' ? 'X' : ' '}]`, 45, boxY + 53, { align: 'center' });
+
+// Entrega
+doc.text(`Em ${dataFmt} / 20__.`, 80, boxY + 20);
+doc.text(`Assinatura: _______________`, 80, boxY + 30);
+doc.text(`Nome: ${escav.respEntrega || '_______________'}`, 80, boxY + 40);
+
+// Recebimento
+doc.text(`Em ___/___/20__.`, 140, boxY + 20);
+doc.text(`Assinatura: _______________`, 140, boxY + 30);
+doc.text(`Nome: _______________`, 140, boxY + 40);
+doc.text('DESCAUTELOU OS RÁDIOS NO SISPAT', 165, boxY + 48, { align: 'center' });
+doc.text(`SIM [${escav.sispatDescautelou === 'SIM' ? 'X' : ' '}]  NÃO [${escav.sispatDescautelou === 'NÃO' ? 'X' : ' '}]`, 165, boxY + 53, { align: 'center' });
+
+doc.save(`cautela_fam_pr_${escav.destino}_${escav.dataInicio}.pdf`);
+showToast('📕 PDF da Cautela FAM PR gerado!');
+} catch (err) { showToast('Erro ao gerar PDF: ' + err.message, 'error'); }
+}
+
+window.gerarPDFEscavDoServico = function() {
+const servicoId = document.getElementById('escavServicoId').value;
+const escavIdx = document.getElementById('escavServIdxEdit').value;
+if (!servicoId) return showToast('Selecione uma ESCAV primeiro!', 'error');
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s) return showToast('Serviço não encontrado!', 'error');
+const escav = escavIdx !== '' ? s.escavs[parseInt(escavIdx)] : null;
+if (!escav) return showToast('ESCAV não encontrada!', 'error');
+gerarPDFEscavFamDoc(s, escav);
+};
+
+window.gerarPDFServico = function(servicoId) {
+const s = servicosDiariosCache.find(x => x.id === servicoId);
+if (!s) return showToast('Serviço não encontrado!', 'error');
+try {
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+doc.setFontSize(16);
+doc.text('RELATÓRIO DE SERVIÇO DIÁRIO', 105, 20, { align: 'center' });
+doc.setFontSize(11);
+doc.text(`Técnico: ${s.tecnicoNome} ${s.tecnicoNomeGuerra ? '(' + s.tecnicoNomeGuerra + ')' : ''}`, 15, 35);
+doc.text(`Data: ${s.data ? s.data.split('-').reverse().join('/') : '-'}`, 15, 42);
+doc.text(`Dia: ${s.diaSemana || '-'}`, 15, 49);
+doc.text(`Status: ${s.status === 'encerrado' ? 'Encerrado' : 'Aberto'}`, 15, 56);
+let yPos = 70;
+if (s.escavs && s.escavs.length > 0) {
+doc.setFontSize(12);
+doc.text('ESCAVs:', 15, yPos);
+yPos += 8;
+const escavsData = s.escavs.map((e, idx) => [`${idx + 1}`, e.tipo || '-', `${e.destino || '-'}/${e.uf || '-'}`, e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '-', e.status === 'encerrada' ? 'Encerrada' : 'Aberta']);
+doc.autoTable({ startY: yPos, head: [['#', 'Tipo', 'Destino', 'Início', 'Status']], body: escavsData, theme: 'striped', headStyles: { fillColor: [37, 99, 235], textColor: 255 }, styles: { fontSize: 9 } });
+yPos = doc.lastAutoTable.finalY + 15;
+}
+if (s.cautelas && s.cautelas.length > 0) {
+doc.setFontSize(12);
+doc.text('Cautelas de Material:', 15, yPos);
+yPos += 8;
+s.cautelas.forEach((c, idx) => {
+if (yPos > 250) { doc.addPage(); yPos = 20; }
+doc.setFontSize(10);
+doc.text(`Cautela #${idx + 1} - ${c.recebedorNome}`, 15, yPos);
+yPos += 6;
+const materiaisText = (c.materiais || []).map(m => `• ${m.materialNome}: ${m.quantidade} ${m.unidade || 'un'}`).join('\n');
+const matLines = doc.splitTextToSize(materiaisText, 170);
+doc.text(matLines, 20, yPos);
+yPos += (matLines.length * 5) + 8;
+});
+}
+const pageHeight = doc.internal.pageSize.height;
+doc.setFontSize(8);
+doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')} por ${currentUser.displayName || currentUser.email}`, 15, pageHeight - 15);
+doc.save(`servico_${s.tecnicoNome.replace(/\s+/g, '_')}_${s.data}.pdf`);
+showToast(' PDF do serviço gerado!');
+} catch (err) { showToast('Erro ao gerar PDF: ' + err.message, 'error'); }
+};
+
+// === TROCAR SENHA ===
+window.abrirModalTrocarSenha = function() {
+document.getElementById('senhaAtual').value = '';
+document.getElementById('novaSenha').value = '';
+document.getElementById('confirmarNovaSenha').value = '';
+document.getElementById('modalTrocarSenha').classList.add('active');
+};
+
+window.trocarSenha = async function() {
+const senhaAtual = document.getElementById('senhaAtual').value;
+const novaSenha = document.getElementById('novaSenha').value;
+const confirmar = document.getElementById('confirmarNovaSenha').value;
+if (!senhaAtual || !novaSenha || !confirmar) return showToast('Preencha todos os campos!', 'error');
+if (novaSenha.length < 6) return showToast('A nova senha deve ter pelo menos 6 caracteres!', 'error');
+if (novaSenha !== confirmar) return showToast('As senhas não coincidem!', 'error');
+try {
+const credential = EmailAuthProvider.credential(currentUser.email, senhaAtual);
+await reauthenticateWithCredential(currentUser, credential);
+await updatePassword(currentUser, novaSenha);
+await registrarAuditoria('TROCA_SENHA', 'Usuário alterou sua própria senha');
+fecharModal('modalTrocarSenha');
+showToast('✅ Senha alterada com sucesso! Faça login novamente.', 'success');
+setTimeout(() => { signOut(auth); }, 1500);
+} catch (err) {
+if (err.code === 'auth/wrong-password') showToast('❌ Senha atual incorreta!', 'error');
+else if (err.code === 'auth/requires-recent-login') showToast('⚠️ Faça logout e login novamente!', 'error');
+else showToast('Erro: ' + err.message, 'error');
+}
+};
+
+// === AUDITORIA ===
+window.renderAuditoria = function() {
+const container = document.getElementById('listaAuditoria');
+if (!container) return;
+const filtroAcao = document.getElementById('filtroAcaoAuditoria')?.value || 'all';
+const filtroUsuario = (document.getElementById('filtroUsuarioAuditoria')?.value || '').toLowerCase();
+let filtered = auditoriaCache.slice();
+if (filtroAcao !== 'all') filtered = filtered.filter(a => a.acao === filtroAcao);
+if (filtroUsuario) filtered = filtered.filter(a => (a.usuarioNome || '').toLowerCase().includes(filtroUsuario) || (a.usuarioEmail || '').toLowerCase().includes(filtroUsuario));
+const acaoIcones = { 'CRIAR_USUARIO': '👤', 'EDITAR_USUARIO': '✏️', 'EXCLUIR_USUARIO': '🗑️', 'CRIAR_MATERIAL': '📦', 'EDITAR_MATERIAL': '✏️', 'EXCLUIR_MATERIAL': '❌', 'CRIAR_ESCAV': '🚛', 'EDITAR_ESCAV': '✏️', 'EXCLUIR_ESCAV': '🗑️', 'CRIAR_CAUTELA': '📄', 'EDITAR_CAUTELA': '✏️', 'ENCERRAR_CAUTELA': '✅', 'ASSINAR_CAUTELA': '✍️', 'ASSINAR_ESCAV': '✍️', 'ENCERRAR_ESCAV': '', 'TROCA_SENHA': '', 'LOGIN': '🔐', 'DEFINIR_PIN': '🔐', 'CRIAR_SERVICO': '📋', 'ENCERRAR_SERVICO': '🔒' };
+if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>Nenhum registro de auditoria.</p></div>'; return; }
+let html = `<div style="overflow-x:auto"><table><thead><tr><th>Data/Hora</th><th>Ação</th><th>Usuário</th><th>Detalhes</th></tr></thead><tbody>`;
+filtered.slice(0, 200).forEach(a => {
+const icone = acaoIcones[a.acao] || '📌';
+html += `<tr><td style="font-size:0.82rem;white-space:nowrap">${a.dataFormatada || '-'}</td><td><span class="badge badge-blue">${icone} ${a.acao || '-'}</span></td><td><strong>${a.usuarioNome || '-'}</strong><br><span style="font-size:0.78rem;color:var(--text-light)">${a.usuarioEmail || ''}</span></td><td style="font-size:0.88rem">${a.detalhes || '-'}</td></tr>`;
+});
+html += '</tbody></table></div>';
+if (filtered.length > 200) html += `<p style="text-align:center;color:var(--text-light);margin-top:12px">Mostrando 200 de ${filtered.length} registros</p>`;
+container.innerHTML = html;
+};
+
+window.limparAuditoria = async function() {
+if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+if (!confirm('⚠️ ATENÇÃO: Isso apagará TODO o log de auditoria. Deseja continuar?')) return;
+if (!confirm('Tem CERTEZA? Esta ação não pode ser desfeita!')) return;
+try { for (const a of auditoriaCache) { await deleteDoc(doc(db, 'auditoria', a.id)); } showToast('Log de auditoria limpo!'); }
+catch (err) { showToast('Erro: ' + err.message, 'error'); }
+};
+
+window.exportarAuditoriaExcel = function() {
+if (auditoriaCache.length === 0) return showToast('Sem dados!', 'error');
+const dados = auditoriaCache.map(a => ({ 'Data/Hora': a.dataFormatada || '', 'Ação': a.acao, 'Usuário': a.usuarioNome || '', 'E-mail': a.usuarioEmail || '', 'Detalhes': a.detalhes || '' }));
+const ws = window.XLSX.utils.json_to_sheet(dados);
+const wb = window.XLSX.utils.book_new();
+window.XLSX.utils.book_append_sheet(wb, ws, 'Auditoria');
+window.XLSX.writeFile(wb, `auditoria_${new Date().toISOString().slice(0,10)}.xlsx`);
+showToast('Excel gerado!');
+};
+
+window.exportarAuditoriaPDF = function() {
+if (auditoriaCache.length === 0) return showToast('Sem dados!', 'error');
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF({ orientation: 'landscape' });
+doc.setFontSize(16); doc.text('Log de Auditoria', 14, 18);
+doc.setFontSize(9); doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 25);
+const dados = auditoriaCache.slice(0, 100).map(a => [a.dataFormatada || '', a.acao, a.usuarioNome || '', a.detalhes || '']);
+doc.autoTable({ head: [['Data/Hora', 'Ação', 'Usuário', 'Detalhes']], body: dados, startY: 32, styles: { fontSize: 8, cellPadding: 2 }, headStyles: { fillColor: [37, 99, 235], textColor: 255 } });
+doc.save(`auditoria_${new Date().toISOString().slice(0,10)}.pdf`);
+showToast('PDF gerado!');
+};
+
+// === EXPORTAÇÕES GERAIS ===
+function getDataHora() { return new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19); }
+function baixarArquivo(conteudo, nome, tipo) { const blob = new Blob([conteudo], { type: tipo }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = nome; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+function gerarCSV(dados) { if (dados.length === 0) return ''; const headers = Object.keys(dados[0]); const linhas = [headers.join(';')]; dados.forEach(row => { linhas.push(headers.map(h => { let v = String(row[h] ?? '').replace(/"/g, '""'); if (v.includes(';') || v.includes('"') || v.includes('\n')) v = `"${v}"`; return v; }).join(';')); }); return '\uFEFF' + linhas.join('\n'); }
+
+window.exportarMateriaisExcel = function() { try { if (materiaisCache.length === 0) return showToast('Nenhum material!', 'error'); const dados = materiaisCache.map(m => ({ 'Material': m.nome, 'Unidade': m.unidade || 'un', 'Existente': parseFloat(m.existente) || 0, 'Disponível': calcDisponivel(m), 'Em Serviço': parseFloat(m.emServico) || 0, 'Em ESCAV': parseFloat(m.emEscav) || 0, 'Em ERSPO': parseFloat(m.emERSPO) || 0, 'Empregados': calcEmpregados(m), 'Indisponível': parseFloat(m.indisponivel) || 0 })); const ws = window.XLSX.utils.json_to_sheet(dados); const wb = window.XLSX.utils.book_new(); window.XLSX.utils.book_append_sheet(wb, ws, 'Materiais'); window.XLSX.writeFile(wb, `materiais_${getDataHora()}.xlsx`); showToast('Excel gerado!'); } catch (err) { showToast('Erro Excel: ' + err.message, 'error'); } };
+window.exportarMateriaisPDF = function() { try { if (materiaisCache.length === 0) return showToast('Nenhum material!', 'error'); const dados = materiaisCache.map(m => [m.nome, m.unidade || 'un', parseFloat(m.existente) || 0, calcDisponivel(m), parseFloat(m.emServico) || 0, parseFloat(m.emEscav) || 0, parseFloat(m.emERSPO) || 0, calcEmpregados(m), parseFloat(m.indisponivel) || 0]); const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'landscape' }); doc.setFontSize(16); doc.text('Materiais', 14, 18); doc.autoTable({ head: [['Material', 'Un', 'Exist', 'Disp', 'Serv', 'ESCAV', 'ERSPO', 'Empr', 'Indisp']], body: dados, startY: 32, styles: { fontSize: 8, cellPadding: 2 }, headStyles: { fillColor: [37, 99, 235], textColor: 255 } }); doc.save(`materiais_${getDataHora()}.pdf`); showToast('PDF gerado!'); } catch (err) { showToast('Erro PDF: ' + err.message, 'error'); } };
+window.exportarTecnicosExcel = function() { try { const tecnicosAST = usuariosCache.filter(u => u.role === 'ast'); if (tecnicosAST.length === 0) return showToast('Nenhum técnico AST!', 'error'); const dados = tecnicosAST.map(t => ({ 'Nome Completo': t.nome, 'Nome de Guerra': t.nomeGuerra || '', 'E-mail': t.email || '', 'ESCAV': escavCache.filter(e => e.tecnicos && e.tecnicos.some(tec => tec.tecnicoId === t.id)).length })); const ws = window.XLSX.utils.json_to_sheet(dados); const wb = window.XLSX.utils.book_new(); window.XLSX.utils.book_append_sheet(wb, ws, 'Tecnicos AST'); window.XLSX.writeFile(wb, `tecnicos_ast_${getDataHora()}.xlsx`); showToast('Excel gerado!'); } catch (err) { showToast('Erro Excel: ' + err.message, 'error'); } };
+window.exportarTecnicosPDF = function() { try { const tecnicosAST = usuariosCache.filter(u => u.role === 'ast'); if (tecnicosAST.length === 0) return showToast('Nenhum técnico AST!', 'error'); const dados = tecnicosAST.map(t => [t.nome, t.nomeGuerra || '-', t.email || '-', escavCache.filter(e => e.tecnicos && e.tecnicos.some(tec => tec.tecnicoId === t.id)).length]); const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.setFontSize(16); doc.text('Técnicos AST', 14, 18); doc.autoTable({ head: [['Nome Completo', 'Nome de Guerra', 'Email', 'ESCAV']], body: dados, startY: 32, styles: { fontSize: 8, cellPadding: 2 }, headStyles: { fillColor: [37, 99, 235], textColor: 255 } }); doc.save(`tecnicos_ast_${getDataHora()}.pdf`); showToast('PDF gerado!'); } catch (err) { showToast('Erro PDF: ' + err.message, 'error'); } };
+window.exportarEscavExcel = function() { try { if (escavCache.length === 0) return showToast('Nenhuma ESCAV!', 'error'); const dados = escavCache.map(e => ({ 'Tipo': e.tipo || '', 'Destino': e.destino || '', 'UF': e.uf || '', 'Evento': e.evento || '', 'Data Início': e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '', 'Data Retorno': e.dataRetorno ? e.dataRetorno.split('-').reverse().join('/') : '', 'Técnicos': (e.tecnicos || []).map(t => t.tecnicoNome).join('; '), 'Materiais': (e.materiais || []).map(m => `${m.materialNome} (${m.quantidade} ${m.unidade})`).join('; '), 'Observação': e.obs || '' })); const ws = window.XLSX.utils.json_to_sheet(dados); const wb = window.XLSX.utils.book_new(); window.XLSX.utils.book_append_sheet(wb, ws, 'ESCAV'); window.XLSX.writeFile(wb, `escav_${getDataHora()}.xlsx`); showToast('Excel gerado!'); } catch (err) { showToast('Erro Excel: ' + err.message, 'error'); } };
+window.exportarEscavPDF = function() { try { if (escavCache.length === 0) return showToast('Nenhuma ESCAV!', 'error'); const dados = escavCache.map(e => [e.tipo || '-', e.destino || '-', e.uf || '-', e.evento || '-', e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '-', e.dataRetorno ? e.dataRetorno.split('-').reverse().join('/') : '-', (e.tecnicos || []).map(t => t.tecnicoNome).join(', ') || '-', (e.materiais || []).length + ' ite(ns)']); const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'landscape' }); doc.setFontSize(16); doc.text('Histórico ESCAV', 14, 18); doc.autoTable({ head: [['Tipo', 'Destino', 'UF', 'Evento', 'Início', 'Retorno', 'Técnicos', 'Mat.']], body: dados, startY: 32, styles: { fontSize: 8, cellPadding: 2 }, headStyles: { fillColor: [37, 99, 235], textColor: 255 } }); doc.save(`escav_${getDataHora()}.pdf`); showToast('PDF gerado!'); } catch (err) { showToast('Erro PDF: ' + err.message, 'error'); } };
+window.exportarRelatorioMateriaisExcel = function() { try { if (materiaisCache.length === 0) return showToast('Nenhum material!', 'error'); const dados = materiaisCache.map(m => ({ 'Material': m.nome, 'Unidade': m.unidade || 'un', 'Existente': parseFloat(m.existente) || 0, 'Disponível': calcDisponivel(m), 'Em Serviço': parseFloat(m.emServico) || 0, 'Em ESCAV': parseFloat(m.emEscav) || 0, 'Em ERSPO': parseFloat(m.emERSPO) || 0, 'Empregados': calcEmpregados(m), 'Indisponível': parseFloat(m.indisponivel) || 0 })); const sumE = materiaisCache.reduce((s, m) => s + (parseFloat(m.existente) || 0), 0); const sumD = materiaisCache.reduce((s, m) => s + calcDisponivel(m), 0); const sumS = materiaisCache.reduce((s, m) => s + (parseFloat(m.emServico) || 0), 0); const sumEs = materiaisCache.reduce((s, m) => s + (parseFloat(m.emEscav) || 0), 0); const sumEr = materiaisCache.reduce((s, m) => s + (parseFloat(m.emERSPO) || 0), 0); const sumEm = materiaisCache.reduce((s, m) => s + calcEmpregados(m), 0); const sumI = materiaisCache.reduce((s, m) => s + (parseFloat(m.indisponivel) || 0), 0); dados.push({ 'Material': 'TOTAL GERAL', 'Unidade': '', 'Existente': sumE, 'Disponível': sumD, 'Em Serviço': sumS, 'Em ESCAV': sumEs, 'Em ERSPO': sumEr, 'Empregados': sumEm, 'Indisponível': sumI }); const ws = window.XLSX.utils.json_to_sheet(dados); const wb = window.XLSX.utils.book_new(); window.XLSX.utils.book_append_sheet(wb, ws, 'Gestão de Materiais'); window.XLSX.writeFile(wb, `relatorio_gestao_materiais_${getDataHora()}.xlsx`); showToast('Excel gerado!'); } catch (err) { showToast('Erro Excel: ' + err.message, 'error'); } };
+window.exportarRelatorioMateriaisPDF = function() { try { if (materiaisCache.length === 0) return showToast('Nenhum material!', 'error'); const dados = materiaisCache.map(m => [m.nome, m.unidade || 'un', parseFloat(m.existente) || 0, calcDisponivel(m), parseFloat(m.emServico) || 0, parseFloat(m.emEscav) || 0, parseFloat(m.emERSPO) || 0, calcEmpregados(m), parseFloat(m.indisponivel) || 0]); const sumE = materiaisCache.reduce((s, m) => s + (parseFloat(m.existente) || 0), 0); const sumD = materiaisCache.reduce((s, m) => s + calcDisponivel(m), 0); const sumS = materiaisCache.reduce((s, m) => s + (parseFloat(m.emServico) || 0), 0); const sumEs = materiaisCache.reduce((s, m) => s + (parseFloat(m.emEscav) || 0), 0); const sumEr = materiaisCache.reduce((s, m) => s + (parseFloat(m.emERSPO) || 0), 0); const sumEm = materiaisCache.reduce((s, m) => s + calcEmpregados(m), 0); const sumI = materiaisCache.reduce((s, m) => s + (parseFloat(m.indisponivel) || 0), 0); dados.push(['TOTAL GERAL', '', sumE, sumD, sumS, sumEs, sumEr, sumEm, sumI]); const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'landscape' }); doc.setFontSize(16); doc.text('Relatório de Gestão de Materiais', 14, 18); doc.autoTable({ head: [['Material', 'Un', 'Existente', 'Disponível', 'Em Serviço', 'Em ESCAV', 'Em ERSPO', 'Empregados', 'Indisponível']], body: dados, startY: 32, styles: { fontSize: 8, cellPadding: 2, halign: 'center' }, headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' }, columnStyles: { 0: { halign: 'left', fontStyle: 'bold' } } }); doc.save(`relatorio_gestao_materiais_${getDataHora()}.pdf`); showToast('PDF gerado!'); } catch (err) { showToast('Erro PDF: ' + err.message, 'error'); } };
+
+window.exportarBackupJSON = function() { try { const backup = { versao: '5.0', exportadoEm: new Date().toISOString(), exportadoPor: currentUser?.displayName || currentUser?.email || '', dados: { materiais: materiaisCache, tecnicos: tecnicosCache, escav: escavCache.filter(e => !e._antigo), usuarios: usuariosCache, servicosDiarios: servicosDiariosCache } }; baixarArquivo(JSON.stringify(backup, null, 2), `backup_${getDataHora()}.json`, 'application/json'); showToast('Backup gerado!'); } catch (err) { showToast('Erro: ' + err.message, 'error'); } };
+window.importarBackup = async function(event) { const file = event.target.files[0]; if (!file) return; if (!confirm('ADICIONAR dados do backup?')) { event.target.value = ''; return; } try { const text = await file.text(); const backup = JSON.parse(text); if (!backup.dados) throw new Error('Arquivo inválido'); let count = 0; for (const m of (backup.dados.materiais || [])) { const { id, ...d } = m; await addDoc(collection(db, 'materiais'), migrarMaterial(d)); count++; } for (const t of (backup.dados.tecnicos || [])) { const { id, ...d } = t; await addDoc(collection(db, 'tecnicos'), d); count++; } const escavData = backup.dados.escav || backup.dados.viagens || []; for (const e of escavData) { const { id, ...d } = e; await addDoc(collection(db, 'escav'), d); count++; } for (const s of (backup.dados.servicosDiarios || [])) { const { id, ...d } = s; await addDoc(collection(db, 'servicosDiarios'), d); count++; } showToast(`${count} registros importados!`); } catch (err) { showToast('Erro: ' + err.message, 'error'); } event.target.value = ''; };
+
+// Event listeners dos modais
+document.getElementById('modalEscav').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalEscav'); });
+document.getElementById('modalNovoMaterial').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalNovoMaterial'); });
+document.getElementById('modalAdicionarUsuario').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalAdicionarUsuario'); });
+document.getElementById('modalTrocarSenha').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalTrocarSenha'); });
+document.getElementById('modalNovoServico').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalNovoServico'); });
+document.getElementById('modalNovaCautela').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalNovaCautela'); });
+document.getElementById('modalTecladoAssinatura').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalTecladoAssinatura'); });
+document.getElementById('modalCriarPinAgente').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalCriarPinAgente'); });
+document.getElementById('modalGerenciarPins').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalGerenciarPins'); });
+document.getElementById('modalMeuPin').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalMeuPin'); });
+document.getElementById('modalNovoEscavServico').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalNovoEscavServico'); });
+</script>
+</body>
+</html>
