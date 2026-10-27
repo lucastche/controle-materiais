@@ -285,7 +285,7 @@ tbody tr:hover { background: #f8fafc; }
 <div class="card">
 <h2>➕ Novo ESCAV</h2>
 <div class="form-grid-3" style="margin-bottom:14px">
-<div class="form-group"><label>Tipo ESCAV *</label><select id="escavTipo"><option value="">Selecione...</option><option value="ESCAV PR">ESCAV PR</option><option value="ESCAV VPR">ESCAV VPR</option><option value="Aut Dignitário">Aut Dignitário</option><option value="ESCAV FAM 5">ESCAV FAM 5</option><option value="Adm">Adm</option></select></div>
+<div class="form-group"><label>Tipo ESCAV *</label><select id="escavTipo"><option value="">Selecione...</option><option value="ESCAV PR">ESCAV PR</option><option value="ESCAV VPR">ESCAV VPR</option><option value="Aut Dignitário">Aut Dignitário</option><option value="ESCAV">ESCAV</option><option value="Adm">Adm</option></select></div>
 <div class="form-group"><label>Destino *</label><input type="text" id="escavDestino" placeholder="Ex: Curitiba"></div>
 <div class="form-group"><label>UF *</label><select id="escavUF"><option value="">Selecione...</option><option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option></select></div>
 </div>
@@ -467,14 +467,14 @@ tbody tr:hover { background: #f8fafc; }
 </div></div>
 <div class="modal-overlay" id="modalNovoEscavServico">
 <div class="modal" style="max-width:1000px">
-<h2>🚛 ESCAV no Serviço - CAUTELA DE MATERIAL PARA VIAGEM FAM PR</h2>
+<h2>🚛 ESCAV no Serviço - CAUTELA DE MATERIAL PARA VIAGEM PR</h2>
 <input type="hidden" id="escavServicoId">
 <input type="hidden" id="escavServIdxEdit" value="">
 <div style="background:#fef3c7;padding:12px;border-radius:8px;font-size:0.88rem;color:#78350f;margin-bottom:16px">
 ⚠️ <strong>Atenção:</strong> Este formulário gera o documento oficial de cautela para viagem.
 </div>
 <div class="form-grid-3" style="margin-bottom:14px">
-<div class="form-group"><label>Tipo ESCAV *</label><select id="escavServTipo"><option value="">Selecione...</option><option value="ESCAV PR">ESCAV PR</option><option value="ESCAV VPR">ESCAV VPR</option><option value="Aut Dignitário">Aut Dignitário</option><option value="ESCAV FAM 5">ESCAV FAM 5</option><option value="Adm">Adm</option></select></div>
+<div class="form-group"><label>Tipo ESCAV *</label><select id="escavServTipo"><option value="">Selecione...</option><option value="ESCAV PR">ESCAV PR</option><option value="ESCAV VPR">ESCAV VPR</option><option value="Aut Dignitário">Aut Dignitário</option><option value="ESCAV">ESCAV 5</option><option value="Adm">Adm</option></select></div>
 <div class="form-group"><label>Destino (Cidade/UF) *</label><input type="text" id="escavServDestino" placeholder="Ex: RIO DE JANEIRO-RJ"></div>
 <div class="form-group"><label>UF *</label><select id="escavServUF"><option value="">Selecione...</option><option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option></select></div>
 </div>
@@ -485,7 +485,7 @@ tbody tr:hover { background: #f8fafc; }
 </div>
 <div class="form-group" style="margin-bottom:14px">
 <label>📝 Texto da Cautela (editável)</label>
-<textarea id="escavServTextoCautela" rows="3" style="width:100%; padding:10px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit;">Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.</textarea>
+<textarea id="escavServTextoCautela" rows="3" style="width:100%; padding:10px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit;">Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.</textarea>
 </div>
 <div class="section-title">📦 Materiais da Cautela</div>
 <div id="escavServMateriais"></div>
@@ -511,7 +511,7 @@ tbody tr:hover { background: #f8fafc; }
 <div class="btn-group">
 <button class="btn btn-success" onclick="salvarEscavNoServico()">🚛 Registrar ESCAV</button>
 <button class="btn btn-warning" onclick="abrirAssinaturaEscav()">✍️ Assinar</button>
-<button class="btn btn-primary" onclick="gerarPDFEscavFam()">📕 Gerar PDF (FAM PR)</button>
+<button class="btn btn-primary" onclick="gerarPDFEscav()">📕 Gerar PDF</button>
 <button class="btn btn-danger" onclick="fecharModal('modalNovoEscavServico')">Cancelar</button>
 </div>
 </div>
@@ -1676,7 +1676,7 @@ window.abrirNovoEscavNoServico = function(servicoId) {
   document.getElementById('escavServSispatCautelou').value = '';
   document.getElementById('escavServSispatDescautelou').value = '';
   document.getElementById('escavServVisto').value = '';
-  document.getElementById('escavServTextoCautela').value = 'Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.';
+  document.getElementById('escavServTextoCautela').value = 'Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.';
   renderTecnicosEscavServ();
   renderMateriaisEscavServ();
   document.getElementById('modalNovoEscavServico').classList.add('active');
@@ -1818,7 +1818,7 @@ window.editarEscavNoServico = function(servicoId, escavIdx) {
   document.getElementById('escavServDataInicio').value = escav.dataInicio || '';
   document.getElementById('escavServDataRetorno').value = escav.dataRetorno || '';
   document.getElementById('escavServObs').value = escav.obs || '';
-  document.getElementById('escavServTextoCautela').value = escav.textoCautela || 'Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.';
+  document.getElementById('escavServTextoCautela').value = escav.textoCautela || 'Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.';
   document.getElementById('escavServRespMontagem').value = escav.respMontagem || '';
   document.getElementById('escavServRespEntrega').value = escav.respEntrega || '';
   document.getElementById('escavServRespRecebimento').value = escav.respRecebimento || '';
@@ -2156,7 +2156,7 @@ function getMesExtenso(mes) {
   return meses[parseInt(mes) - 1] || '';
 }
 
-// === PDF ESCAV FAM PR (FORMATO EXATO DA IMAGEM) ===
+// === PDF ESCAV ===
 window.gerarPDFEscavFam = function() {
   const servicoId = document.getElementById('escavServicoId').value;
   const escavIdx = document.getElementById('escavServIdxEdit').value;
@@ -2198,7 +2198,7 @@ function gerarPDFEscavFamDoc(servico, escav) {
     // Texto da cautela (editável)
     doc.setFont(undefined, 'normal');
     doc.setFontSize(10);
-    const textoCautela = escav.textoCautela || `Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ${escav.destino || '-'}, no período de ${escav.dataInicio ? escav.dataInicio.split('-').reverse().join('/') : '-'} a ${escav.dataRetorno ? escav.dataRetorno.split('-').reverse().join('/') : '-'}.`;
+    const textoCautela = escav.textoCautela || `Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem, para a cidade de ${escav.destino || '-'}, no período de ${escav.dataInicio ? escav.dataInicio.split('-').reverse().join('/') : '-'} a ${escav.dataRetorno ? escav.dataRetorno.split('-').reverse().join('/') : '-'}.`;
     const textoLinhas = doc.splitTextToSize(textoCautela, 180);
     doc.text(textoLinhas, 15, 58);
     // Tabela de materiais
@@ -2268,7 +2268,7 @@ function gerarPDFEscavFamDoc(servico, escav) {
     doc.text('DESCAUTELOU OS RÁDIOS NO SISPAT', 165, boxY + 48, { align: 'center' });
     doc.text(`SIM [${escav.sispatDescautelou === 'SIM' ? 'X' : ' '}]  NÃO [${escav.sispatDescautelou === 'NÃO' ? 'X' : ' '}]`, 165, boxY + 53, { align: 'center' });
     doc.save(`cautela_fam_pr_${escav.destino}_${escav.dataInicio}.pdf`);
-    showToast('📕 PDF da Cautela FAM PR gerado!');
+    showToast('📕 PDF da Cautela gerado!');
   } catch (err) { showToast('Erro ao gerar PDF: ' + err.message, 'error'); }
 }
 
