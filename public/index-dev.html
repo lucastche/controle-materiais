@@ -138,6 +138,18 @@ tbody tr:hover { background: #f8fafc; }
 .btn-teclado:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 .btn-teclado:active { transform: scale(0.95); }
 
+/* === ACESSÓRIOS DE RÁDIO === */
+.acessorios-radio-box { background: #eff6ff; border: 1px dashed #2563eb; border-radius: 8px; padding: 12px 16px; margin-top: 10px; margin-bottom: 10px; }
+.acessorios-radio-box .titulo { font-size: 0.82rem; font-weight: 700; color: #1e40af; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.3px; }
+.acessorios-radio-box .lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.acessorio-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: white; border: 1.5px solid #bfdbfe; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.88rem; }
+.acessorio-item:hover { background: #dbeafe; border-color: #2563eb; }
+.acessorio-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+.acessorio-item .qtd-disponivel { margin-left: auto; font-size: 0.75rem; color: var(--text-light); font-weight: 600; }
+.acessorio-item.indisponivel { opacity: 0.5; cursor: not-allowed; background: #f1f5f9; }
+.tag-acessorio { background: #fef3c7; border-left: 3px solid #f59e0b; padding: 6px 10px; border-radius: 6px; font-size: 0.82rem; color: #78350f; display: inline-flex; align-items: center; gap: 6px; margin: 3px; }
+.tag-acessorio::before { content: '🔌'; }
+
 /* === ESTILOS DA ABA MÉTRICAS === */
 .metrica-kpi { background: white; border-radius: 12px; padding: 20px; border: 1px solid var(--border); position: relative; overflow: hidden; }
 .metrica-kpi::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary); }
@@ -145,6 +157,29 @@ tbody tr:hover { background: #f8fafc; }
 .metrica-kpi .label { font-size: 0.85rem; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
 .metrica-kpi .valor { font-size: 2rem; font-weight: 800; color: var(--text); }
 .metrica-kpi .subvalor { font-size: 0.9rem; color: var(--text-light); margin-top: 4px; }
+
+/* Modo TV */
+#modoTVOverlay { font-family: 'Segoe UI', sans-serif; }
+.tv-tela { animation: fadeIn 0.5s ease-in; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.tv-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+.tv-kpi-card { background: rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: center; border: 1px solid rgba(255,255,255,0.2); }
+.tv-kpi-card .label { font-size: 1.2rem; opacity: 0.8; margin-bottom: 12px; text-transform: uppercase; }
+.tv-kpi-card .valor { font-size: 3.5rem; font-weight: 800; }
+.tv-alerta { background: rgba(220, 38, 38, 0.2); border-left: 4px solid #dc2626; padding: 20px; margin-bottom: 16px; border-radius: 8px; }
+.tv-alerta .titulo { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; color: #fca5a5; }
+.tv-alerta .detalhe { font-size: 1.1rem; color: #fecaca; }
+
+/* === HISTÓRICO ESCAV === */
+.escav-historico-separator { margin: 30px 0 20px 0; padding-top: 20px; border-top: 2px dashed var(--border); }
+.escav-historico-separator h3 { font-size: 1.1rem; color: var(--text-light); margin-bottom: 16px; }
+
+/* === LISTA RECOLHÍVEL === */
+.lista-recolhivel { max-height: none; overflow: hidden; transition: max-height 0.3s ease; }
+.lista-recolhivel.recolhida { max-height: calc(3 * 130px); overflow: hidden; position: relative; }
+.lista-recolhivel.recolhida::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: linear-gradient(transparent, #f8fafc); pointer-events: none; }
+.btn-expandir { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 0.82rem; color: var(--primary); cursor: pointer; margin-top: 8px; font-weight: 600; }
+.btn-expandir:hover { background: #eff6ff; }
 
 @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } nav button { font-size: 0.8rem; padding: 12px 10px; min-width: 90px; } .container { padding: 12px; } }
 </style>
@@ -192,7 +227,6 @@ tbody tr:hover { background: #f8fafc; }
 <button onclick="fazerLogout()">🚪 Sair</button>
 </div>
 </header>
-
 <nav>
 <button onclick="showSection('metricas', this)">📊 Métricas</button>
 <button class="active" onclick="showSection('servicoDiario', this)">📋 Serviço Diário</button>
@@ -203,35 +237,44 @@ tbody tr:hover { background: #f8fafc; }
 <button id="btnAdmin" onclick="showSection('admin', this)" style="display:none">⚙️ Admin</button>
 <button id="btnAuditoria" onclick="showSection('auditoria', this)" style="display:none">📝 Auditoria</button>
 </nav>
-
 <div class="container">
 
 <!-- MÉTRICAS -->
 <div id="metricas" class="section">
-  <div class="card">
-    <div class="card-header">
-      <h2>📊 Painel de Métricas e Insights</h2>
-      <div class="export-buttons">
-        <button class="btn-export" onclick="exportarMetricasExcel()">📊 Excel</button>
-        <button class="btn-export" onclick="exportarMetricasPDF()">📕 PDF</button>
-      </div>
-    </div>
-    <div class="materiais-summaries" id="metricasKPIs"></div>
-    <div style="margin: 30px 0; padding: 20px; background: #f8fafc; border-radius: 12px;">
-      <h3 style="margin-bottom: 16px;">📈 Distribuição de Materiais</h3>
-      <div style="height: 400px;"><canvas id="graficoMateriais"></canvas></div>
-    </div>
-    <div style="margin-top: 20px;">
-      <h3 style="margin-bottom: 16px;">📋 Relação Completa de Materiais</h3>
-      <input type="text" class="search-box" placeholder="🔍 Buscar material..." oninput="filtrarMetricas(this.value)">
-      <div id="tabelaMetricas"></div>
-    </div>
-    <div id="alertasMetricas" style="margin-top: 30px;"></div>
-  </div>
+<div class="card">
+<div class="card-header">
+<h2>📊 Painel de Métricas</h2>
+<div class="export-buttons">
+<button class="btn-export" onclick="exportarMetricasExcel()">📊 Excel</button>
+<button class="btn-export" onclick="exportarMetricasPDF()">📕 PDF</button>
+<button class="btn btn-warning btn-sm" onclick="ativarModoTV()">📺 Modo TV</button>
+</div>
+</div>
+<div class="materiais-summaries" id="metricasKPIs"></div>
+<div style="margin: 30px 0; padding: 20px; background: #f8fafc; border-radius: 12px;">
+<h3 style="margin-bottom: 16px;">📈 Distribuição de Materiais</h3>
+<div style="height: 400px;"><canvas id="graficoMateriais"></canvas></div>
+</div>
+<div style="margin-top: 20px;">
+<h3 style="margin-bottom: 16px;">📋 Relação Completa de Materiais</h3>
+<input type="text" class="search-box" placeholder="🔍 Buscar material..." oninput="filtrarMetricas(this.value)">
+<div id="tabelaMetricas"></div>
+</div>
+<div id="alertasMetricas" style="margin-top: 30px;"></div>
+</div>
+</div>
+
+<!-- OVERLAY MODO TV -->
+<div id="modoTVOverlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#0f172a; z-index:99999; overflow:hidden;">
+<div style="position:absolute; top:20px; right:20px; color:white; font-size:1.2rem; font-weight:600; display:flex; gap:20px; align-items:center;">
+<span id="tvRelogio"></span>
+<button onclick="sairModoTV()" style="padding:8px 16px; background:#dc2626; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">✕ Sair</button>
+</div>
+<div id="tvConteudo" style="padding:60px; color:white; height:100%; box-sizing:border-box;"></div>
 </div>
 
 <!-- SERVIÇO DIÁRIO -->
-<div id="servicoDiario" class="section">
+<div id="servicoDiario" class="section active">
 <div class="card">
 <div class="card-header">
 <h2>📋 Serviço Diário</h2>
@@ -269,9 +312,9 @@ tbody tr:hover { background: #f8fafc; }
 <div id="tecnicos" class="section">
 <div class="card">
 <div class="card-header">
-<h2>🛡️ Lista de Agentes de Segurança Técnica</h2>
+<h2>🛡️ Lista de AST</h2>
 <div class="export-buttons">
-<button class="btn-export" onclick="exportarTecnicosExcel()">📊 Excel</button>
+<button class="btn-export" onclick="exportarTecnicosExcel()"> Excel</button>
 <button class="btn-export" onclick="exportarTecnicosPDF()">📕 PDF</button>
 </div>
 </div>
@@ -280,28 +323,8 @@ tbody tr:hover { background: #f8fafc; }
 </div>
 </div>
 
-<!-- ESCAV -->
+<!-- ESCAV (APENAS HISTÓRICO) -->
 <div id="escav" class="section">
-<div class="card">
-<h2>➕ Novo ESCAV</h2>
-<div class="form-grid-3" style="margin-bottom:14px">
-<div class="form-group"><label>Tipo ESCAV *</label><select id="escavTipo"><option value="">Selecione...</option><option value="ESCAV PR">ESCAV PR</option><option value="ESCAV VPR">ESCAV VPR</option><option value="Aut Dignitário">Aut Dignitário</option><option value="ESCAV">ESCAV</option><option value="Adm">Adm</option></select></div>
-<div class="form-group"><label>Destino *</label><input type="text" id="escavDestino" placeholder="Ex: Curitiba"></div>
-<div class="form-group"><label>UF *</label><select id="escavUF"><option value="">Selecione...</option><option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option></select></div>
-</div>
-<div class="form-grid-3" style="margin-bottom:14px">
-<div class="form-group"><label>Evento</label><input type="text" id="escavEvento" placeholder="Ex: Passeata..."></div>
-<div class="form-group"><label>Data Início *</label><input type="date" id="escavDataInicio"></div>
-<div class="form-group"><label>Data Retorno *</label><input type="date" id="escavDataRetorno"></div>
-</div>
-<div class="form-group" style="margin-bottom:14px"><label>Observação</label><textarea id="escavObs" rows="2" placeholder="Observações..."></textarea></div>
-<div class="section-title">👷 Técnicos Participantes</div>
-<div id="tecnicosEscav"></div>
-<div class="section-title">📦 Materiais Utilizados</div>
-<div id="materiaisEscav"></div>
-<button type="button" class="btn btn-warning btn-sm" onclick="adicionarMaterialEscav()" style="margin-top:8px">+ Adicionar Material</button>
-<div class="btn-group"><button class="btn btn-success" onclick="salvarEscav()">🚛 Registrar ESCAV</button></div>
-</div>
 <div class="card">
 <div class="card-header">
 <h2>🚛 Histórico de ESCAV</h2>
@@ -310,7 +333,7 @@ tbody tr:hover { background: #f8fafc; }
 <button class="btn-export" onclick="exportarEscavPDF()">📕 PDF</button>
 </div>
 </div>
-<input type="text" class="search-box" placeholder="🔍 Buscar..." oninput="renderEscav(this.value)">
+<input type="text" class="search-box" placeholder=" Buscar no histórico..." oninput="renderEscav(this.value)">
 <div id="listaEscav"><div class="loading"><div class="spinner"></div><p>Carregando...</p></div></div>
 </div>
 </div>
@@ -322,7 +345,7 @@ tbody tr:hover { background: #f8fafc; }
 <h2>📦 Relatório de Gestão de Materiais</h2>
 <div class="export-buttons">
 <button class="btn-export" onclick="exportarRelatorioMateriaisExcel()">📊 Excel</button>
-<button class="btn-export" onclick="exportarRelatorioMateriaisPDF()">📕 PDF</button>
+<button class="btn-export" onclick="exportarRelatorioMateriaisPDF()"> PDF</button>
 </div>
 </div>
 <div class="materiais-summaries" id="relMateriaisSummaries"></div>
@@ -355,7 +378,7 @@ tbody tr:hover { background: #f8fafc; }
 <div id="auditoria" class="section">
 <div class="card">
 <div class="card-header">
-<h2>📝 Log de Auditoria</h2>
+<h2> Log de Auditoria</h2>
 <div class="export-buttons">
 <button class="btn-export" onclick="exportarAuditoriaExcel()">📊 Excel</button>
 <button class="btn-export" onclick="exportarAuditoriaPDF()">📕 PDF</button>
@@ -377,6 +400,7 @@ tbody tr:hover { background: #f8fafc; }
 <option value="EXCLUIR_ESCAV">Excluir ESCAV</option>
 <option value="CRIAR_CAUTELA">Criar Cautela</option>
 <option value="EDITAR_CAUTELA">Editar Cautela</option>
+<option value="EXCLUIR_CAUTELA">Excluir Cautela</option>
 <option value="ENCERRAR_CAUTELA">Encerrar Cautela</option>
 <option value="ASSINAR_CAUTELA">Assinar Cautela</option>
 <option value="ASSINAR_ESCAV">Assinar ESCAV</option>
@@ -396,8 +420,9 @@ tbody tr:hover { background: #f8fafc; }
 </div>
 </div>
 
-<!-- MODAIS (Mantidos os mesmos do seu código original para não quebrar nada) -->
+<!-- MODAIS -->
 <div class="modal-overlay" id="modalEscav"><div class="modal"><h2>👁️ Detalhes da ESCAV</h2><div id="modalEscavContent"></div><div class="btn-group"><button class="btn btn-primary" onclick="fecharModal('modalEscav')">Fechar</button></div></div></div>
+
 <div class="modal-overlay" id="modalNovoMaterial"><div class="modal"><h2>➕ Novo Material</h2><div class="form-grid">
 <div class="form-group"><label>Nome *</label><input type="text" id="novoMatNome"></div>
 <div class="form-group"><label>Unidade</label><select id="novoMatUnidade"><option value="un">Unidade (un)</option><option value="m">Metro (m)</option><option value="kg">Quilograma (kg)</option></select></div>
@@ -407,6 +432,19 @@ tbody tr:hover { background: #f8fafc; }
 <div class="form-group"><label>Em ERSPO</label><input type="number" id="novoMatERSPO" value="0" step="0.01"></div>
 <div class="form-group"><label>Indisponível</label><input type="number" id="novoMatIndisp" value="0" step="0.01"></div>
 </div><div class="btn-group"><button class="btn btn-success" onclick="salvarNovoMaterial()">💾 Salvar</button><button class="btn btn-danger" onclick="fecharModal('modalNovoMaterial')">Cancelar</button></div></div></div>
+
+<div class="modal-overlay" id="modalEditarMaterial"><div class="modal"><h2>✏️ Editar Material</h2>
+<input type="hidden" id="editMatId">
+<div class="form-grid">
+<div class="form-group"><label>Nome *</label><input type="text" id="editMatNome"></div>
+<div class="form-group"><label>Unidade</label><select id="editMatUnidade"><option value="un">Unidade (un)</option><option value="m">Metro (m)</option><option value="kg">Quilograma (kg)</option></select></div>
+<div class="form-group"><label>Existente</label><input type="number" id="editMatExistente" step="0.01"></div>
+<div class="form-group"><label>Em Serviço</label><input type="number" id="editMatServico" step="0.01"></div>
+<div class="form-group"><label>Em ESCAV</label><input type="number" id="editMatEscav" step="0.01"></div>
+<div class="form-group"><label>Em ERSPO</label><input type="number" id="editMatERSPO" step="0.01"></div>
+<div class="form-group"><label>Indisponível</label><input type="number" id="editMatIndisp" step="0.01"></div>
+</div><div class="btn-group"><button class="btn btn-success" onclick="salvarEdicaoMaterial()">💾 Salvar Alterações</button><button class="btn btn-danger" onclick="fecharModal('modalEditarMaterial')">Cancelar</button></div></div></div>
+
 <div class="modal-overlay" id="modalAdicionarUsuario"><div class="modal" style="max-width:600px"><h2>➕ Adicionar Novo Usuário</h2>
 <div class="form-grid">
 <div class="form-group"><label>Nome Completo *</label><input type="text" id="novoUserName" placeholder="Ex: João da Silva Santos"></div>
@@ -425,7 +463,7 @@ tbody tr:hover { background: #f8fafc; }
 <div class="form-group" id="campoRadio" style="display:none"><label>📻 Rádio (opcional)</label><input type="text" id="novoUserRadio" placeholder="Ex: HT-1234"></div>
 </div>
 <div style="background:#fef3c7;padding:12px;border-radius:8px;font-size:0.88rem;color:#78350f;margin:16px 0">
-⚠️ <strong>Perfis:</strong><br>
+️ <strong>Perfis:</strong><br>
 • <strong>AST</strong>: Técnico que opera o sistema e cria serviços<br>
 • <strong>Agente</strong>: Recebe e assina cautelas (não precisa de login)<br>
 • <strong>Admin</strong>: Acesso total<br>
@@ -434,20 +472,23 @@ tbody tr:hover { background: #f8fafc; }
 </div>
 <div class="btn-group"><button class="btn btn-success" onclick="adicionarUsuario()">➕ Criar Usuário</button><button class="btn btn-danger" onclick="fecharModal('modalAdicionarUsuario')">Cancelar</button></div>
 </div></div>
-<div class="modal-overlay" id="modalTrocarSenha"><div class="modal" style="max-width:450px"><h2>🔑 Alterar Senha</h2>
+
+<div class="modal-overlay" id="modalTrocarSenha"><div class="modal" style="max-width:450px"><h2> Alterar Senha</h2>
 <div class="form-group" style="margin-bottom:14px"><label>Senha Atual *</label><input type="password" id="senhaAtual"></div>
 <div class="form-group" style="margin-bottom:14px"><label>Nova Senha * (mínimo 6 caracteres)</label><input type="password" id="novaSenha"></div>
 <div class="form-group" style="margin-bottom:14px"><label>Confirmar Nova Senha *</label><input type="password" id="confirmarNovaSenha"></div>
 <div class="btn-group"><button class="btn btn-success" onclick="trocarSenha()">💾 Salvar Nova Senha</button><button class="btn btn-danger" onclick="fecharModal('modalTrocarSenha')">Cancelar</button></div>
 </div></div>
+
 <div class="modal-overlay" id="modalNovoServico"><div class="modal" style="max-width:700px"><h2>➕ Novo Serviço Diário</h2>
 <div class="form-grid">
-<div class="form-group"><label>👷 Técnico Responsável (AST) *</label><select id="servicoTecnico"><option value="">Selecione...</option></select></div>
+<div class="form-group"><label> Técnico Responsável (AST) *</label><select id="servicoTecnico"><option value="">Selecione...</option></select></div>
 <div class="form-group"><label>📅 Data do Serviço *</label><input type="date" id="servicoData"></div>
-<div class="form-group" style="grid-column: span 2"><label>📆 Dia da Semana</label><div id="servicoDiaSemana" style="padding:10px;background:#f8fafc;border-radius:8px;font-weight:600;font-size:1.1rem">-</div></div>
+<div class="form-group" style="grid-column: span 2"><label> Dia da Semana</label><div id="servicoDiaSemana" style="padding:10px;background:#f8fafc;border-radius:8px;font-weight:600;font-size:1.1rem">-</div></div>
 </div>
 <div class="btn-group"><button class="btn btn-success" onclick="salvarNovoServico()">💾 Criar Serviço</button><button class="btn btn-danger" onclick="fecharModal('modalNovoServico')">Cancelar</button></div>
 </div></div>
+
 <div class="modal-overlay" id="modalNovaCautela"><div class="modal" style="max-width:900px"><h2>📄 Cautela de Material</h2>
 <input type="hidden" id="cautelaServicoId">
 <input type="hidden" id="cautelaIdxEdit" value="">
@@ -457,24 +498,32 @@ tbody tr:hover { background: #f8fafc; }
 </div>
 <div class="form-group" style="margin-bottom:16px"><label>📝 Texto da Cautela (editável)</label><textarea id="cautelaTextoPersonalizado" rows="3">Recebi da Coordenação Logística de Ações não cinéticas, para ser utilizado em TAF, o material abaixo relacionado:</textarea></div>
 <div id="cautelaMateriaisLista"></div>
+<div id="acessoriosRadioContainer" style="display:none">
+  <div class="acessorios-radio-box">
+    <div class="titulo">📻 Acessórios do Rádio Selecionado</div>
+    <div class="lista" id="listaAcessoriosRadio"></div>
+    <div style="font-size:0.78rem;color:var(--text-light);margin-top:8px;font-style:italic">ℹ️ Os acessórios marcados serão multiplicados pela quantidade de rádios.</div>
+  </div>
+</div>
 <button type="button" class="btn btn-warning btn-sm" onclick="adicionarMaterialCautela()" style="margin-top:8px">+ Adicionar Material</button>
 <div class="form-group" style="margin-top:16px"><label>📋 Observações Adicionais</label><textarea id="cautelaObs" rows="2" placeholder="Observações sobre a cautela..."></textarea></div>
 <div class="btn-group">
 <button class="btn btn-success" onclick="salvarCautela()">💾 Salvar Cautela</button>
-<button class="btn btn-primary" onclick="gerarPDFCautela()">📕 Gerar PDF</button>
+<button class="btn btn-primary" onclick="gerarPDFCautela()"> Gerar PDF</button>
 <button class="btn btn-danger" onclick="fecharModal('modalNovaCautela')">Cancelar</button>
 </div>
 </div></div>
+
 <div class="modal-overlay" id="modalNovoEscavServico">
 <div class="modal" style="max-width:1000px">
-<h2>🚛 ESCAV no Serviço - CAUTELA DE MATERIAL PARA VIAGEM PR</h2>
+<h2>🚛 ESCAV no Serviço - CAUTELA DE MATERIAL PARA VIAGEM</h2>
 <input type="hidden" id="escavServicoId">
 <input type="hidden" id="escavServIdxEdit" value="">
 <div style="background:#fef3c7;padding:12px;border-radius:8px;font-size:0.88rem;color:#78350f;margin-bottom:16px">
 ⚠️ <strong>Atenção:</strong> Este formulário gera o documento oficial de cautela para viagem.
 </div>
 <div class="form-grid-3" style="margin-bottom:14px">
-<div class="form-group"><label>Tipo ESCAV *</label><select id="escavServTipo"><option value="">Selecione...</option><option value="ESCAV PR">ESCAV PR</option><option value="ESCAV VPR">ESCAV VPR</option><option value="Aut Dignitário">Aut Dignitário</option><option value="ESCAV">ESCAV 5</option><option value="Adm">Adm</option></select></div>
+<div class="form-group"><label>Tipo ESCAV *</label><select id="escavServTipo"><option value="">Selecione...</option><option value="ESCAV PR">ESCAV PR</option><option value="ESCAV VPR">ESCAV VPR</option><option value="Aut Dignitário">Aut Dignitário</option><option value="ESCAV FAM 5">ESCAV FAM 5</option><option value="Adm">Adm</option></select></div>
 <div class="form-group"><label>Destino (Cidade/UF) *</label><input type="text" id="escavServDestino" placeholder="Ex: RIO DE JANEIRO-RJ"></div>
 <div class="form-group"><label>UF *</label><select id="escavServUF"><option value="">Selecione...</option><option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option></select></div>
 </div>
@@ -485,10 +534,17 @@ tbody tr:hover { background: #f8fafc; }
 </div>
 <div class="form-group" style="margin-bottom:14px">
 <label>📝 Texto da Cautela (editável)</label>
-<textarea id="escavServTextoCautela" rows="3" style="width:100%; padding:10px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit;">Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.</textarea>
+<textarea id="escavServTextoCautela" rows="3" style="width:100%; padding:10px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit;">Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.</textarea>
 </div>
-<div class="section-title">📦 Materiais da Cautela</div>
+<div class="section-title"> Materiais da Cautela</div>
 <div id="escavServMateriais"></div>
+<div id="escavAcessoriosRadioContainer" style="display:none">
+  <div class="acessorios-radio-box">
+    <div class="titulo">📻 Acessórios do Rádio Selecionado</div>
+    <div class="lista" id="escavListaAcessoriosRadio"></div>
+    <div style="font-size:0.78rem;color:var(--text-light);margin-top:8px;font-style:italic">ℹ️ Os acessórios marcados serão multiplicados pela quantidade de rádios.</div>
+  </div>
+</div>
 <button type="button" class="btn btn-warning btn-sm" onclick="adicionarMaterialEscavServ()" style="margin-top:8px">+ Adicionar Material</button>
 <div class="section-title">👷 Responsáveis</div>
 <div class="form-grid-3" style="margin-top:10px">
@@ -510,12 +566,13 @@ tbody tr:hover { background: #f8fafc; }
 <div id="escavServTecnicos"></div>
 <div class="btn-group">
 <button class="btn btn-success" onclick="salvarEscavNoServico()">🚛 Registrar ESCAV</button>
-<button class="btn btn-warning" onclick="abrirAssinaturaEscav()">✍️ Assinar</button>
-<button class="btn btn-primary" onclick="gerarPDFEscav()">📕 Gerar PDF</button>
+<button class="btn btn-warning" onclick="assinarEscavServico()">✍️ Assinar</button>
+<button class="btn btn-primary" onclick="gerarPDFEscavFam()">📕 Gerar PDF (FAM PR)</button>
 <button class="btn btn-danger" onclick="fecharModal('modalNovoEscavServico')">Cancelar</button>
 </div>
 </div>
 </div>
+
 <div class="modal-overlay" id="modalTecladoAssinatura">
 <div class="modal" style="max-width:500px; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: white;">
 <h2 style="color: white; text-align: center; margin-bottom: 10px;">✍️ Assinatura</h2>
@@ -532,17 +589,19 @@ tbody tr:hover { background: #f8fafc; }
 <div style="text-align: center;"><button class="btn btn-danger" onclick="fecharModal('modalTecladoAssinatura')" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">✕ Cancelar</button></div>
 </div>
 </div>
+
 <div class="modal-overlay" id="modalCriarPinAgente">
 <div class="modal" style="max-width:450px">
 <h2>🔐 Primeiro Acesso - Criar Senha PIN</h2>
 <p style="color:var(--text-light);margin-bottom:20px">Agente: <strong id="criarPinAgenteNomeAssinatura"></strong><br>Cautela: <strong id="criarPinCautelaNumeroAssinatura"></strong></p>
-<div style="background:#fef3c7;padding:12px;border-radius:8px;font-size:0.9rem;color:#78350f;margin-bottom:16px">⚠️ Esta é sua primeira vez no sistema. Crie uma senha de 4 dígitos que você usará para assinar cautelas.</div>
+<div style="background:#fef3c7;padding:12px;border-radius:8px;font-size:0.9rem;color:#78350f;margin-bottom:16px">️ Esta é sua primeira vez no sistema. Crie uma senha de 4 dígitos que você usará para assinar cautelas.</div>
 <div class="form-group" style="margin-bottom:14px"><label>Criar Senha PIN (4 dígitos)</label><input type="password" id="novoPinCriarAssinatura" maxlength="4" style="font-size:2rem;text-align:center;letter-spacing:8px" placeholder="••••" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
 <div class="form-group" style="margin-bottom:14px"><label>Confirmar Senha PIN</label><input type="password" id="confirmarPinCriarAssinatura" maxlength="4" style="font-size:2rem;text-align:center;letter-spacing:8px" placeholder="••••" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
 <div id="criarPinErroAssinatura" style="color:var(--danger);margin-bottom:14px;display:none"></div>
 <div class="btn-group"><button class="btn btn-success" onclick="salvarNovoPinAgente()">✅ Criar e Assinar</button><button class="btn btn-danger" onclick="fecharModal('modalCriarPinAgente')">Cancelar</button></div>
 </div>
 </div>
+
 <div class="modal-overlay" id="modalGerenciarPins">
 <div class="modal" style="max-width:800px">
 <h2>🔐 Gerenciar Senhas PIN dos Agentes</h2>
@@ -551,6 +610,7 @@ tbody tr:hover { background: #f8fafc; }
 <div class="btn-group"><button class="btn btn-danger" onclick="fecharModal('modalGerenciarPins')">Fechar</button></div>
 </div>
 </div>
+
 <div class="modal-overlay" id="modalMeuPin">
 <div class="modal" style="max-width:450px">
 <h2>🔐 Minha Senha PIN</h2>
@@ -562,6 +622,7 @@ tbody tr:hover { background: #f8fafc; }
 <div class="btn-group"><button class="btn btn-success" onclick="salvarMeuPin()">💾 Salvar</button><button class="btn btn-danger" onclick="fecharModal('modalMeuPin')">Cancelar</button></div>
 </div>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -596,6 +657,85 @@ let cautelaAssinaturaAtual = null;
 let escavServMateriaisTemp = [];
 let escavServTecnicosSelecionados = new Set();
 let pinsCache = {};
+
+// === ACESSÓRIOS DE RÁDIO DINÂMICOS ===
+function getAcessoriosPorRadio(nomeMaterial) {
+  if (!nomeMaterial) return [];
+  const nome = nomeMaterial.toLowerCase();
+  
+  // N50 - só baterias e IECOM (sem fone)
+  if (nome.includes('n50')) {
+    return [
+      { chave: 'bat1_n50', nome: '1 Bateria N50', busca: 'Bateria N50', qtdBase: 1 },
+      { chave: 'bat2_n50', nome: '2 Baterias N50', busca: 'Bateria N50', qtdBase: 2 },
+      { chave: 'iecom_n50', nome: '1 IECOM', busca: 'IECOM', qtdBase: 1 }
+    ];
+  }
+  // APX 2000 - baterias APX, fone e IECOM
+  else if (nome.includes('apx 2000') || nome.includes('apx2000') || (nome.includes('apx') && nome.includes('2000'))) {
+    return [
+      { chave: 'bat1_apx', nome: '1 Bateria APX 2000', busca: 'Bateria APX', qtdBase: 1 },
+      { chave: 'bat2_apx', nome: '2 Baterias APX 2000', busca: 'Bateria APX', qtdBase: 2 },
+      { chave: 'fone_apx', nome: '1 Fone auricular', busca: 'Auricular', qtdBase: 1 },
+      { chave: 'iecom_apx', nome: '1 IECOM', busca: 'IECOM', qtdBase: 1 }
+    ];
+  }
+  // APX genérico
+  else if (nome.includes('apx')) {
+    return [
+      { chave: 'bat1_apx', nome: '1 Bateria APX', busca: 'Bateria APX', qtdBase: 1 },
+      { chave: 'bat2_apx', nome: '2 Baterias APX', busca: 'Bateria APX', qtdBase: 2 },
+      { chave: 'fone_apx', nome: '1 Fone auricular', busca: 'Auricular', qtdBase: 1 },
+      { chave: 'iecom_apx', nome: '1 IECOM', busca: 'IECOM', qtdBase: 1 }
+    ];
+  }
+  // NEXT - baterias NEXT, fone e IECOM
+  else if (nome.includes('next') || nome.includes('nexedge')) {
+    return [
+      { chave: 'bat1_next', nome: '1 Bateria NEXT', busca: 'Bateria NEXT', qtdBase: 1 },
+      { chave: 'bat2_next', nome: '2 Baterias NEXT', busca: 'Bateria NEXT', qtdBase: 2 },
+      { chave: 'fone_next', nome: '1 Fone auricular', busca: 'Auricular', qtdBase: 1 },
+      { chave: 'iecom_next', nome: '1 IECOM', busca: 'IECOM', qtdBase: 1 }
+    ];
+  }
+  // Padrão genérico
+  return [
+    { chave: 'bat1', nome: '1 Bateria', busca: 'Bateria', qtdBase: 1 },
+    { chave: 'bat2', nome: '2 Baterias', busca: 'Bateria', qtdBase: 2 },
+    { chave: 'fone', nome: '1 Fone auricular', busca: 'Auricular', qtdBase: 1 },
+    { chave: 'iecom', nome: '1 IECOM', busca: 'IECOM', qtdBase: 1 }
+  ];
+}
+
+function ehRadio(materialNome) {
+  if (!materialNome) return false;
+  const n = materialNome.toLowerCase();
+  return n.includes('rádio') || n.includes('radio') || n.includes('apx') || n.includes('n50') || n.includes('motorola') || n.includes('next') || n.includes('nexedge');
+}
+
+function buscarAcessorioEspecifico(busca, radioNome) {
+  if (!busca) return null;
+  const buscaLower = busca.toLowerCase();
+  const radioLower = (radioNome || '').toLowerCase();
+  
+  // Primeiro tenta buscar o acessório específico do modelo
+  // Ex: se radio é "Rádio N50" e busca é "Bateria N50", procura material com "Bateria" E "N50"
+  const especifico = materiaisCache.find(m => {
+    const nomeMat = m.nome.toLowerCase();
+    // Verifica se contém a palavra-chave da busca
+    if (!nomeMat.includes(buscaLower.split(' ')[0])) return false;
+    // Se o rádio tem modelo específico (n50, apx, next), verifica se o material também tem
+    if (radioLower.includes('n50') && !nomeMat.includes('n50')) return false;
+    if ((radioLower.includes('apx') || radioLower.includes('apx 2000')) && !nomeMat.includes('apx')) return false;
+    if (radioLower.includes('next') && !nomeMat.includes('next')) return false;
+    return true;
+  });
+  
+  if (especifico) return especifico;
+  
+  // Fallback: busca genérica
+  return materiaisCache.find(m => m.nome.toLowerCase().includes(buscaLower)) || null;
+}
 
 function calcEmpregados(m) { return (parseFloat(m.emServico) || 0) + (parseFloat(m.emEscav) || 0) + (parseFloat(m.emERSPO) || 0); }
 function calcDisponivel(m) { const empregados = calcEmpregados(m); const indisponivel = parseFloat(m.indisponivel) || 0; const existente = parseFloat(m.existente) || 0; return Math.round((existente - (empregados + indisponivel)) * 100) / 100; }
@@ -680,8 +820,8 @@ onAuthStateChanged(auth, async (user) => {
       document.querySelectorAll('nav button').forEach(btn => btn.style.display = '');
     }
     const roleEl = document.getElementById('userRole');
-    if (isAdmin) { roleEl.textContent = '👑 Admin'; roleEl.style.background = 'rgba(250,204,21,0.3)'; }
-    else if (currentUserRole === 'ast') { roleEl.textContent = '🔧 AST'; roleEl.style.background = 'rgba(20,184,166,0.3)'; }
+    if (isAdmin) { roleEl.textContent = ' Admin'; roleEl.style.background = 'rgba(250,204,21,0.3)'; }
+    else if (currentUserRole === 'ast') { roleEl.textContent = ' AST'; roleEl.style.background = 'rgba(20,184,166,0.3)'; }
     else if (isViewer) { roleEl.textContent = '👁️ Visualizador'; roleEl.style.background = 'rgba(103,232,249,0.3)'; }
     else { roleEl.textContent = '👤 Usuário'; roleEl.style.background = 'rgba(255,255,255,0.2)'; }
     iniciarListeners();
@@ -705,10 +845,12 @@ function iniciarListeners() {
   onSnapshot(query(collection(db, 'escav'), orderBy('dataInicio', 'desc')), (s) => {
     escavCache = s.docs.map(d => ({ id: d.id, ...d.data() }));
     renderEscav(); renderRelatorios();
+    if (document.getElementById('metricas').classList.contains('active')) renderMetricas();
   });
   onSnapshot(query(collection(db, 'servicosDiarios'), orderBy('data', 'desc')), (s) => {
     servicosDiariosCache = s.docs.map(d => ({ id: d.id, ...d.data() }));
     if (document.getElementById('servicoDiario').classList.contains('active')) renderServicoDiario();
+    if (document.getElementById('metricas').classList.contains('active')) renderMetricas();
   });
   if (currentUserRole === 'admin') {
     onSnapshot(query(collection(db, 'usuarios'), orderBy('nome')), (s) => {
@@ -732,17 +874,8 @@ window.showSection = function(id, btn) {
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if (btn) btn.classList.add('active');
-  
-  if (id === 'escav') {
-    const hoje = new Date().toISOString().split('T')[0];
-    document.getElementById('escavDataInicio').value = hoje;
-    document.getElementById('escavDataRetorno').value = hoje;
-    materiaisEscavTemp = []; tecnicosEscavSelecionados = new Set();
-    renderMateriaisEscav(); renderTecnicosEscav();
-  }
-  if (id === 'metricas') {
-    renderMetricas();
-  }
+  if (id === 'escav') renderEscav();
+  if (id === 'metricas') renderMetricas();
   if (id === 'materiais') renderMateriais();
   if (id === 'relatorios') renderRelatorios();
   if (id === 'servicoDiario') renderServicoDiario();
@@ -786,16 +919,13 @@ function renderMetricasKPI() {
   const sumEmpregados = materiaisCache.reduce((s, m) => s + calcEmpregados(m), 0);
   const totalMateriais = materiaisCache.length;
   const materiaisCriticos = materiaisCache.filter(m => calcDisponivel(m) <= 0).length;
-  
   container.innerHTML = `
     <div class="metrica-kpi"><div class="label">Total de Materiais</div><div class="valor">${totalMateriais}</div><div class="subvalor">itens cadastrados</div></div>
     <div class="metrica-kpi"><div class="label">Existente</div><div class="valor">${sumExistente.toLocaleString('pt-BR')}</div><div class="subvalor">unidades no estoque</div></div>
     <div class="metrica-kpi"><div class="label">Disponível</div><div class="valor">${sumDisponivel.toLocaleString('pt-BR')}</div><div class="subvalor">${sumExistente > 0 ? ((sumDisponivel/sumExistente)*100).toFixed(1) : 0}% do total</div></div>
-    <div class="metrica-kpi ${materiaisCriticos > 0 ? 'alerta' : ''}"><div class="label">Empregados</div><div class="valor">${sumEmpregados.toLocaleString('pt-BR')}</div><div class="subvalor">${materiaisCriticos > 0 ? `⚠️ ${materiaisCriticos} crítico(s)` : '✅ Sem críticos'}</div></div>
+    <div class="metrica-kpi ${materiaisCriticos > 0 ? 'alerta' : ''}"><div class="label">Empregados</div><div class="valor">${sumEmpregados.toLocaleString('pt-BR')}</div><div class="subvalor">${materiaisCriticos > 0 ? '️ ' + materiaisCriticos + ' crítico(s)' : '✅ Sem críticos'}</div></div>
   `;
 }
-
-window.filtrarMetricas = function(filtro) { renderTabelaMetricas(filtro); };
 
 function renderTabelaMetricas(filtro = '') {
   const container = document.getElementById('tabelaMetricas');
@@ -816,6 +946,8 @@ function renderTabelaMetricas(filtro = '') {
   html += '</tbody></table></div>';
   container.innerHTML = html;
 }
+
+window.filtrarMetricas = function(filtro) { renderTabelaMetricas(filtro); };
 
 function renderAlertasMetricas() {
   const container = document.getElementById('alertasMetricas');
@@ -852,6 +984,69 @@ function renderGraficoMateriais() {
   });
 }
 
+// === MODO TV ===
+let tvInterval = null;
+let tvTelaAtual = 0;
+const tvTelas = ['kpis', 'grafico', 'alertas'];
+const tvTempoTela = 30000;
+
+window.ativarModoTV = function() {
+  document.getElementById('modoTVOverlay').style.display = 'block';
+  atualizarRelogioTV();
+  setInterval(atualizarRelogioTV, 1000);
+  tvTelaAtual = 0;
+  renderizarTelaTV();
+  tvInterval = setInterval(() => {
+    tvTelaAtual = (tvTelaAtual + 1) % tvTelas.length;
+    renderizarTelaTV();
+  }, tvTempoTela);
+  if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen(); }
+};
+
+window.sairModoTV = function() {
+  document.getElementById('modoTVOverlay').style.display = 'none';
+  clearInterval(tvInterval);
+  if (document.exitFullscreen) { document.exitFullscreen(); }
+};
+
+function atualizarRelogioTV() {
+  const agora = new Date();
+  const data = agora.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const hora = agora.toLocaleTimeString('pt-BR');
+  const el = document.getElementById('tvRelogio');
+  if(el) el.textContent = `${data} - ${hora}`;
+}
+
+function renderizarTelaTV() {
+  const container = document.getElementById('tvConteudo');
+  const tela = tvTelas[tvTelaAtual];
+  if (tela === 'kpis') {
+    const sumExistente = materiaisCache.reduce((s, m) => s + (parseFloat(m.existente) || 0), 0);
+    const sumDisponivel = materiaisCache.reduce((s, m) => s + calcDisponivel(m), 0);
+    const sumEmpregados = materiaisCache.reduce((s, m) => s + calcEmpregados(m), 0);
+    container.innerHTML = `<div class="tv-tela"><h1 style="text-align:center;margin-bottom:40px;font-size:2.5rem">📊 PAINEL GERAL DE MATERIAIS</h1><div class="tv-kpi-grid"><div class="tv-kpi-card"><div class="label">Total de Materiais</div><div class="valor">${materiaisCache.length}</div></div><div class="tv-kpi-card"><div class="label">Existente</div><div class="valor">${sumExistente.toLocaleString('pt-BR')}</div></div><div class="tv-kpi-card"><div class="label">Disponível</div><div class="valor" style="color:#4ade80">${sumDisponivel.toLocaleString('pt-BR')}</div></div><div class="tv-kpi-card"><div class="label">Empregados</div><div class="valor" style="color:#fbbf24">${sumEmpregados.toLocaleString('pt-BR')}</div></div></div><div style="text-align:center;font-size:1.2rem;opacity:0.7">Próxima tela em ${tvTempoTela/1000}s...</div></div>`;
+  } else if (tela === 'grafico') {
+    container.innerHTML = `<div class="tv-tela"><h1 style="text-align:center;margin-bottom:20px;font-size:2.5rem">📈 DISTRIBUIÇÃO DE MATERIAIS</h1><div style="height:60vh; background:rgba(255,255,255,0.05); border-radius:16px; padding:20px;"><canvas id="tvGraficoCanvas"></canvas></div><div style="text-align:center;font-size:1.2rem;opacity:0.7;margin-top:20px">Próxima tela em ${tvTempoTela/1000}s...</div></div>`;
+    setTimeout(() => {
+      const ctx = document.getElementById('tvGraficoCanvas');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'bar',
+          data: { labels: materiaisCache.map(m => m.nome.substring(0, 15)), datasets: [{ label: 'Existente', data: materiaisCache.map(m => parseFloat(m.existente) || 0), backgroundColor: '#3b82f6' }, { label: 'Disponível', data: materiaisCache.map(m => calcDisponivel(m)), backgroundColor: '#10b981' }] },
+          options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } }, plugins: { legend: { labels: { color: 'white', font: {size: 14} } } } }
+        });
+      }
+    }, 100);
+  } else if (tela === 'alertas') {
+    const criticos = materiaisCache.filter(m => calcDisponivel(m) <= 0);
+    let html = `<div class="tv-tela"><h1 style="text-align:center;margin-bottom:40px;font-size:2.5rem">️ ALERTAS DE MATERIAIS</h1>`;
+    if (criticos.length === 0) { html += `<div style="text-align:center;font-size:2rem;color:#4ade80">✅ Nenhum material em estado crítico</div>`; }
+    else { criticos.forEach(m => { html += `<div class="tv-alerta"><div class="titulo">${m.nome}</div><div class="detalhe">Disponível: ${calcDisponivel(m).toLocaleString('pt-BR')} ${m.unidade || 'un'} | Existente: ${(parseFloat(m.existente)||0).toLocaleString('pt-BR')}</div></div>`; }); }
+    html += `<div style="text-align:center;font-size:1.2rem;opacity:0.7;margin-top:40px">Próxima tela em ${tvTempoTela/1000}s...</div></div>`;
+    container.innerHTML = html;
+  }
+}
+
 // === MATERIAIS ===
 window.abrirModalNovoMaterial = function() {
   if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
@@ -879,6 +1074,43 @@ window.salvarNovoMaterial = async function() {
   } catch (err) { showToast('Erro: ' + err.message, 'error'); }
 };
 
+window.abrirEditarMaterial = function(id) {
+  if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+  const mat = materiaisCache.find(m => m.id === id);
+  if (!mat) return;
+  document.getElementById('editMatId').value = mat.id;
+  document.getElementById('editMatNome').value = mat.nome;
+  document.getElementById('editMatUnidade').value = mat.unidade || 'un';
+  document.getElementById('editMatExistente').value = mat.existente || 0;
+  document.getElementById('editMatServico').value = mat.emServico || 0;
+  document.getElementById('editMatEscav').value = mat.emEscav || 0;
+  document.getElementById('editMatERSPO').value = mat.emERSPO || 0;
+  document.getElementById('editMatIndisp').value = mat.indisponivel || 0;
+  document.getElementById('modalEditarMaterial').classList.add('active');
+};
+
+window.salvarEdicaoMaterial = async function() {
+  if (currentUserRole !== 'admin') return showToast('Apenas administradores!', 'error');
+  const id = document.getElementById('editMatId').value;
+  const nome = document.getElementById('editMatNome').value.trim();
+  const unidade = document.getElementById('editMatUnidade').value;
+  const existente = parseFloat(document.getElementById('editMatExistente').value) || 0;
+  const emServico = parseFloat(document.getElementById('editMatServico').value) || 0;
+  const emEscav = parseFloat(document.getElementById('editMatEscav').value) || 0;
+  const emERSPO = parseFloat(document.getElementById('editMatERSPO').value) || 0;
+  const indisponivel = parseFloat(document.getElementById('editMatIndisp').value) || 0;
+  if (!nome) return showToast('Informe o nome!', 'error');
+  try {
+    await updateDoc(doc(db, 'materiais', id), {
+      nome, unidade, existente, emServico, emEscav, emERSPO, indisponivel,
+      editadoPor: currentUser.uid, editadoEm: new Date().toISOString()
+    });
+    fecharModal('modalEditarMaterial');
+    showToast('Material atualizado com sucesso!');
+    await registrarAuditoria('EDITAR_MATERIAL', `Editou material "${nome}"`, { nome });
+  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+};
+
 window.renderMateriais = function(filtro = '') {
   const container = document.getElementById('listaMateriais');
   const f = filtro.toLowerCase();
@@ -891,13 +1123,13 @@ window.renderMateriais = function(filtro = '') {
   const sumEmpregados = materiaisCache.reduce((s, m) => s + calcEmpregados(m), 0);
   const sumIndisponivel = materiaisCache.reduce((s, m) => s + (parseFloat(m.indisponivel) || 0), 0);
   document.getElementById('materiaisSummaries').innerHTML = `
-    <div class="mat-summary-card cor-existente"><div class="mat-summary-icon">📥</div><div class="mat-summary-label">Existente</div><div class="mat-summary-value">${sumExistente.toLocaleString('pt-BR')}</div></div>
+    <div class="mat-summary-card cor-existente"><div class="mat-summary-icon"></div><div class="mat-summary-label">Existente</div><div class="mat-summary-value">${sumExistente.toLocaleString('pt-BR')}</div></div>
     <div class="mat-summary-card cor-disponivel"><div class="mat-summary-icon">✅</div><div class="mat-summary-label">Disponível</div><div class="mat-summary-value">${sumDisponivel.toLocaleString('pt-BR')}</div></div>
     <div class="mat-summary-card cor-servico"><div class="mat-summary-icon"></div><div class="mat-summary-label">Em Serviço</div><div class="mat-summary-value">${sumServico.toLocaleString('pt-BR')}</div></div>
-    <div class="mat-summary-card cor-escav"><div class="mat-summary-icon">🚛</div><div class="mat-summary-label">Em ESCAV</div><div class="mat-summary-value">${sumEscav.toLocaleString('pt-BR')}</div></div>
+    <div class="mat-summary-card cor-escav"><div class="mat-summary-icon"></div><div class="mat-summary-label">Em ESCAV</div><div class="mat-summary-value">${sumEscav.toLocaleString('pt-BR')}</div></div>
     <div class="mat-summary-card cor-erspo"><div class="mat-summary-icon">🏢</div><div class="mat-summary-label">Em ERSPO</div><div class="mat-summary-value">${sumERSPO.toLocaleString('pt-BR')}</div></div>
     <div class="mat-summary-card cor-emprest"><div class="mat-summary-icon">📊</div><div class="mat-summary-label">Empregados</div><div class="mat-summary-value">${sumEmpregados.toLocaleString('pt-BR')}</div></div>
-    <div class="mat-summary-card cor-indisponivel"><div class="mat-summary-icon">🚫</div><div class="mat-summary-label">Indisponível</div><div class="mat-summary-value">${sumIndisponivel.toLocaleString('pt-BR')}</div></div>`;
+    <div class="mat-summary-card cor-indisponivel"><div class="mat-summary-icon"></div><div class="mat-summary-label">Indisponível</div><div class="mat-summary-value">${sumIndisponivel.toLocaleString('pt-BR')}</div></div>`;
   if (filtered.length === 0) { container.innerHTML = `<div class="empty-state"><div class="icon">📦</div><p>${materiaisCache.length === 0 ? 'Nenhum material.' : 'Nenhum encontrado.'}</p></div>`; return; }
   let html = `<div style="overflow-x:auto"><table class="mat-table"><thead><tr><th>Material</th><th>Existente</th><th>Disponível</th><th>Em Serviço</th><th>Em ESCAV</th><th>Em ERSPO</th><th>Empregados</th><th>Indisponível</th>${currentUserRole === 'admin' ? '<th>Ações</th>' : ''}</tr></thead><tbody>`;
   filtered.forEach(m => {
@@ -905,7 +1137,7 @@ window.renderMateriais = function(filtro = '') {
     const disponivel = calcDisponivel(m);
     const dispClass = disponivel < 0 ? 'color:#991b1b;font-weight:800' : disponivel === 0 ? 'color:#92400e' : '';
     html += `<tr><td class="nome-col">${m.nome} <span style="color:var(--text-light);font-size:0.75rem;font-weight:400">(${m.unidade || 'un'})</span></td><td class="num">${(parseFloat(m.existente) || 0).toLocaleString('pt-BR')}</td><td class="num" style="${dispClass}">${disponivel.toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.emServico) || 0).toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.emEscav) || 0).toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.emERSPO) || 0).toLocaleString('pt-BR')}</td><td class="num">${empregados.toLocaleString('pt-BR')}</td><td class="num">${(parseFloat(m.indisponivel) || 0).toLocaleString('pt-BR')}</td>`;
-    if (currentUserRole === 'admin') html += `<td><button class="btn btn-danger btn-sm" onclick="excluirMaterial('${m.id}')">🗑️</button></td>`;
+    if (currentUserRole === 'admin') html += `<td><button class="btn btn-info btn-sm" onclick="abrirEditarMaterial('${m.id}')" style="margin-right:5px">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirMaterial('${m.id}')">🗑️</button></td>`;
     html += '</tr>';
   });
   html += '</tbody></table></div>';
@@ -939,109 +1171,94 @@ window.renderTecnicos = function(filtro = '') {
   container.innerHTML = html;
 };
 
-// === ESCAV ===
-window.toggleTecnicoEscav = function(id) { if (tecnicosEscavSelecionados.has(id)) tecnicosEscavSelecionados.delete(id); else tecnicosEscavSelecionados.add(id); renderTecnicosEscav(); };
-window.renderTecnicosEscav = function() {
-  const container = document.getElementById('tecnicosEscav');
-  if (!container) return;
-  const tecnicosAST = usuariosCache.filter(u => u.role === 'ast');
-  if (tecnicosAST.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.9rem;margin:10px 0">⚠️ Nenhum técnico AST cadastrado.</p>'; return; }
-  let html = '<div class="tecnicos-grid">';
-  tecnicosAST.forEach(t => {
-    const selected = tecnicosEscavSelecionados.has(t.id);
-    html += `<label class="tecnico-checkbox ${selected ? 'selected' : ''}" onclick="toggleTecnicoEscav('${t.id}')"><input type="checkbox" ${selected ? 'checked' : ''} onclick="event.stopPropagation(); toggleTecnicoEscav('${t.id}')"><div class="info"><div class="nome">${t.nome}</div><div class="espec">${t.nomeGuerra || ''}</div></div></label>`;
-  });
-  html += '</div>';
-  if (tecnicosEscavSelecionados.size > 0) html += `<p style="margin-top:10px;font-size:0.85rem;color:var(--primary);font-weight:600">✓ ${tecnicosEscavSelecionados.size} técnico(s)</p>`;
-  container.innerHTML = html;
-};
-
-window.adicionarMaterialEscav = function() { materiaisEscavTemp.push({ materialId: '', quantidade: '', serie: '' }); renderMateriaisEscav(); };
-window.removerMaterialEscav = function(i) { materiaisEscavTemp.splice(i, 1); renderMateriaisEscav(); };
-window.atualizarMaterialEscav = function(i, campo, valor) { if (materiaisEscavTemp[i]) materiaisEscavTemp[i][campo] = valor; };
-window.renderMateriaisEscav = function() {
-  const container = document.getElementById('materiaisEscav');
-  if (!container) return;
-  if (materiaisCache.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.9rem;margin:10px 0">⚠️ Nenhum material.</p>'; return; }
-  if (materiaisEscavTemp.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.88rem;margin:10px 0;font-style:italic">Clique em "+ Adicionar Material".</p>'; return; }
-  let html = '';
-  materiaisEscavTemp.forEach((item, i) => {
-    html += `<div class="row-item"><div class="form-group"><label>Material</label><select onchange="atualizarMaterialEscav(${i}, 'materialId', this.value)"><option value="">Selecione...</option>${materiaisCache.map(m => { const disp = calcDisponivel(m); return `<option value="${m.id}" ${item.materialId === m.id ? 'selected' : ''}>${m.nome} (Disp: ${disp} ${m.unidade || 'un'})</option>`; }).join('')}</select></div><div class="form-group" style="max-width:100px"><label>Qtd</label><input type="number" min="0.01" step="0.01" value="${item.quantidade}" onchange="atualizarMaterialEscav(${i}, 'quantidade', this.value)"></div><div class="form-group" style="max-width:180px"><label>Nº PR</label><input type="text" value="${item.serie || ''}" onchange="atualizarMaterialEscav(${i}, 'serie', this.value)" placeholder="Ex: 140-175"></div><button type="button" class="btn btn-danger btn-sm" onclick="removerMaterialEscav(${i})">✕</button></div>`;
-  });
-  container.innerHTML = html;
-};
-
-window.salvarEscav = async function() {
-  const tipo = document.getElementById('escavTipo').value;
-  const destino = document.getElementById('escavDestino').value.trim();
-  const uf = document.getElementById('escavUF').value;
-  const evento = document.getElementById('escavEvento').value.trim();
-  const dataInicio = document.getElementById('escavDataInicio').value;
-  const dataRetorno = document.getElementById('escavDataRetorno').value;
-  const obs = document.getElementById('escavObs').value.trim();
-  if (!tipo || !destino || !uf || !dataInicio || !dataRetorno) return showToast('Preencha campos obrigatórios!', 'error');
-  if (dataRetorno < dataInicio) return showToast('Data retorno anterior à início!', 'error');
-  const itens = materiaisEscavTemp.filter(i => i.materialId && parseFloat(i.quantidade) > 0);
-  for (const item of itens) {
-    const mat = materiaisCache.find(m => m.id === item.materialId);
-    const disponivel = mat ? calcDisponivel(mat) : 0;
-    if (mat && parseFloat(item.quantidade) > disponivel) return showToast(`Disponível insuficiente de "${mat.nome}"! Disponível: ${disponivel}`, 'error');
-  }
-  try {
-    const tecnicosList = Array.from(tecnicosEscavSelecionados).map(id => {
-      const t = usuariosCache.find(x => x.id === id);
-      return { tecnicoId: id, tecnicoNome: t?.nome || 'Desconhecido', tecnicoNomeGuerra: t?.nomeGuerra || '', especialidade: 'AST' };
-    });
-    const escavDoc = await addDoc(collection(db, 'escav'), {
-      tipo, destino, uf, evento, dataInicio, dataRetorno, obs,
-      materiais: itens.map(i => { const mat = materiaisCache.find(m => m.id === i.materialId); return { materialId: i.materialId, materialNome: mat?.nome || 'Desconhecido', unidade: mat?.unidade || '', quantidade: parseFloat(i.quantidade), serie: i.serie || '' }; }),
-      tecnicos: tecnicosList, criadaPor: currentUser.uid, criadaPorNome: currentUser.displayName || currentUser.email, criadaEm: new Date().toISOString(),
-      encerradaPor: null, encerradaPorNome: null, encerradaEm: null, status: 'aberta'
-    });
-    for (const item of itens) {
-      const mat = materiaisCache.find(m => m.id === item.materialId);
-      if (mat) { const novoEmEscav = Math.round(((parseFloat(mat.emEscav) || 0) + parseFloat(item.quantidade)) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emEscav: novoEmEscav }); }
-    }
-    ['escavTipo','escavDestino','escavUF','escavEvento','escavObs'].forEach(id => document.getElementById(id).value = '');
-    materiaisEscavTemp = []; tecnicosEscavSelecionados = new Set();
-    renderMateriaisEscav(); renderTecnicosEscav();
-    showToast('ESCAV registrada!');
-    await registrarAuditoria('CRIAR_ESCAV', `Criou ESCAV para ${destino}/${uf}`, { destino, uf, tipo });
-  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
-};
-
+// === ESCAV (APENAS HISTÓRICO) ===
 window.renderEscav = function(filtro = '') {
   const container = document.getElementById('listaEscav');
   const f = filtro.toLowerCase();
-  const filtered = escavCache.filter(e => {
+  
+  // Ordena por data de criação (criadaEm)
+  const abertos = escavCache.filter(e => e.status !== 'encerrada').sort((a, b) => (b.criadaEm || '').localeCompare(a.criadaEm || ''));
+  const encerrados = escavCache.filter(e => e.status === 'encerrada').sort((a, b) => (b.encerradaEm || b.criadaEm || '').localeCompare(a.encerradaEm || a.criadaEm || ''));
+  
+  const filtrar = (lista) => lista.filter(e => {
     const tecnicosNomes = (e.tecnicos || []).map(t => t.tecnicoNome.toLowerCase()).join(' ');
     const materiaisNomes = (e.materiais || []).map(m => m.materialNome.toLowerCase()).join(' ');
     return (e.destino || '').toLowerCase().includes(f) || (e.tipo || '').toLowerCase().includes(f) || (e.uf || '').toLowerCase().includes(f) || (e.evento || '').toLowerCase().includes(f) || tecnicosNomes.includes(f) || materiaisNomes.includes(f);
   });
-  if (filtered.length === 0) { container.innerHTML = `<div class="empty-state"><div class="icon">🚛</div><p>${escavCache.length === 0 ? 'Nenhuma ESCAV.' : 'Nenhuma encontrada.'}</p></div>`; return; }
+  
+  const abertosFiltrados = filtrar(abertos);
+  const encerradosFiltrados = filtrar(encerrados);
+  
+  if (abertosFiltrados.length === 0 && encerradosFiltrados.length === 0) { 
+    container.innerHTML = `<div class="empty-state"><div class="icon">🚛</div><p>${escavCache.length === 0 ? 'Nenhuma ESCAV registrada.' : 'Nenhuma encontrada.'}</p></div>`; 
+    return; 
+  }
+  
   let html = '';
-  filtered.forEach(e => {
-    const di = e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '-';
-    const dr = e.dataRetorno ? e.dataRetorno.split('-').reverse().join('/') : '-';
-    const statusBadge = e.status === 'encerrada' ? '<span class="badge badge-blue">🔵 Encerrada</span>' : '<span class="badge badge-red">🔴 Aberta</span>';
-    html += `<div class="escav-card-item"><div class="escav-card-header"><div class="escav-card-title"> <strong>${e.destino || '-'}</strong> / ${e.uf || '-'} <span class="badge badge-blue">${e.tipo || '-'}</span> ${statusBadge}</div><div class="escav-actions"><button class="btn btn-primary btn-sm" onclick="verEscav('${e.id}')">👁️ Ver</button>${currentUserRole === 'admin' ? `<button class="btn btn-danger btn-sm" onclick="excluirEscav('${e.id}')">🗑️</button>` : ''}</div></div><div class="escav-card-meta"><div class="escav-meta-item"><div class="label">📅 Período</div><div class="value">${di} → ${dr}</div></div>${e.evento ? `<div class="escav-meta-item"><div class="label">🎯 Evento</div><div class="value">${e.evento}</div></div>` : ''}<div class="escav-meta-item"><div class="label">👷 Técnicos</div><div class="value">${(e.tecnicos || []).length}</div></div><div class="escav-meta-item"><div class="label">📦 Materiais</div><div class="value">${(e.materiais || []).length}</div></div></div>`;
-    if (e.tecnicos && e.tecnicos.length > 0) html += `<div class="escav-card-section"><h4>👷 Técnicos</h4><div class="escav-tecnicos-list">${e.tecnicos.map(t => `<span class="escav-tecnico-tag">${t.tecnicoNome}${t.tecnicoNomeGuerra ? ' (' + t.tecnicoNomeGuerra + ')' : ''}</span>`).join('')}</div></div>`;
-    if (e.materiais && e.materiais.length > 0) html += `<div class="escav-card-section"><h4>📦 Materiais Empregados</h4><div class="escav-materiais-list">${e.materiais.map(m => `<div class="escav-material-tag">${m.materialNome} — <strong>${m.quantidade} ${m.unidade}</strong> ${m.serie ? '(PR: ' + m.serie + ')' : ''}</div>`).join('')}</div></div>`;
-    if (e.obs) html += `<div class="escav-obs">📝 ${e.obs}</div>`;
+  
+  // ESCAVs Abertas no topo (vermelho)
+  if (abertosFiltrados.length > 0) {
+    html += `<h3 style="margin-bottom:16px;color:var(--danger);font-size:1.1rem">🔴 ESCAVs Abertas (${abertosFiltrados.length})</h3>`;
+    abertosFiltrados.forEach(e => { html += renderEscavCard(e); });
+  }
+  
+  // ESCAVs Encerradas separadas abaixo (azul)
+  if (encerradosFiltrados.length > 0) {
+    html += `<div class="escav-historico-separator">`;
+    html += `<h3>🔵 ESCAVs Encerradas (${encerradosFiltrados.length})</h3>`;
+    encerradosFiltrados.forEach(e => { html += renderEscavCard(e); });
     html += `</div>`;
-  });
+  }
+  
   container.innerHTML = html;
 };
+
+function renderEscavCard(e) {
+  const di = e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '-';
+  const dr = e.dataRetorno ? e.dataRetorno.split('-').reverse().join('/') : '-';
+  const statusBadge = e.status === 'encerrada' ? '<span class="badge badge-blue"> Encerrada</span>' : '<span class="badge badge-red">🔴 Aberta</span>';
+  let html = `<div class="cautela-item ${e.status === 'encerrada' ? 'encerrada' : 'aberta'}" style="margin-bottom:10px;">
+    <div class="cautela-header">
+      <div><strong>🚛 ESCAV: ${e.destino || '-'}/${e.uf || '-'}</strong> ${statusBadge} <span class="badge badge-blue" style="margin-left:8px;">${e.tipo || '-'}</span></div>
+      <div class="cautela-actions">
+        <button class="btn btn-primary btn-sm" onclick="verEscav('${e.id}')">👁️ Ver</button>
+        ${currentUserRole === 'admin' ? `<button class="btn btn-danger btn-sm" onclick="excluirEscav('${e.id}')">🗑️</button>` : ''}
+      </div>
+    </div>
+    <div style="font-size:0.85rem;color:var(--text-light);margin-top:8px;">
+      <strong>📅 Período:</strong> ${di} → ${dr}
+      ${e.evento ? ` | <strong>🎯 Evento:</strong> ${e.evento}` : ''}
+      | <strong>📦 Materiais:</strong> ${(e.materiais || []).filter(m => !m.ehAcessorio).length}
+    </div>
+    ${e.materiais && e.materiais.length > 0 ? `<div class="cautela-materiais" style="margin-top:8px">${e.materiais.filter(m => !m.ehAcessorio).map(m => `<div class="cautela-material-tag"><strong>${m.materialNome}</strong><br>Série: ${m.serie || '-'} | Qtd: ${m.quantidade} ${m.unidade || ''}</div>`).join('')}</div>` : ''}
+    ${e.obs ? `<div style="margin-top:8px;font-size:0.85rem;color:var(--text-light)">📝 ${e.obs}</div>` : ''}
+  </div>`;
+  return html;
+}
 
 window.verEscav = function(id) {
   const e = escavCache.find(x => x.id === id);
   if (!e) return;
   const di = e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '-';
   const dr = e.dataRetorno ? e.dataRetorno.split('-').reverse().join('/') : '-';
-  let html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px"><div><strong>Tipo:</strong><br><span class="badge badge-blue">${e.tipo || '-'}</span></div><div><strong>UF:</strong><br>${e.uf || '-'}</div><div><strong>Destino:</strong><br>${e.destino || '-'}</div><div><strong>Evento:</strong><br>${e.evento || '-'}</div><div><strong>Início:</strong><br>${di}</div><div><strong>Retorno:</strong><br>${dr}</div></div>${e.criadaPorNome ? `<p><strong>👥 Por:</strong> ${e.criadaPorNome}</p>` : ''}${e.obs ? `<p style="margin-top:10px"><strong>📝 Obs:</strong><br>${e.obs}</p>` : ''}<h3 style="margin-top:16px">👷 Técnicos:</h3>`;
-  if (e.tecnicos && e.tecnicos.length > 0) { html += '<table><thead><tr><th>Nome</th><th>Nome de Guerra</th></tr></thead><tbody>'; e.tecnicos.forEach(t => { html += `<tr><td><strong>${t.tecnicoNome}</strong></td><td>${t.tecnicoNomeGuerra || '-'}</td></tr>`; }); html += '</tbody></table>'; } else html += '<p style="color:var(--text-light)">Nenhum.</p>';
-  html += '<h3 style="margin-top:16px">📦 Materiais:</h3>';
-  if (e.materiais && e.materiais.length > 0) { html += '<table><thead><tr><th>Material</th><th>Qtd</th><th>Un</th><th>PR</th></tr></thead><tbody>'; e.materiais.forEach(m => { html += `<tr><td>${m.materialNome}</td><td><strong>${m.quantidade}</strong></td><td>${m.unidade}</td><td>${m.serie || '-'}</td></tr>`; }); html += '</tbody></table>'; } else html += '<p style="color:var(--text-light)">Nenhum.</p>';
+  let html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div><strong>Tipo:</strong><br><span class="badge badge-blue">${e.tipo || '-'}</span></div>
+    <div><strong>UF:</strong><br>${e.uf || '-'}</div>
+    <div><strong>Destino:</strong><br>${e.destino || '-'}</div>
+    <div><strong>Evento:</strong><br>${e.evento || '-'}</div>
+    <div><strong>Início:</strong><br>${di}</div>
+    <div><strong>Retorno:</strong><br>${dr}</div>
+  </div>
+  ${e.criadaPorNome ? `<p><strong>👥 Por:</strong> ${e.criadaPorNome}</p>` : ''}
+  ${e.obs ? `<p style="margin-top:10px"><strong> Obs:</strong><br>${e.obs}</p>` : ''}
+  <h3 style="margin-top:16px">📦 Materiais:</h3>`;
+  if (e.materiais && e.materiais.length > 0) { 
+    html += '<table><thead><tr><th>Material</th><th>Qtd</th><th>Un</th><th>PR</th></tr></thead><tbody>'; 
+    e.materiais.filter(m => !m.ehAcessorio).forEach(m => { 
+      html += `<tr><td>${m.materialNome}</td><td><strong>${m.quantidade}</strong></td><td>${m.unidade}</td><td>${m.serie || '-'}</td></tr>`; 
+    }); 
+    html += '</tbody></table>'; 
+  } else html += '<p style="color:var(--text-light)">Nenhum.</p>';
   document.getElementById('modalEscavContent').innerHTML = html;
   document.getElementById('modalEscav').classList.add('active');
 };
@@ -1065,7 +1282,7 @@ window.renderRelatorios = function() {
   const sumERSPO = materiaisCache.reduce((s, m) => s + (parseFloat(m.emERSPO) || 0), 0);
   const sumEmpregados = materiaisCache.reduce((s, m) => s + calcEmpregados(m), 0);
   const sumIndisponivel = materiaisCache.reduce((s, m) => s + (parseFloat(m.indisponivel) || 0), 0);
-  sumContainer.innerHTML = `<div class="mat-summary-card cor-existente"><div class="mat-summary-icon"></div><div class="mat-summary-label">Existente</div><div class="mat-summary-value">${sumExistente.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-disponivel"><div class="mat-summary-icon">✅</div><div class="mat-summary-label">Disponível</div><div class="mat-summary-value">${sumDisponivel.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-servico"><div class="mat-summary-icon">🔧</div><div class="mat-summary-label">Em Serviço</div><div class="mat-summary-value">${sumServico.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-escav"><div class="mat-summary-icon">🚛</div><div class="mat-summary-label">Em ESCAV</div><div class="mat-summary-value">${sumEscav.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-erspo"><div class="mat-summary-icon">🏢</div><div class="mat-summary-label">Em ERSPO</div><div class="mat-summary-value">${sumERSPO.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-emprest"><div class="mat-summary-icon">📊</div><div class="mat-summary-label">Empregados</div><div class="mat-summary-value">${sumEmpregados.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-indisponivel"><div class="mat-summary-icon">🚫</div><div class="mat-summary-label">Indisponível</div><div class="mat-summary-value">${sumIndisponivel.toLocaleString('pt-BR')}</div></div>`;
+  sumContainer.innerHTML = `<div class="mat-summary-card cor-existente"><div class="mat-summary-icon"></div><div class="mat-summary-label">Existente</div><div class="mat-summary-value">${sumExistente.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-disponivel"><div class="mat-summary-icon">✅</div><div class="mat-summary-label">Disponível</div><div class="mat-summary-value">${sumDisponivel.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-servico"><div class="mat-summary-icon">🔧</div><div class="mat-summary-label">Em Serviço</div><div class="mat-summary-value">${sumServico.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-escav"><div class="mat-summary-icon"></div><div class="mat-summary-label">Em ESCAV</div><div class="mat-summary-value">${sumEscav.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-erspo"><div class="mat-summary-icon">🏢</div><div class="mat-summary-label">Em ERSPO</div><div class="mat-summary-value">${sumERSPO.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-emprest"><div class="mat-summary-icon">📊</div><div class="mat-summary-label">Empregados</div><div class="mat-summary-value">${sumEmpregados.toLocaleString('pt-BR')}</div></div><div class="mat-summary-card cor-indisponivel"><div class="mat-summary-icon">🚫</div><div class="mat-summary-label">Indisponível</div><div class="mat-summary-value">${sumIndisponivel.toLocaleString('pt-BR')}</div></div>`;
   if (materiaisCache.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>Nenhum material cadastrado.</p></div>'; return; }
   let html = `<div style="overflow-x:auto"><table class="mat-table"><thead><tr><th>Material</th><th>Existente</th><th>Disponível</th><th>Em Serviço</th><th>Em ESCAV</th><th>Em ERSPO</th><th>Empregados</th><th>Indisponível</th></tr></thead><tbody>`;
   materiaisCache.forEach(m => {
@@ -1088,7 +1305,7 @@ window.renderUsuarios = function() {
   if (usuariosCache.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>Nenhum usuário cadastrado.</p></div>'; return; }
   let html = `<div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;"><div><strong>Total:</strong> ${usuariosCache.length} usuário(s)</div><button class="btn btn-primary btn-sm" onclick="abrirModalAdicionarUsuario()">➕ Adicionar Usuário</button></div><div style="overflow-x:auto"><table><thead><tr><th>Nome Completo</th><th>Nome de Guerra</th><th>E-mail</th><th>Perfil</th><th>Rádio</th><th>Ações</th></tr></thead><tbody>`;
   usuariosCache.forEach(u => {
-    let roleBadge = u.role === 'admin' ? '<span class="badge badge-purple">👑 Admin</span>' : (u.role === 'viewer' ? '<span class="badge badge-cyan">👁️ Viewer</span>' : (u.role === 'ast' ? '<span class="badge badge-teal">🔧 AST</span>' : (u.role === 'agente' ? '<span class="badge badge-blue">📋 Agente</span>' : '<span class="badge badge-gray">👤 Usuário</span>')));
+    let roleBadge = u.role === 'admin' ? '<span class="badge badge-purple"> Admin</span>' : (u.role === 'viewer' ? '<span class="badge badge-cyan">👁️ Viewer</span>' : (u.role === 'ast' ? '<span class="badge badge-teal">🔧 AST</span>' : (u.role === 'agente' ? '<span class="badge badge-blue">📋 Agente</span>' : '<span class="badge badge-gray">👤 Usuário</span>')));
     html += `<tr><td><strong>${u.nome || '-'}</strong></td><td><strong>${u.nomeGuerra || '-'}</strong></td><td>${u.email || '-'}</td><td>${roleBadge}</td><td>${u.radio || '-'}</td><td style="white-space:nowrap">${u.id !== currentUser.uid ? `<button class="btn btn-danger btn-sm" onclick="excluirUsuarioCompleto('${u.id}')">🗑️</button>` : '<em>(você)</em>'}</td></tr>`;
   });
   html += '</tbody></table></div>';
@@ -1186,7 +1403,7 @@ function renderTabelaPins() {
   let html = '';
   usuarios.forEach(([id, data]) => {
     const pinMascarado = data.senhaPin ? '••••' : '<span style="color:var(--warning);font-weight:600">Não definido</span>';
-    const roleBadge = data.role === 'admin' ? '<span class="badge badge-purple">👑 Admin</span>' : (data.role === 'viewer' ? '<span class="badge badge-cyan">👁️ Viewer</span>' : (data.role === 'ast' ? '<span class="badge badge-teal">🔧 AST</span>' : (data.role === 'agente' ? '<span class="badge badge-blue">📋 Agente</span>' : '<span class="badge badge-gray">👤 Usuário</span>')));
+    const roleBadge = data.role === 'admin' ? '<span class="badge badge-purple">👑 Admin</span>' : (data.role === 'viewer' ? '<span class="badge badge-cyan">👁️ Viewer</span>' : (data.role === 'ast' ? '<span class="badge badge-teal"> AST</span>' : (data.role === 'agente' ? '<span class="badge badge-blue"> Agente</span>' : '<span class="badge badge-gray">👤 Usuário</span>')));
     html += `<tr><td><strong>${data.nome}</strong></td><td>${data.email}</td><td>${roleBadge}</td><td style="font-size:1.2rem;letter-spacing:4px;font-family:monospace">${pinMascarado}</td><td><button class="btn btn-primary btn-sm" onclick="definirPinAgente('${id}')">${data.senhaPin ? '🔄 Trocar' : '➕ Definir'}</button></td></tr>`;
   });
   tbody.innerHTML = html;
@@ -1309,10 +1526,10 @@ window.salvarNovoServico = async function() {
     fecharModal('modalNovoServico');
     let msgSucesso = '✅ Serviço criado!';
     if (cautelasTransferidas.length > 0 || escavsTransferidas.length > 0) {
-      msgSucesso += `\n\n📥 Transferências recebidas:`;
+      msgSucesso += '\n\n📥 Transferências recebidas:';
       resumoTransferencias.forEach(r => {
         const dataFmt = r.dataOrigem ? r.dataOrigem.split('-').reverse().join('/') : '-';
-        msgSucesso += `\n• De ${r.tecnicoOrigem} (${dataFmt}): ${r.cautelas} cautela(s), ${r.escavs} ESCAV(s)`;
+        msgSucesso += '\n• De ' + r.tecnicoOrigem + ' (' + dataFmt + '): ' + r.cautelas + ' cautela(s), ' + r.escavs + ' ESCAV(s)';
       });
     }
     showToast(msgSucesso, 'success');
@@ -1343,7 +1560,7 @@ window.renderServicoDiario = function() {
     if (a.status === 'encerrado' && b.status !== 'encerrado') return 1;
     return (b.data || '').localeCompare(a.data || '');
   });
-  if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon"></div><p>Nenhum serviço diário encontrado.</p></div>'; return; }
+  if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Nenhum serviço diário encontrado.</p></div>'; return; }
   let html = '';
   filtered.forEach(s => {
     const dataFmt = s.data ? s.data.split('-').reverse().join('/') : '-';
@@ -1365,8 +1582,13 @@ window.renderServicoDiario = function() {
           <div class="servico-meta-item"><div class="label">Cautelas</div><div class="value">${(s.cautelas || []).length}</div></div>
           <div class="servico-meta-item"><div class="label">ESCAVs</div><div class="value">${(s.escavs || []).length}</div></div>
         </div>`;
+    
+    // ESCAVs (recolhível se > 3)
     if (s.escavs && s.escavs.length > 0) {
-      html += `<div style="margin-top:16px;padding-top:12px;border-top:2px dashed var(--border);"><h4 style="font-size:0.9rem;color:var(--primary);margin-bottom:8px;font-weight:700;">🚛 ESCAV(s) Vinculada(s):</h4>`;
+      const precisaRecolher = s.escavs.length > 3;
+      html += `<div style="margin-top:16px;padding-top:12px;border-top:2px dashed var(--border);">
+        <h4 style="font-size:0.9rem;color:var(--primary);margin-bottom:8px;font-weight:700;"> ESCAV(s) Vinculada(s):</h4>
+        <div class="lista-recolhivel ${precisaRecolher ? 'recolhida' : ''}" id="escav-lista-${s.id}">`;
       s.escavs.forEach((esc, idx) => {
         const escStatus = esc.status === 'encerrada' ? 'encerrada' : 'aberta';
         const escStatusBadge = esc.status === 'encerrada' ? '<span class="badge badge-blue">🔵 Encerrada</span>' : '<span class="badge badge-red">🔴 Aberta</span>';
@@ -1376,24 +1598,34 @@ window.renderServicoDiario = function() {
             <div class="cautela-actions">
               <button class="btn btn-primary btn-sm" onclick="verEscav('${esc.escavId}')">👁️ Ver</button>
               ${esc.status !== 'encerrada' ? `<button class="btn btn-info btn-sm" onclick="editarEscavNoServico('${s.id}', ${idx})">✏️ Editar</button>` : ''}
-              ${!esc.assinaturaValidada && esc.status !== 'encerrada' ? `<button class="btn btn-warning btn-sm" onclick="abrirAssinaturaEscav()">✍️ ASSINAR</button>` : ''}
+              ${!esc.assinaturaValidada && esc.status !== 'encerrada' ? `<button class="btn btn-warning btn-sm" onclick="abrirAssinaturaEscav('${s.id}', ${idx})">️ ASSINAR</button>` : ''}
               ${esc.assinaturaValidada ? `<span class="badge badge-green" style="margin-left:8px">✅ Assinada</span>` : ''}
+              ${esc.status !== 'encerrada' ? `<button class="btn btn-danger btn-sm" onclick="excluirEscavDoServico('${s.id}', ${idx})">🗑️ Excluir</button>` : ''}
               ${esc.status !== 'encerrada' ? `<button class="btn btn-success btn-sm" onclick="encerrarEscavNoServico('${s.id}', ${idx})">✅ Encerrar</button>` : ''}
-              <button class="btn btn-primary btn-sm" onclick="gerarPDFEscavFamDireta('${s.id}', ${idx})">📕 PDF</button>
+              <button class="btn btn-primary btn-sm" onclick="gerarPDFEscavFamDireta('${s.id}', ${idx})"> PDF</button>
             </div>
           </div>
           <div style="font-size:0.8rem;color:var(--text-light);margin-top:6px;">📤 Montada por: <strong>${esc.abertaPor || '-'}</strong> em ${esc.abertaEm ? new Date(esc.abertaEm).toLocaleString('pt-BR') : '-'}</div>
-          ${esc.materiais && esc.materiais.length > 0 ? `<div class="cautela-materiais" style="margin-top:8px">${esc.materiais.map(m => `<div class="cautela-material-tag"><strong>${m.materialNome}</strong><br>Série: ${m.serie || '-'} | Qtd: ${m.quantidade} ${m.unidade || ''}</div>`).join('')}</div>` : ''}
+          ${esc.materiais && esc.materiais.length > 0 ? `<div class="cautela-materiais" style="margin-top:8px">${esc.materiais.filter(m => !m.ehAcessorio).map(m => `<div class="cautela-material-tag"><strong>${m.materialNome}</strong><br>Série: ${m.serie || '-'} | Qtd: ${m.quantidade} ${m.unidade || ''}</div>`).join('')}</div>` : ''}
           ${esc.transferidaPara ? `<div style="background:#fef3c7;border-left:3px solid #f59e0b;padding:6px 12px;border-radius:6px;margin-top:8px;font-size:0.85rem;color:#78350f">🔄 <strong>Transferida para:</strong> ${esc.transferidaParaTecnico || 'Outro técnico'} em ${esc.transferidaParaData ? esc.transferidaParaData.split('-').reverse().join('/') : '-'}</div>` : ''}
         </div>`;
       });
       html += `</div>`;
+      if (precisaRecolher) {
+        html += `<button class="btn-expandir" onclick="toggleExpandirEscav('${s.id}', this)">▼ Mostrar todas (${s.escavs.length})</button>`;
+      }
+      html += `</div>`;
     }
+    
+    // Cautelas (recolhível se > 3)
     if (s.cautelas && s.cautelas.length > 0) {
-      html += `<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);"><h4 style="font-size:0.9rem;color:var(--text);margin-bottom:8px;font-weight:700;">📄 Cautelas de Material:</h4>`;
+      const precisaRecolherCautelas = s.cautelas.length > 3;
+      html += `<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">
+        <h4 style="font-size:0.9rem;color:var(--text);margin-bottom:8px;font-weight:700;">📄 Cautelas de Material:</h4>
+        <div class="lista-recolhivel ${precisaRecolherCautelas ? 'recolhida' : ''}" id="cautela-lista-${s.id}">`;
       s.cautelas.forEach((c, idx) => {
         const cStatus = c.encerradaPor ? 'encerrada' : 'aberta';
-        const cStatusBadge = c.encerradaPor ? '<span class="badge badge-blue">🔵 Encerrada</span>' : '<span class="badge badge-red">🔴 Aberta</span>';
+        const cStatusBadge = c.encerradaPor ? '<span class="badge badge-blue"> Encerrada</span>' : '<span class="badge badge-red">🔴 Aberta</span>';
         html += `<div class="cautela-item ${cStatus}">
           <div class="cautela-header">
             <div><strong>📄 Cautela #${idx + 1} - ${c.recebedorNome || '-'}</strong> ${cStatusBadge}</div>
@@ -1402,13 +1634,14 @@ window.renderServicoDiario = function() {
               ${!c.encerradaPor ? `<button class="btn btn-info btn-sm" onclick="editarCautela('${s.id}', ${idx})">✏️ Editar</button>` : ''}
               ${!c.encerradaPor && !c.assinaturaValidada ? `<button class="btn btn-warning btn-sm" onclick="abrirAssinaturaCautela('${s.id}', ${idx})">✍️ ASSINAR</button>` : ''}
               ${c.assinaturaValidada ? `<span class="badge badge-green" style="margin-left:8px">✅ Assinada</span>` : ''}
+              ${!c.encerradaPor ? `<button class="btn btn-danger btn-sm" onclick="excluirCautelaDoServico('${s.id}', ${idx})">🗑️ Excluir</button>` : ''}
               ${!c.encerradaPor ? `<button class="btn btn-success btn-sm" onclick="encerrarCautela('${s.id}', ${idx})">✅ Encerrar</button>` : ''}
               <button class="btn btn-primary btn-sm" onclick="gerarPDFCautelaDireta('${s.id}', ${idx})">📕 PDF</button>
             </div>
           </div>
           <div class="cautela-materiais">`;
         if (c.materiais && c.materiais.length > 0) {
-          c.materiais.forEach(m => { html += `<div class="cautela-material-tag"><strong>${m.materialNome}</strong><br>Série: ${m.serie || '-'} | Qtd: ${m.quantidade} ${m.unidade || ''}</div>`; });
+          c.materiais.filter(m => !m.ehAcessorio).forEach(m => { html += `<div class="cautela-material-tag"><strong>${m.materialNome}</strong><br>Série: ${m.serie || '-'} | Qtd: ${m.quantidade} ${m.unidade || ''}</div>`; });
         } else { html += '<em style="color:var(--text-light);font-size:0.85rem">Nenhum material adicionado</em>'; }
         html += `</div><div style="margin-top:8px;font-size:0.8rem;color:var(--text-light)">📤 Aberta por: <strong>${c.abertaPorNome || '-'}</strong> em ${c.abertaEm ? new Date(c.abertaEm).toLocaleString('pt-BR') : '-'}`;
         if (c.encerradaPor) html += `<br>📥 Encerrada por: <strong>${c.encerradaPorNome}</strong> em ${new Date(c.encerradaEm).toLocaleString('pt-BR')}`;
@@ -1417,7 +1650,12 @@ window.renderServicoDiario = function() {
         html += `</div>`;
       });
       html += `</div>`;
+      if (precisaRecolherCautelas) {
+        html += `<button class="btn-expandir" onclick="toggleExpandirCautela('${s.id}', this)">▼ Mostrar todas (${s.cautelas.length})</button>`;
+      }
+      html += `</div>`;
     } else { html += '<p style="color:var(--text-light);font-style:italic;margin-top:12px;">Nenhuma cautela registrada neste serviço.</p>'; }
+    
     html += `<div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">
       <button class="btn btn-warning btn-sm" onclick="adicionarCautela('${s.id}')">➕ Nova Cautela</button>
       ${!isEncerrado ? `<button class="btn btn-info btn-sm" onclick="abrirNovoEscavNoServico('${s.id}')">🚛 Novo ESCAV</button>` : ''}
@@ -1427,6 +1665,28 @@ window.renderServicoDiario = function() {
     </div></div></div>`;
   });
   container.innerHTML = html;
+};
+
+window.toggleExpandirEscav = function(servicoId, btn) {
+  const lista = document.getElementById('escav-lista-' + servicoId);
+  if (lista.classList.contains('recolhida')) {
+    lista.classList.remove('recolhida');
+    btn.textContent = '▲ Recolher';
+  } else {
+    lista.classList.add('recolhida');
+    btn.textContent = '▼ Mostrar todas';
+  }
+};
+
+window.toggleExpandirCautela = function(servicoId, btn) {
+  const lista = document.getElementById('cautela-lista-' + servicoId);
+  if (lista.classList.contains('recolhida')) {
+    lista.classList.remove('recolhida');
+    btn.textContent = '▲ Recolher';
+  } else {
+    lista.classList.add('recolhida');
+    btn.textContent = '▼ Mostrar todas';
+  }
 };
 
 window.toggleServicoCard = function(servicoId) {
@@ -1455,7 +1715,7 @@ window.adicionarCautela = function(servicoId) {
   selectAgente.innerHTML = '<option value="">Selecione o agente...</option>';
   const agentes = usuariosCache.filter(u => u.role === 'agente');
   if (agentes.length === 0) {
-    selectAgente.innerHTML = '<option value="">⚠️ Nenhum agente cadastrado. Peça ao admin para cadastrar.</option>';
+    selectAgente.innerHTML = '<option value="">️ Nenhum agente cadastrado. Peça ao admin para cadastrar.</option>';
   } else {
     agentes.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
     agentes.forEach(agente => {
@@ -1472,24 +1732,125 @@ window.adicionarCautela = function(servicoId) {
   document.getElementById('modalNovaCautela').classList.add('active');
 };
 
-window.adicionarMaterialCautela = function() { cautelasTemp.push({ materialId: '', serie: '', quantidade: '' }); renderCautelaMateriaisTemp(); };
+window.adicionarMaterialCautela = function() { cautelasTemp.push({ materialId: '', serie: '', quantidade: '', acessorios: [] }); renderCautelaMateriaisTemp(); };
 window.removerMaterialCautela = function(i) { cautelasTemp.splice(i, 1); renderCautelaMateriaisTemp(); };
 window.atualizarMaterialCautela = function(i, campo, valor) { if (cautelasTemp[i]) cautelasTemp[i][campo] = valor; };
+
+window.onSelectMaterialCautela = function(itemIndex, materialId) {
+  atualizarMaterialCautela(itemIndex, 'materialId', materialId);
+  const material = materiaisCache.find(m => m.id === materialId);
+  const container = document.getElementById('acessoriosRadioContainer');
+  const lista = document.getElementById('listaAcessoriosRadio');
+
+  if (!material || !ehRadio(material.nome)) {
+    container.style.display = 'none';
+    return;
+  }
+
+  const acessorios = getAcessoriosPorRadio(material.nome);
+  let html = '';
+  acessorios.forEach(acc => {
+    const matAcc = buscarAcessorioEspecifico(acc.busca, material.nome);
+    const disponivel = matAcc ? calcDisponivel(matAcc) : 0;
+    const indisponivel = disponivel <= 0;
+    const checked = cautelasTemp[itemIndex]?.acessorios?.includes(acc.chave) ? 'checked' : '';
+
+    html += `<label class="acessorio-item ${indisponivel ? 'indisponivel' : ''}">
+      <input type="checkbox" ${checked} ${indisponivel ? 'disabled' : ''} onchange="toggleAcessorioCautela(${itemIndex}, '${acc.chave}', this.checked)">
+      <span>${acc.nome}</span>
+      <span class="qtd-disponivel">${disponivel > 0 ? 'Disp: ' + disponivel : 'Indisp.'}</span>
+    </label>`;
+  });
+
+  lista.innerHTML = html;
+  container.style.display = 'block';
+};
+
+window.toggleAcessorioCautela = function(itemIndex, acessorioChave, marcado) {
+  if (!cautelasTemp[itemIndex].acessorios) { cautelasTemp[itemIndex].acessorios = []; }
+  if (marcado) {
+    if (!cautelasTemp[itemIndex].acessorios.includes(acessorioChave)) { cautelasTemp[itemIndex].acessorios.push(acessorioChave); }
+  } else {
+    cautelasTemp[itemIndex].acessorios = cautelasTemp[itemIndex].acessorios.filter(a => a !== acessorioChave);
+  }
+  renderCautelaMateriaisTemp();
+};
 
 function renderCautelaMateriaisTemp() {
   const container = document.getElementById('cautelaMateriaisLista');
   if (!container) return;
-  if (cautelasTemp.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-style:italic">Clique em "+ Adicionar Material" para começar.</p>'; return; }
+  if (cautelasTemp.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-style:italic">Clique em "+ Adicionar Material" para começar.</p>'; document.getElementById('acessoriosRadioContainer').style.display = 'none'; return; }
   let html = '';
   cautelasTemp.forEach((item, i) => {
+    const matSelecionado = materiaisCache.find(m => m.id === item.materialId);
+    const acessoriosMarcados = item.acessorios || [];
+    const qtdRadio = parseFloat(item.quantidade) || 1;
     html += `<div class="row-item">
-      <div class="form-group"><label>Material</label><select onchange="atualizarMaterialCautela(${i}, 'materialId', this.value)"><option value="">Selecione...</option>${materiaisCache.map(m => { const disp = calcDisponivel(m); return `<option value="${m.id}" ${item.materialId === m.id ? 'selected' : ''}>${m.nome} (Disp: ${disp} ${m.unidade || 'un'})</option>`; }).join('')}</select></div>
+      <div class="form-group"><label>Material</label><select onchange="onSelectMaterialCautela(${i}, this.value)"><option value="">Selecione...</option>${materiaisCache.map(m => { const disp = calcDisponivel(m); return `<option value="${m.id}" ${item.materialId === m.id ? 'selected' : ''}>${m.nome} (Disp: ${disp} ${m.unidade || 'un'})</option>`; }).join('')}</select></div>
       <div class="form-group" style="max-width:180px"><label>Nº Série/PR</label><input type="text" value="${item.serie}" onchange="atualizarMaterialCautela(${i}, 'serie', this.value)" placeholder="Ex: 211-212"></div>
       <div class="form-group" style="max-width:120px"><label>Qtd</label><input type="number" min="0.01" step="0.01" value="${item.quantidade}" onchange="atualizarMaterialCautela(${i}, 'quantidade', this.value)"></div>
       <button type="button" class="btn btn-danger btn-sm" onclick="removerMaterialCautela(${i})">✕</button>
     </div>`;
+    if (matSelecionado && ehRadio(matSelecionado.nome) && acessoriosMarcados.length > 0) {
+      html += `<div style="margin-left:10px;margin-bottom:8px">`;
+      acessoriosMarcados.forEach(accChave => {
+        const accDef = getAcessoriosPorRadio(matSelecionado.nome).find(a => a.chave === accChave) || { nome: accChave, qtdBase: 1 };
+        const qtdTotal = qtdRadio * accDef.qtdBase;
+        html += `<span class="tag-acessorio">${accDef.nome} × ${qtdRadio} = ${qtdTotal}</span>`;
+      });
+      html += `</div>`;
+    }
   });
   container.innerHTML = html;
+}
+
+function expandirMateriaisComAcessorios(itensTemp) {
+  const materiaisExpandidos = [];
+  itensTemp.forEach(item => {
+    if (!item.materialId || parseFloat(item.quantidade) <= 0) return;
+    const mat = materiaisCache.find(m => m.id === item.materialId);
+    const qtdRadio = parseFloat(item.quantidade) || 1;
+    materiaisExpandidos.push({ materialId: item.materialId, quantidade: qtdRadio, serie: item.serie || '', ehAcessorio: false, acessorioDe: null, nomeAcessorio: null });
+    
+    if (item.acessorios && item.acessorios.length > 0 && mat) {
+      const acessoriosDef = getAcessoriosPorRadio(mat.nome);
+      item.acessorios.forEach(accChave => {
+        const accDef = acessoriosDef.find(a => a.chave === accChave);
+        if (!accDef) return;
+        const matAcc = buscarAcessorioEspecifico(accDef.busca, mat.nome);
+        if (!matAcc) {
+          console.warn(`Acessório não encontrado: ${accDef.busca} para rádio ${mat.nome}`);
+          return;
+        }
+        const qtdAcessorio = qtdRadio * accDef.qtdBase;
+        materiaisExpandidos.push({ 
+          materialId: matAcc.id, 
+          quantidade: qtdAcessorio, 
+          serie: '', 
+          ehAcessorio: true, 
+          acessorioDe: item.materialId, 
+          nomeAcessorio: accDef.nome 
+        });
+      });
+    }
+  });
+  return materiaisExpandidos;
+}
+
+function formatarMateriaisParaCautela(materiaisExpandidos) {
+  return materiaisExpandidos.map(m => {
+    const mat = materiaisCache.find(x => x.id === m.materialId);
+    return { 
+      materialId: m.materialId, 
+      materialNome: mat?.nome || 'Desconhecido', 
+      unidade: mat?.unidade || '', 
+      serie: m.serie, 
+      quantidade: m.quantidade, 
+      ehAcessorio: m.ehAcessorio, 
+      acessorioDe: m.acessorioDe, 
+      nomeAcessorio: m.nomeAcessorio || null 
+    };
+  });
 }
 
 window.salvarCautela = async function() {
@@ -1507,6 +1868,7 @@ window.salvarCautela = async function() {
     if (!servicoDoc.exists()) return showToast('Serviço não encontrado!', 'error');
     const servicoData = servicoDoc.data();
     const cautelasAtuais = servicoData.cautelas || [];
+    const materiaisExpandidos = formatarMateriaisParaCautela(expandirMateriaisComAcessorios(itens));
     if (cautelaIdxEdit !== '') {
       const idx = parseInt(cautelaIdxEdit);
       const cautelaAnterior = cautelasAtuais[idx];
@@ -1516,31 +1878,21 @@ window.salvarCautela = async function() {
           if (mat) { const novaEmServico = Math.max(0, Math.round(((parseFloat(mat.emServico) || 0) - m.quantidade) * 100) / 100); await updateDoc(doc(db, 'materiais', m.materialId), { emServico: novaEmServico }); }
         }
       }
-      cautelasAtuais[idx] = {
-        ...cautelaAnterior,
-        recebedorNome, recebedorPosto, textoPersonalizado, observacoes: obs,
-        materiais: itens.map(i => { const mat = materiaisCache.find(m => m.id === i.materialId); return { materialId: i.materialId, materialNome: mat?.nome || 'Desconhecido', unidade: mat?.unidade || '', serie: i.serie, quantidade: parseFloat(i.quantidade) }; }),
-        editadaPor: currentUser.uid, editadaPorNome: currentUser.displayName || currentUser.email, editadaEm: new Date().toISOString()
-      };
-      for (const item of itens) {
+      cautelasAtuais[idx] = { ...cautelaAnterior, recebedorNome, recebedorPosto, textoPersonalizado, observacoes: obs, materiais: materiaisExpandidos, editadaPor: currentUser.uid, editadaPorNome: currentUser.displayName || currentUser.email, editadaEm: new Date().toISOString() };
+      for (const item of materiaisExpandidos) {
         const mat = materiaisCache.find(m => m.id === item.materialId);
-        if (mat) { const novaEmServico = Math.round(((parseFloat(mat.emServico) || 0) + parseFloat(item.quantidade)) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emServico: novaEmServico }); }
+        if (mat) { const novaEmServico = Math.round(((parseFloat(mat.emServico) || 0) + item.quantidade) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emServico: novaEmServico }); }
       }
       await updateDoc(doc(db, 'servicosDiarios', servicoId), { cautelas: cautelasAtuais, editadoEm: new Date().toISOString() });
       showToast('✅ Cautela editada com sucesso!');
       await registrarAuditoria('EDITAR_CAUTELA', `Editou cautela de ${recebedorNome}`, { recebedorNome });
     } else {
-      const novaCautela = {
-        id: 'cautela_' + Date.now(), recebedorNome, recebedorPosto, textoPersonalizado, observacoes: obs,
-        materiais: itens.map(i => { const mat = materiaisCache.find(m => m.id === i.materialId); return { materialId: i.materialId, materialNome: mat?.nome || 'Desconhecido', unidade: mat?.unidade || '', serie: i.serie, quantidade: parseFloat(i.quantidade) }; }),
-        abertaPor: currentUser.uid, abertaPorNome: currentUser.displayName || currentUser.email, abertaEm: new Date().toISOString(),
-        encerradaPor: null, encerradaPorNome: null, encerradaEm: null, assinaturaValidada: false
-      };
+      const novaCautela = { id: 'cautela_' + Date.now(), recebedorNome, recebedorPosto, textoPersonalizado, observacoes: obs, materiais: materiaisExpandidos, abertaPor: currentUser.uid, abertaPorNome: currentUser.displayName || currentUser.email, abertaEm: new Date().toISOString(), encerradaPor: null, encerradaPorNome: null, encerradaEm: null, assinaturaValidada: false };
       cautelasAtuais.push(novaCautela);
       await updateDoc(doc(db, 'servicosDiarios', servicoId), { cautelas: cautelasAtuais, editadoEm: new Date().toISOString() });
-      for (const item of itens) {
+      for (const item of materiaisExpandidos) {
         const mat = materiaisCache.find(m => m.id === item.materialId);
-        if (mat) { const novaEmServico = Math.round(((parseFloat(mat.emServico) || 0) + parseFloat(item.quantidade)) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emServico: novaEmServico }); }
+        if (mat) { const novaEmServico = Math.round(((parseFloat(mat.emServico) || 0) + item.quantidade) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emServico: novaEmServico }); }
       }
       showToast('✅ Cautela adicionada com sucesso!');
       await registrarAuditoria('CRIAR_CAUTELA', `Criou cautela para ${recebedorNome}`, { recebedorNome });
@@ -1571,7 +1923,30 @@ window.editarCautela = function(servicoId, cautelaIdx) {
   document.getElementById('cautelaRecebedorPosto').value = cautela.recebedorPosto || '';
   document.getElementById('cautelaTextoPersonalizado').value = cautela.textoPersonalizado || 'Recebi da Coordenação Logística de Ações não cinéticas, para ser utilizado em TAF, o material abaixo relacionado:';
   document.getElementById('cautelaObs').value = cautela.observacoes || '';
-  cautelasTemp = (cautela.materiais || []).map(m => ({ materialId: m.materialId, serie: m.serie || '', quantidade: m.quantidade }));
+  
+  cautelasTemp = [];
+  const materiaisPrincipais = (cautela.materiais || []).filter(m => !m.ehAcessorio);
+  materiaisPrincipais.forEach(m => {
+    const matOriginal = materiaisCache.find(x => x.id === m.materialId);
+    const nomeRadio = matOriginal ? matOriginal.nome : '';
+    const acessoriosDef = getAcessoriosPorRadio(nomeRadio);
+    
+    const acessoriosDoItem = (cautela.materiais || [])
+      .filter(am => am.ehAcessorio && am.acessorioDe === m.materialId)
+      .map(am => {
+        const accEncontrado = acessoriosDef.find(a => a.nome === am.nomeAcessorio);
+        return accEncontrado ? accEncontrado.chave : null;
+      })
+      .filter(a => a !== null);
+      
+    cautelasTemp.push({ 
+      materialId: m.materialId, 
+      serie: m.serie || '', 
+      quantidade: m.quantidade, 
+      acessorios: acessoriosDoItem 
+    });
+  });
+  
   renderCautelaMateriaisTemp();
   document.getElementById('modalNovaCautela').classList.add('active');
 };
@@ -1598,6 +1973,26 @@ window.encerrarCautela = async function(servicoId, cautelaIdx) {
   } catch (err) { showToast('Erro: ' + err.message, 'error'); }
 };
 
+window.excluirCautelaDoServico = async function(servicoId, cautelaIdx) {
+  if (currentUserRole === 'viewer') return showToast('Acesso restrito!', 'error');
+  if (!confirm('⚠️ ATENÇÃO: Excluir esta cautela? Os materiais serão devolvidos ao estoque.')) return;
+  try {
+    const servicoDoc = await getDoc(doc(db, 'servicosDiarios', servicoId));
+    if (!servicoDoc.exists()) return showToast('Serviço não encontrado!', 'error');
+    const servicoData = servicoDoc.data();
+    const cautela = servicoData.cautelas[cautelaIdx];
+    if (!cautela) return showToast('Cautela não encontrada!', 'error');
+    for (const m of cautela.materiais) {
+      const mat = materiaisCache.find(x => x.id === m.materialId);
+      if (mat) { const novaEmServico = Math.max(0, Math.round(((parseFloat(mat.emServico) || 0) - m.quantidade) * 100) / 100); await updateDoc(doc(db, 'materiais', m.materialId), { emServico: novaEmServico }); }
+    }
+    servicoData.cautelas.splice(cautelaIdx, 1);
+    await updateDoc(doc(db, 'servicosDiarios', servicoId), { cautelas: servicoData.cautelas, editadoEm: new Date().toISOString() });
+    showToast('Cautela excluída! Materiais devolvidos ao estoque.');
+    await registrarAuditoria('EXCLUIR_CAUTELA', `Excluiu cautela de ${cautela.recebedorNome}`, { recebedorNome: cautela.recebedorNome });
+  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+};
+
 window.encerrarServico = async function(servicoId) {
   if (currentUserRole === 'viewer') return showToast('Acesso restrito!', 'error');
   const s = servicosDiariosCache.find(x => x.id === servicoId);
@@ -1606,7 +2001,7 @@ window.encerrarServico = async function(servicoId) {
   const escavsAbertas = (s.escavs || []).filter(e => e.status !== 'encerrada');
   let mensagem = 'Encerrar este serviço?';
   if (cautelasAbertas.length > 0 || escavsAbertas.length > 0) {
-    mensagem = `⚠️ ATENÇÃO: Existem ${cautelasAbertas.length} cautela(s) e ${escavsAbertas.length} ESCAV(s) aberta(s).\n\nAo encerrar, elas serão marcadas para transferência automática ao próximo serviço.\n\nDeseja continuar?`;
+    mensagem = '⚠️ ATENÇÃO: Existem ' + cautelasAbertas.length + ' cautela(s) e ' + escavsAbertas.length + ' ESCAV(s) aberta(s).\n\nAo encerrar, elas serão marcadas para transferência automática ao próximo serviço.\n\nDeseja continuar?';
   }
   if (!confirm(mensagem)) return;
   try {
@@ -1631,7 +2026,7 @@ window.encerrarServico = async function(servicoId) {
     }
     await updateDoc(doc(db, 'servicosDiarios', servicoId), atualizacoes);
     let msgSucesso = '✅ Serviço encerrado!';
-    if (cautelasAbertas.length > 0 || escavsAbertas.length > 0) { msgSucesso += ` ${cautelasAbertas.length} cautela(s) e ${escavsAbertas.length} ESCAV(s) serão transferidas ao próximo serviço.`; }
+    if (cautelasAbertas.length > 0 || escavsAbertas.length > 0) { msgSucesso += ' ' + cautelasAbertas.length + ' cautela(s) e ' + escavsAbertas.length + ' ESCAV(s) serão transferidas ao próximo serviço.'; }
     showToast(msgSucesso);
     await registrarAuditoria('ENCERRAR_SERVICO', `Encerrou serviço de ${s.tecnicoNome} em ${s.data}`, { tecnicoNome: s.tecnicoNome, data: s.data, cautelasTransferidas: cautelasAbertas.length, escavsTransferidas: escavsAbertas.length });
   } catch (err) { console.error('Erro ao encerrar serviço:', err); showToast('Erro: ' + err.message, 'error'); }
@@ -1676,7 +2071,7 @@ window.abrirNovoEscavNoServico = function(servicoId) {
   document.getElementById('escavServSispatCautelou').value = '';
   document.getElementById('escavServSispatDescautelou').value = '';
   document.getElementById('escavServVisto').value = '';
-  document.getElementById('escavServTextoCautela').value = 'Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.';
+  document.getElementById('escavServTextoCautela').value = 'Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.';
   renderTecnicosEscavServ();
   renderMateriaisEscavServ();
   document.getElementById('modalNovoEscavServico').classList.add('active');
@@ -1699,18 +2094,70 @@ window.renderTecnicosEscavServ = function() {
   container.innerHTML = html;
 };
 
-window.adicionarMaterialEscavServ = function() { escavServMateriaisTemp.push({ materialId: '', quantidade: '', serie: '' }); renderMateriaisEscavServ(); };
+window.adicionarMaterialEscavServ = function() { escavServMateriaisTemp.push({ materialId: '', quantidade: '', serie: '', acessorios: [] }); renderMateriaisEscavServ(); };
 window.removerMaterialEscavServ = function(i) { escavServMateriaisTemp.splice(i, 1); renderMateriaisEscavServ(); };
 window.atualizarMaterialEscavServ = function(i, campo, valor) { if (escavServMateriaisTemp[i]) escavServMateriaisTemp[i][campo] = valor; };
+
+window.onSelectMaterialEscavServ = function(itemIndex, materialId) {
+  atualizarMaterialEscavServ(itemIndex, 'materialId', materialId);
+  const material = materiaisCache.find(m => m.id === materialId);
+  const container = document.getElementById('escavAcessoriosRadioContainer');
+  const lista = document.getElementById('escavListaAcessoriosRadio');
+
+  if (!material || !ehRadio(material.nome)) {
+    container.style.display = 'none';
+    return;
+  }
+
+  const acessorios = getAcessoriosPorRadio(material.nome);
+  let html = '';
+  acessorios.forEach(acc => {
+    const matAcc = buscarAcessorioEspecifico(acc.busca, material.nome);
+    const disponivel = matAcc ? calcDisponivel(matAcc) : 0;
+    const indisponivel = disponivel <= 0;
+    const checked = escavServMateriaisTemp[itemIndex]?.acessorios?.includes(acc.chave) ? 'checked' : '';
+
+    html += `<label class="acessorio-item ${indisponivel ? 'indisponivel' : ''}">
+      <input type="checkbox" ${checked} ${indisponivel ? 'disabled' : ''} onchange="toggleAcessorioEscavServ(${itemIndex}, '${acc.chave}', this.checked)">
+      <span>${acc.nome}</span>
+      <span class="qtd-disponivel">${disponivel > 0 ? 'Disp: ' + disponivel : 'Indisp.'}</span>
+    </label>`;
+  });
+
+  lista.innerHTML = html;
+  container.style.display = 'block';
+};
+
+window.toggleAcessorioEscavServ = function(itemIndex, acessorioChave, marcado) {
+  if (!escavServMateriaisTemp[itemIndex].acessorios) { escavServMateriaisTemp[itemIndex].acessorios = []; }
+  if (marcado) {
+    if (!escavServMateriaisTemp[itemIndex].acessorios.includes(acessorioChave)) { escavServMateriaisTemp[itemIndex].acessorios.push(acessorioChave); }
+  } else {
+    escavServMateriaisTemp[itemIndex].acessorios = escavServMateriaisTemp[itemIndex].acessorios.filter(a => a !== acessorioChave);
+  }
+  renderMateriaisEscavServ();
+};
 
 window.renderMateriaisEscavServ = function() {
   const container = document.getElementById('escavServMateriais');
   if (!container) return;
-  if (materiaisCache.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.9rem;margin:10px 0">⚠️ Nenhum material cadastrado.</p>'; return; }
-  if (escavServMateriaisTemp.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.88rem;margin:10px 0;font-style:italic">Clique em "+ Adicionar Material".</p>'; return; }
+  if (materiaisCache.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.9rem;margin:10px 0">️ Nenhum material cadastrado.</p>'; return; }
+  if (escavServMateriaisTemp.length === 0) { container.innerHTML = '<p style="color:var(--text-light);font-size:0.88rem;margin:10px 0;font-style:italic">Clique em "+ Adicionar Material".</p>'; document.getElementById('escavAcessoriosRadioContainer').style.display = 'none'; return; }
   let html = '';
   escavServMateriaisTemp.forEach((item, i) => {
-    html += `<div class="row-item"><div class="form-group"><label>Material</label><select onchange="atualizarMaterialEscavServ(${i}, 'materialId', this.value)"><option value="">Selecione...</option>${materiaisCache.map(m => { const disp = calcDisponivel(m); return `<option value="${m.id}" ${item.materialId === m.id ? 'selected' : ''}>${m.nome} (Disp: ${disp} ${m.unidade || 'un'})</option>`; }).join('')}</select></div><div class="form-group" style="max-width:100px"><label>Qtd</label><input type="number" min="0.01" step="0.01" value="${item.quantidade}" onchange="atualizarMaterialEscavServ(${i}, 'quantidade', this.value)"></div><div class="form-group" style="max-width:180px"><label>Nº PR</label><input type="text" value="${item.serie || ''}" onchange="atualizarMaterialEscavServ(${i}, 'serie', this.value)" placeholder="Ex: 140-175"></div><button type="button" class="btn btn-danger btn-sm" onclick="removerMaterialEscavServ(${i})">✕</button></div>`;
+    const matSelecionado = materiaisCache.find(m => m.id === item.materialId);
+    const acessoriosMarcados = item.acessorios || [];
+    const qtdRadio = parseFloat(item.quantidade) || 1;
+    html += `<div class="row-item"><div class="form-group"><label>Material</label><select onchange="onSelectMaterialEscavServ(${i}, this.value)"><option value="">Selecione...</option>${materiaisCache.map(m => { const disp = calcDisponivel(m); return `<option value="${m.id}" ${item.materialId === m.id ? 'selected' : ''}>${m.nome} (Disp: ${disp} ${m.unidade || 'un'})</option>`; }).join('')}</select></div><div class="form-group" style="max-width:100px"><label>Qtd</label><input type="number" min="0.01" step="0.01" value="${item.quantidade}" onchange="atualizarMaterialEscavServ(${i}, 'quantidade', this.value)"></div><div class="form-group" style="max-width:180px"><label>Nº PR</label><input type="text" value="${item.serie || ''}" onchange="atualizarMaterialEscavServ(${i}, 'serie', this.value)" placeholder="Ex: 140-175"></div><button type="button" class="btn btn-danger btn-sm" onclick="removerMaterialEscavServ(${i})">✕</button></div>`;
+    if (matSelecionado && ehRadio(matSelecionado.nome) && acessoriosMarcados.length > 0) {
+      html += `<div style="margin-left:10px;margin-bottom:8px">`;
+      acessoriosMarcados.forEach(accChave => {
+        const accDef = getAcessoriosPorRadio(matSelecionado.nome).find(a => a.chave === accChave) || { nome: accChave, qtdBase: 1 };
+        const qtdTotal = qtdRadio * accDef.qtdBase;
+        html += `<span class="tag-acessorio">${accDef.nome} × ${qtdRadio} = ${qtdTotal}</span>`;
+      });
+      html += `</div>`;
+    }
   });
   container.innerHTML = html;
 };
@@ -1748,7 +2195,7 @@ window.salvarEscavNoServico = async function() {
       return { tecnicoId: id, tecnicoNome: t?.nome || 'Desconhecido', tecnicoNomeGuerra: t?.nomeGuerra || '', especialidade: 'AST' };
     });
     const escavsAtuais = s.escavs || [];
-    const materiaisFormatados = itens.map(i => { const mat = materiaisCache.find(m => m.id === i.materialId); return { materialId: i.materialId, materialNome: mat?.nome || 'Desconhecido', unidade: mat?.unidade || '', quantidade: parseFloat(i.quantidade), serie: i.serie || '' }; });
+    const materiaisFormatados = formatarMateriaisParaCautela(expandirMateriaisComAcessorios(itens));
     if (escavIdxEdit !== '') {
       const idx = parseInt(escavIdxEdit);
       const escavAnterior = escavsAtuais[idx];
@@ -1765,9 +2212,9 @@ window.salvarEscavNoServico = async function() {
         materiais: materiaisFormatados,
         editadaPor: currentUser.displayName || currentUser.email, editadaEm: new Date().toISOString()
       };
-      for (const item of itens) {
+      for (const item of materiaisFormatados) {
         const mat = materiaisCache.find(m => m.id === item.materialId);
-        if (mat) { const novoEmEscav = Math.round(((parseFloat(mat.emEscav) || 0) + parseFloat(item.quantidade)) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emEscav: novoEmEscav }); }
+        if (mat) { const novoEmEscav = Math.round(((parseFloat(mat.emEscav) || 0) + item.quantidade) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emEscav: novoEmEscav }); }
       }
       await updateDoc(doc(db, 'servicosDiarios', servicoId), { escavs: escavsAtuais, editadoEm: new Date().toISOString() });
       showToast('✅ ESCAV editada com sucesso!');
@@ -1782,9 +2229,9 @@ window.salvarEscavNoServico = async function() {
         criadaPor: currentUser.uid, criadaPorNome: currentUser.displayName || currentUser.email, criadaEm: new Date().toISOString(),
         encerradaPor: null, encerradaPorNome: null, encerradaEm: null, status: 'aberta'
       });
-      for (const item of itens) {
+      for (const item of materiaisFormatados) {
         const mat = materiaisCache.find(m => m.id === item.materialId);
-        if (mat) { const novoEmEscav = Math.round(((parseFloat(mat.emEscav) || 0) + parseFloat(item.quantidade)) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emEscav: novoEmEscav }); }
+        if (mat) { const novoEmEscav = Math.round(((parseFloat(mat.emEscav) || 0) + item.quantidade) * 100) / 100; await updateDoc(doc(db, 'materiais', mat.id), { emEscav: novoEmEscav }); }
       }
       const novoEscavRegistro = {
         escavId: escavDoc.id, destino, uf, tipo, evento, dataInicio, dataRetorno,
@@ -1818,7 +2265,7 @@ window.editarEscavNoServico = function(servicoId, escavIdx) {
   document.getElementById('escavServDataInicio').value = escav.dataInicio || '';
   document.getElementById('escavServDataRetorno').value = escav.dataRetorno || '';
   document.getElementById('escavServObs').value = escav.obs || '';
-  document.getElementById('escavServTextoCautela').value = escav.textoCautela || 'Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.';
+  document.getElementById('escavServTextoCautela').value = escav.textoCautela || 'Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ___________, no período de ___ de ________ de 20___ a ___ de ________ de 20___.';
   document.getElementById('escavServRespMontagem').value = escav.respMontagem || '';
   document.getElementById('escavServRespEntrega').value = escav.respEntrega || '';
   document.getElementById('escavServRespRecebimento').value = escav.respRecebimento || '';
@@ -1828,9 +2275,53 @@ window.editarEscavNoServico = function(servicoId, escavIdx) {
   escavServTecnicosSelecionados = new Set();
   if (escav.tecnicos) { escav.tecnicos.forEach(t => { if (t.tecnicoId) escavServTecnicosSelecionados.add(t.tecnicoId); }); }
   renderTecnicosEscavServ();
-  escavServMateriaisTemp = (escav.materiais || []).map(m => ({ materialId: m.materialId, quantidade: m.quantidade, serie: m.serie || '' }));
+  
+  escavServMateriaisTemp = [];
+  const materiaisPrincipais = (escav.materiais || []).filter(m => !m.ehAcessorio);
+  materiaisPrincipais.forEach(m => {
+    const matOriginal = materiaisCache.find(x => x.id === m.materialId);
+    const nomeRadio = matOriginal ? matOriginal.nome : '';
+    const acessoriosDef = getAcessoriosPorRadio(nomeRadio);
+    
+    const acessoriosDoItem = (escav.materiais || [])
+      .filter(am => am.ehAcessorio && am.acessorioDe === m.materialId)
+      .map(am => {
+        const accEncontrado = acessoriosDef.find(a => a.nome === am.nomeAcessorio);
+        return accEncontrado ? accEncontrado.chave : null;
+      })
+      .filter(a => a !== null);
+      
+    escavServMateriaisTemp.push({ 
+      materialId: m.materialId, 
+      quantidade: m.quantidade, 
+      serie: m.serie || '', 
+      acessorios: acessoriosDoItem 
+    });
+  });
+  
   renderMateriaisEscavServ();
   document.getElementById('modalNovoEscavServico').classList.add('active');
+};
+
+window.excluirEscavDoServico = async function(servicoId, escavIdx) {
+  if (currentUserRole === 'viewer') return showToast('Acesso restrito!', 'error');
+  if (!confirm('⚠️ ATENÇÃO: Excluir esta ESCAV? Os materiais serão devolvidos ao estoque.')) return;
+  try {
+    const s = servicosDiariosCache.find(x => x.id === servicoId);
+    if (!s || !s.escavs[escavIdx]) return showToast('ESCAV não encontrada!', 'error');
+    const escav = s.escavs[escavIdx];
+    if (escav.materiais) {
+      for (const m of escav.materiais) {
+        const mat = materiaisCache.find(x => x.id === m.materialId);
+        if (mat) { const novoEmEscav = Math.max(0, Math.round(((parseFloat(mat.emEscav) || 0) - m.quantidade) * 100) / 100); await updateDoc(doc(db, 'materiais', m.materialId), { emEscav: novoEmEscav }); }
+      }
+    }
+    if (escav.escavId) { try { await deleteDoc(doc(db, 'escav', escav.escavId)); } catch (err) { console.error('Erro ao excluir ESCAV:', err); } }
+    s.escavs.splice(escavIdx, 1);
+    await updateDoc(doc(db, 'servicosDiarios', servicoId), { escavs: s.escavs, editadoEm: new Date().toISOString() });
+    showToast('ESCAV excluída! Materiais devolvidos ao estoque.');
+    await registrarAuditoria('EXCLUIR_ESCAV', `Excluiu ESCAV ${escav.destino}/${escav.uf}`, { destino: escav.destino, uf: escav.uf });
+  } catch (err) { console.error('Erro ao excluir ESCAV:', err); showToast('Erro: ' + err.message, 'error'); }
 };
 
 window.encerrarEscavNoServico = async function(servicoId, escavIdx) {
@@ -1857,7 +2348,7 @@ window.encerrarEscavNoServico = async function(servicoId, escavIdx) {
 };
 
 // === ASSINATURA ESCAV ===
-window.abrirAssinaturaEscav = function() {
+window.assinarEscavServico = function() {
   const servicoId = document.getElementById('escavServicoId').value;
   const escavIdx = document.getElementById('escavServIdxEdit').value;
   if (!servicoId) return showToast('Selecione uma ESCAV primeiro!', 'error');
@@ -1865,8 +2356,6 @@ window.abrirAssinaturaEscav = function() {
   if (!s) return showToast('Serviço não encontrado!', 'error');
   const escav = escavIdx !== '' ? s.escavs[parseInt(escavIdx)] : null;
   if (!escav) return showToast('ESCAV não encontrada!', 'error');
-  if (escav.assinaturaValidada) return showToast('Esta ESCAV já foi assinada!', 'error');
-  
   const nomeResponsavel = escav.respRecebimento || s.tecnicoNome;
   cautelaAssinaturaAtual = {
     servicoId: servicoId,
@@ -1874,13 +2363,38 @@ window.abrirAssinaturaEscav = function() {
     usuarioData: { nome: nomeResponsavel },
     isEscav: true
   };
-  
   document.getElementById('tecladoAgenteNomeAssinatura').textContent = nomeResponsavel;
   document.getElementById('tecladoDocTipoAssinatura').textContent = '🚛 ESCAV';
   document.getElementById('tecladoCautelaNumeroAssinatura').textContent = (parseInt(escavIdx) + 1);
-  const materiaisResumo = (escav.materiais || []).map(m => m.materialNome).join(', ');
+  const materiaisResumo = (escav.materiais || []).filter(m => !m.ehAcessorio).map(m => m.materialNome).join(', ');
   document.getElementById('tecladoCautelaMateriaisAssinatura').textContent = materiaisResumo.length > 50 ? materiaisResumo.substring(0, 50) + '...' : materiaisResumo;
-  
+  pinDigitado = '';
+  document.getElementById('tecladoDisplayAssinatura').textContent = '• • • •';
+  document.getElementById('tecladoErroAssinatura').style.display = 'none';
+  embaralharTecladoAssinatura();
+  renderizarTecladoAssinatura();
+  clearTimeout(timerTeclado);
+  timerTeclado = setTimeout(() => { fecharModal('modalTecladoAssinatura'); showToast('⏰ Tempo expirado. Tente novamente.', 'error'); }, 30000);
+  document.getElementById('modalTecladoAssinatura').classList.add('active');
+};
+
+window.abrirAssinaturaEscav = function(servicoId, escavIdx) {
+  const s = servicosDiariosCache.find(x => x.id === servicoId);
+  if (!s || !s.escavs[escavIdx]) return showToast('ESCAV não encontrada!', 'error');
+  const escav = s.escavs[escavIdx];
+  if (escav.assinaturaValidada) return showToast('Esta ESCAV já foi assinada!', 'error');
+  const nomeResponsavel = escav.respRecebimento || s.tecnicoNome;
+  cautelaAssinaturaAtual = {
+    servicoId: servicoId,
+    cautelaIdx: escavIdx,
+    usuarioData: { nome: nomeResponsavel },
+    isEscav: true
+  };
+  document.getElementById('tecladoAgenteNomeAssinatura').textContent = nomeResponsavel;
+  document.getElementById('tecladoDocTipoAssinatura').textContent = '🚛 ESCAV';
+  document.getElementById('tecladoCautelaNumeroAssinatura').textContent = (escavIdx + 1);
+  const materiaisResumo = (escav.materiais || []).filter(m => !m.ehAcessorio).map(m => m.materialNome).join(', ');
+  document.getElementById('tecladoCautelaMateriaisAssinatura').textContent = materiaisResumo.length > 50 ? materiaisResumo.substring(0, 50) + '...' : materiaisResumo;
   pinDigitado = '';
   document.getElementById('tecladoDisplayAssinatura').textContent = '• • • •';
   document.getElementById('tecladoErroAssinatura').style.display = 'none';
@@ -1951,7 +2465,6 @@ window.tecladoConfirmarAssinatura = async function() {
     const servicoDoc = await getDoc(doc(db, 'servicosDiarios', cautelaAssinaturaAtual.servicoId));
     if (!servicoDoc.exists()) { showToast('❌ Serviço não encontrado!', 'error'); return; }
     const servicoData = servicoDoc.data();
-    
     if (cautelaAssinaturaAtual.isEscav) {
       const escav = servicoData.escavs[cautelaAssinaturaAtual.cautelaIdx];
       escav.assinaturaValidada = true;
@@ -2002,7 +2515,7 @@ window.abrirAssinaturaCautela = async function(servicoId, cautelaIdx) {
     document.getElementById('tecladoAgenteNomeAssinatura').textContent = usuarioData.nome;
     document.getElementById('tecladoDocTipoAssinatura').textContent = '📄 Cautela';
     document.getElementById('tecladoCautelaNumeroAssinatura').textContent = (cautelaIdx + 1);
-    const materiaisResumo = (cautela.materiais || []).map(m => m.materialNome).join(', ');
+    const materiaisResumo = (cautela.materiais || []).filter(m => !m.ehAcessorio).map(m => m.materialNome).join(', ');
     document.getElementById('tecladoCautelaMateriaisAssinatura').textContent = materiaisResumo.length > 50 ? materiaisResumo.substring(0, 50) + '...' : materiaisResumo;
     if (!usuarioData.senhaPin || usuarioData.senhaPin === '') {
       document.getElementById('criarPinAgenteNomeAssinatura').textContent = usuarioData.nome;
@@ -2045,7 +2558,7 @@ window.verCautela = function(servicoId, cautelaIdx) {
   const c = s.cautelas[cautelaIdx];
   let html = `<div style="background:#f8fafc;padding:20px;border-radius:10px;margin-bottom:16px">
     <h3>📄 Cautela #${cautelaIdx + 1} - ${s.tecnicoNome}</h3>
-    <p><strong>📅 Data:</strong> ${s.data ? s.data.split('-').reverse().join('/') : '-'} (${s.diaSemana})</p>
+    <p><strong> Data:</strong> ${s.data ? s.data.split('-').reverse().join('/') : '-'} (${s.diaSemana})</p>
     <p><strong>👷 Técnico:</strong> ${s.tecnicoNome} ${s.tecnicoNomeGuerra ? '(' + s.tecnicoNomeGuerra + ')' : ''}</p>
     <p><strong>👤 Recebedor:</strong> ${c.recebedorNome || '-'}</p>
     ${c.recebedorPosto ? `<p><strong>🎖️ Posto:</strong> ${c.recebedorPosto}</p>` : ''}
@@ -2056,10 +2569,14 @@ window.verCautela = function(servicoId, cautelaIdx) {
   if (c.textoPersonalizado) html += `<div style="background:#eff6ff;padding:12px;border-radius:8px;margin-bottom:16px;font-style:italic">${c.textoPersonalizado}</div>`;
   if (c.materiais && c.materiais.length > 0) {
     html += `<table><thead><tr><th>Nº</th><th>Material</th><th>Nº Série/PR</th><th>Qtd</th><th>Un</th></tr></thead><tbody>`;
-    c.materiais.forEach((m, i) => { html += `<tr><td>${String(i + 1).padStart(2, '0')}</td><td><strong>${m.materialNome}</strong></td><td>${m.serie || '-'}</td><td>${m.quantidade}</td><td>${m.unidade || '-'}</td></tr>`; });
+    c.materiais.forEach((m, i) => { 
+      const prefixo = m.ehAcessorio ? '🔌 ' : ''; 
+      const nomeExibicao = m.nomeAcessorio ? `${m.materialNome} (${m.nomeAcessorio})` : m.materialNome;
+      html += `<tr><td>${String(i + 1).padStart(2, '0')}</td><td><strong>${prefixo}${nomeExibicao}</strong></td><td>${m.serie || '-'}</td><td>${m.quantidade}</td><td>${m.unidade || '-'}</td></tr>`; 
+    });
     html += `</tbody></table>`;
   }
-  if (c.observacoes) html += `<div class="escav-obs" style="margin-top:12px">📝 <strong>Obs:</strong> ${c.observacoes}</div>`;
+  if (c.observacoes) html += `<div class="escav-obs" style="margin-top:12px"> <strong>Obs:</strong> ${c.observacoes}</div>`;
   document.getElementById('modalEscavContent').innerHTML = html;
   document.getElementById('modalEscav').classList.add('active');
 };
@@ -2107,7 +2624,10 @@ function gerarPDFCautelaCompleto(servico, cautela) {
     doc.text(textoLinhas, 14, 58);
     const startY = 58 + (textoLinhas.length * 5);
     const headers = [['Nº', 'MATERIAL', 'Nº Serie/PR', 'QTD']];
-    const body = cautela.materiais.map((m, i) => [String(i + 1).padStart(2, '0'), m.materialNome, m.serie || 'S/PR', m.quantidade.toString()]);
+    const body = cautela.materiais.map((m, i) => {
+      const nomeExibicao = m.nomeAcessorio ? `${m.materialNome} (${m.nomeAcessorio})` : m.materialNome;
+      return [String(i + 1).padStart(2, '0'), nomeExibicao, m.serie || 'S/PR', m.quantidade.toString()];
+    });
     doc.autoTable({ head: headers, body: body, startY: startY + 5, styles: { fontSize: 9, cellPadding: 3, halign: 'center' }, headStyles: { fillColor: [200, 200, 200], textColor: 0, fontStyle: 'bold' }, columnStyles: { 0: { cellWidth: 15 }, 1: { halign: 'left', cellWidth: 90 }, 2: { cellWidth: 40 }, 3: { cellWidth: 20 } }, margin: { left: 14, right: 14 } });
     const finalY = doc.lastAutoTable.finalY + 10;
     doc.setFontSize(9);
@@ -2147,7 +2667,7 @@ function gerarPDFCautelaCompleto(servico, cautela) {
     doc.setFontSize(9);
     doc.text(`Brasília-DF ${dataExtenso}`, 105, 280, { align: 'center' });
     doc.save(`cautela_${servico.tecnicoNome.replace(/\s+/g, '_')}_${servico.data}.pdf`);
-    showToast('📕 PDF gerado com sucesso!');
+    showToast(' PDF gerado com sucesso!');
   } catch (err) { showToast('Erro ao gerar PDF: ' + err.message, 'error'); }
 }
 
@@ -2156,7 +2676,7 @@ function getMesExtenso(mes) {
   return meses[parseInt(mes) - 1] || '';
 }
 
-// === PDF ESCAV ===
+// === PDF ESCAV FAM PR ===
 window.gerarPDFEscavFam = function() {
   const servicoId = document.getElementById('escavServicoId').value;
   const escavIdx = document.getElementById('escavServIdxEdit').value;
@@ -2178,37 +2698,31 @@ function gerarPDFEscavFamDoc(servico, escav) {
   try {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    // Visto no canto superior direito
     doc.setFontSize(8);
     doc.setTextColor(0);
     doc.text('VISTO:', 170, 10);
     doc.text(`Ch C Téc: ${escav.visto || '_________________'}`, 170, 15);
-    // Cabeçalho institucional
     doc.setFontSize(9);
     doc.setTextColor(60);
     doc.text('- Presidência da República', 105, 20, { align: 'center' });
     doc.text('Gabinete de Segurança Institucional', 105, 25, { align: 'center' });
     doc.text('Secretaria de Segurança e Coordenação Presidencial', 105, 30, { align: 'center' });
-    // Título
     doc.setFontSize(12);
     doc.setTextColor(0);
     doc.setFont(undefined, 'bold');
     doc.text('CAUTELA DE MATERIAL PARA VIAGEM', 105, 42, { align: 'center' });
     doc.text('FAM PR', 105, 48, { align: 'center' });
-    // Texto da cautela (editável)
     doc.setFont(undefined, 'normal');
     doc.setFontSize(10);
-    const textoCautela = escav.textoCautela || `Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem, para a cidade de ${escav.destino || '-'}, no período de ${escav.dataInicio ? escav.dataInicio.split('-').reverse().join('/') : '-'} a ${escav.dataRetorno ? escav.dataRetorno.split('-').reverse().join('/') : '-'}.`;
+    const textoCautela = escav.textoCautela || `Recebi da Coordenadoria Técnica, o material abaixo relacionado para ser utilizado na viagem FAM PR, para a cidade de ${escav.destino || '-'}, no período de ${escav.dataInicio ? escav.dataInicio.split('-').reverse().join('/') : '-'} a ${escav.dataRetorno ? escav.dataRetorno.split('-').reverse().join('/') : '-'}.`;
     const textoLinhas = doc.splitTextToSize(textoCautela, 180);
     doc.text(textoLinhas, 15, 58);
-    // Tabela de materiais
     const startY = 58 + (textoLinhas.length * 5) + 5;
     const headers = [['Material', 'Quant', 'Número do Patrimônio / "PR"']];
-    const body = (escav.materiais || []).map(m => [
-      `${m.materialNome}${m.unidade ? ' - ' + m.unidade : ''}`,
-      m.quantidade.toString(),
-      m.serie || 'SEM PR'
-    ]);
+    const body = (escav.materiais || []).map(m => {
+      const nomeExibicao = m.nomeAcessorio ? `${m.materialNome} (${m.nomeAcessorio})` : `${m.materialNome}${m.unidade ? ' - ' + m.unidade : ''}`;
+      return [nomeExibicao, m.quantidade.toString(), m.serie || 'SEM PR'];
+    });
     doc.autoTable({
       head: headers,
       body: body,
@@ -2222,7 +2736,6 @@ function gerarPDFEscavFamDoc(servico, escav) {
       },
       margin: { left: 15, right: 15 }
     });
-    // Seção "RESPONSÁVEL PELO MATERIAL"
     const finalY = doc.lastAutoTable.finalY + 15;
     doc.setDrawColor(0);
     doc.rect(15, finalY, 180, 50);
@@ -2236,7 +2749,6 @@ function gerarPDFEscavFamDoc(servico, escav) {
     doc.text(`Nome: ${escav.respRecebimento || '_________________'}`, 20, finalY + 25);
     doc.text(`Assinatura: _________________________`, 110, finalY + 25);
     doc.text('RECEBIDO com ou sem alteração: _________________________', 20, finalY + 40);
-    // Três colunas de responsáveis
     const boxY = finalY + 60;
     doc.rect(15, boxY, 60, 55);
     doc.rect(75, boxY, 60, 55);
@@ -2251,24 +2763,21 @@ function gerarPDFEscavFamDoc(servico, escav) {
     doc.text('RECEBIMENTO', 165, boxY + 12, { align: 'center' });
     doc.setFont(undefined, 'normal');
     doc.setFontSize(8);
-    // Montagem
     doc.text(`Em ${dataFmt} / 20__.`, 20, boxY + 20);
     doc.text(`Assinatura: _______________`, 20, boxY + 30);
     doc.text(`Nome: ${escav.respMontagem || '_______________'}`, 20, boxY + 40);
     doc.text('CAUTELOU OS RÁDIOS NO SISPAT', 45, boxY + 48, { align: 'center' });
     doc.text(`SIM [${escav.sispatCautelou === 'SIM' ? 'X' : ' '}]  NÃO [${escav.sispatCautelou === 'NÃO' ? 'X' : ' '}]`, 45, boxY + 53, { align: 'center' });
-    // Entrega
     doc.text(`Em ${dataFmt} / 20__.`, 80, boxY + 20);
     doc.text(`Assinatura: _______________`, 80, boxY + 30);
     doc.text(`Nome: ${escav.respEntrega || '_______________'}`, 80, boxY + 40);
-    // Recebimento
     doc.text(`Em ___/___/20__.`, 140, boxY + 20);
     doc.text(`Assinatura: _______________`, 140, boxY + 30);
     doc.text(`Nome: _______________`, 140, boxY + 40);
     doc.text('DESCAUTELOU OS RÁDIOS NO SISPAT', 165, boxY + 48, { align: 'center' });
     doc.text(`SIM [${escav.sispatDescautelou === 'SIM' ? 'X' : ' '}]  NÃO [${escav.sispatDescautelou === 'NÃO' ? 'X' : ' '}]`, 165, boxY + 53, { align: 'center' });
     doc.save(`cautela_fam_pr_${escav.destino}_${escav.dataInicio}.pdf`);
-    showToast('📕 PDF da Cautela gerado!');
+    showToast('📕 PDF da Cautela FAM PR gerado!');
   } catch (err) { showToast('Erro ao gerar PDF: ' + err.message, 'error'); }
 }
 
@@ -2314,7 +2823,7 @@ window.gerarPDFServico = function(servicoId) {
         doc.setFontSize(10);
         doc.text(`Cautela #${idx + 1} - ${c.recebedorNome}`, 15, yPos);
         yPos += 6;
-        const materiaisText = (c.materiais || []).map(m => `• ${m.materialNome}: ${m.quantidade} ${m.unidade || 'un'}`).join('\n');
+        const materiaisText = (c.materiais || []).map(m => `• ${m.materialNome}${m.nomeAcessorio ? ' (' + m.nomeAcessorio + ')' : ''}: ${m.quantidade} ${m.unidade || 'un'}`).join('\n');
         const matLines = doc.splitTextToSize(materiaisText, 170);
         doc.text(matLines, 20, yPos);
         yPos += (matLines.length * 5) + 8;
@@ -2367,7 +2876,7 @@ window.renderAuditoria = function() {
   let filtered = auditoriaCache.slice();
   if (filtroAcao !== 'all') filtered = filtered.filter(a => a.acao === filtroAcao);
   if (filtroUsuario) filtered = filtered.filter(a => (a.usuarioNome || '').toLowerCase().includes(filtroUsuario) || (a.usuarioEmail || '').toLowerCase().includes(filtroUsuario));
-  const acaoIcones = { 'CRIAR_USUARIO': '👤', 'EDITAR_USUARIO': '✏️', 'EXCLUIR_USUARIO': '🗑️', 'CRIAR_MATERIAL': '📦', 'EDITAR_MATERIAL': '✏️', 'EXCLUIR_MATERIAL': '❌', 'CRIAR_ESCAV': '🚛', 'EDITAR_ESCAV': '✏️', 'EXCLUIR_ESCAV': '🗑️', 'CRIAR_CAUTELA': '📄', 'EDITAR_CAUTELA': '✏️', 'ENCERRAR_CAUTELA': '✅', 'ASSINAR_CAUTELA': '✍️', 'ASSINAR_ESCAV': '✍️', 'ENCERRAR_ESCAV': '🔒', 'TROCA_SENHA': '🔑', 'LOGIN': '🔐', 'DEFINIR_PIN': '🔐', 'CRIAR_SERVICO': '📋', 'ENCERRAR_SERVICO': '🔒' };
+  const acaoIcones = { 'CRIAR_USUARIO': '', 'EDITAR_USUARIO': '✏️', 'EXCLUIR_USUARIO': '️', 'CRIAR_MATERIAL': '', 'EDITAR_MATERIAL': '✏️', 'EXCLUIR_MATERIAL': '❌', 'CRIAR_ESCAV': '🚛', 'EDITAR_ESCAV': '✏️', 'EXCLUIR_ESCAV': '🗑️', 'CRIAR_CAUTELA': '', 'EDITAR_CAUTELA': '✏️', 'EXCLUIR_CAUTELA': '🗑️', 'ENCERRAR_CAUTELA': '✅', 'ASSINAR_CAUTELA': '✍️', 'ASSINAR_ESCAV': '✍️', 'ENCERRAR_ESCAV': '🔒', 'TROCA_SENHA': '🔑', 'LOGIN': '🔐', 'DEFINIR_PIN': '🔐', 'CRIAR_SERVICO': '📋', 'ENCERRAR_SERVICO': '🔒' };
   if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>Nenhum registro de auditoria.</p></div>'; return; }
   let html = `<div style="overflow-x:auto"><table><thead><tr><th>Data/Hora</th><th>Ação</th><th>Usuário</th><th>Detalhes</th></tr></thead><tbody>`;
   filtered.slice(0, 200).forEach(a => {
@@ -2412,15 +2921,52 @@ window.exportarAuditoriaPDF = function() {
 // === EXPORTAÇÕES GERAIS ===
 function getDataHora() { return new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19); }
 function baixarArquivo(conteudo, nome, tipo) { const blob = new Blob([conteudo], { type: tipo }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = nome; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+function gerarCSV(dados) { 
+  if (dados.length === 0) return ''; 
+  const headers = Object.keys(dados[0]); 
+  const linhas = [headers.join(';')]; 
+  dados.forEach(row => { 
+    linhas.push(headers.map(h => { 
+      let v = String(row[h] ?? '').replace(/"/g, '""'); 
+      if (v.includes(';') || v.includes('"') || v.includes('\n')) v = `"${v}"`; 
+      return v; 
+    }).join(';')); 
+  }); 
+  return '\uFEFF' + linhas.join('\n'); 
+}
 
 window.exportarMateriaisExcel = function() { try { if (materiaisCache.length === 0) return showToast('Nenhum material!', 'error'); const dados = materiaisCache.map(m => ({ 'Material': m.nome, 'Unidade': m.unidade || 'un', 'Existente': parseFloat(m.existente) || 0, 'Disponível': calcDisponivel(m), 'Em Serviço': parseFloat(m.emServico) || 0, 'Em ESCAV': parseFloat(m.emEscav) || 0, 'Em ERSPO': parseFloat(m.emERSPO) || 0, 'Empregados': calcEmpregados(m), 'Indisponível': parseFloat(m.indisponivel) || 0 })); const ws = window.XLSX.utils.json_to_sheet(dados); const wb = window.XLSX.utils.book_new(); window.XLSX.utils.book_append_sheet(wb, ws, 'Materiais'); window.XLSX.writeFile(wb, `materiais_${getDataHora()}.xlsx`); showToast('Excel gerado!'); } catch (err) { showToast('Erro Excel: ' + err.message, 'error'); } };
 window.exportarMateriaisPDF = function() { try { if (materiaisCache.length === 0) return showToast('Nenhum material!', 'error'); const dados = materiaisCache.map(m => [m.nome, m.unidade || 'un', parseFloat(m.existente) || 0, calcDisponivel(m), parseFloat(m.emServico) || 0, parseFloat(m.emEscav) || 0, parseFloat(m.emERSPO) || 0, calcEmpregados(m), parseFloat(m.indisponivel) || 0]); const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'landscape' }); doc.setFontSize(16); doc.text('Materiais', 14, 18); doc.autoTable({ head: [['Material', 'Un', 'Exist', 'Disp', 'Serv', 'ESCAV', 'ERSPO', 'Empr', 'Indisp']], body: dados, startY: 32, styles: { fontSize: 8, cellPadding: 2 }, headStyles: { fillColor: [37, 99, 235], textColor: 255 } }); doc.save(`materiais_${getDataHora()}.pdf`); showToast('PDF gerado!'); } catch (err) { showToast('Erro PDF: ' + err.message, 'error'); } };
 window.exportarTecnicosExcel = function() { try { const tecnicosAST = usuariosCache.filter(u => u.role === 'ast'); if (tecnicosAST.length === 0) return showToast('Nenhum técnico AST!', 'error'); const dados = tecnicosAST.map(t => ({ 'Nome Completo': t.nome, 'Nome de Guerra': t.nomeGuerra || '', 'E-mail': t.email || '', 'ESCAV': escavCache.filter(e => e.tecnicos && e.tecnicos.some(tec => tec.tecnicoId === t.id)).length })); const ws = window.XLSX.utils.json_to_sheet(dados); const wb = window.XLSX.utils.book_new(); window.XLSX.utils.book_append_sheet(wb, ws, 'Tecnicos AST'); window.XLSX.writeFile(wb, `tecnicos_ast_${getDataHora()}.xlsx`); showToast('Excel gerado!'); } catch (err) { showToast('Erro Excel: ' + err.message, 'error'); } };
 window.exportarTecnicosPDF = function() { try { const tecnicosAST = usuariosCache.filter(u => u.role === 'ast'); if (tecnicosAST.length === 0) return showToast('Nenhum técnico AST!', 'error'); const dados = tecnicosAST.map(t => [t.nome, t.nomeGuerra || '-', t.email || '-', escavCache.filter(e => e.tecnicos && e.tecnicos.some(tec => tec.tecnicoId === t.id)).length]); const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.setFontSize(16); doc.text('Técnicos AST', 14, 18); doc.autoTable({ head: [['Nome Completo', 'Nome de Guerra', 'Email', 'ESCAV']], body: dados, startY: 32, styles: { fontSize: 8, cellPadding: 2 }, headStyles: { fillColor: [37, 99, 235], textColor: 255 } }); doc.save(`tecnicos_ast_${getDataHora()}.pdf`); showToast('PDF gerado!'); } catch (err) { showToast('Erro PDF: ' + err.message, 'error'); } };
-window.exportarEscavExcel = function() { try { if (escavCache.length === 0) return showToast('Nenhuma ESCAV!', 'error'); const dados = escavCache.map(e => ({ 'Tipo': e.tipo || '', 'Destino': e.destino || '', 'UF': e.uf || '', 'Evento': e.evento || '', 'Data Início': e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '', 'Data Retorno': e.dataRetorno ? e.dataRetorno.split('-').reverse().join('/') : '', 'Técnicos': (e.tecnicos || []).map(t => t.tecnicoNome).join('; '), 'Materiais': (e.materiais || []).map(m => `${m.materialNome} (${m.quantidade} ${m.unidade})`).join('; '), 'Observação': e.obs || '' })); const ws = window.XLSX.utils.json_to_sheet(dados); const wb = window.XLSX.utils.book_new(); window.XLSX.utils.book_append_sheet(wb, ws, 'ESCAV'); window.XLSX.writeFile(wb, `escav_${getDataHora()}.xlsx`); showToast('Excel gerado!'); } catch (err) { showToast('Erro Excel: ' + err.message, 'error'); } };
-window.exportarEscavPDF = function() { try { if (escavCache.length === 0) return showToast('Nenhuma ESCAV!', 'error'); const dados = escavCache.map(e => [e.tipo || '-', e.destino || '-', e.uf || '-', e.evento || '-', e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '-', e.dataRetorno ? e.dataRetorno.split('-').reverse().join('/') : '-', (e.tecnicos || []).map(t => t.tecnicoNome).join(', ') || '-', (e.materiais || []).length + ' ite(ns)']); const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'landscape' }); doc.setFontSize(16); doc.text('Histórico ESCAV', 14, 18); doc.autoTable({ head: [['Tipo', 'Destino', 'UF', 'Evento', 'Início', 'Retorno', 'Técnicos', 'Mat.']], body: dados, startY: 32, styles: { fontSize: 8, cellPadding: 2 }, headStyles: { fillColor: [37, 99, 235], textColor: 255 } }); doc.save(`escav_${getDataHora()}.pdf`); showToast('PDF gerado!'); } catch (err) { showToast('Erro PDF: ' + err.message, 'error'); } };
+window.exportarEscavExcel = function() { try { if (escavCache.length === 0) return showToast('Nenhuma ESCAV!', 'error'); const dados = escavCache.map(e => ({ 'Tipo': e.tipo || '', 'Destino': e.destino || '', 'UF': e.uf || '', 'Evento': e.evento || '', 'Data Início': e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '', 'Data Retorno': e.dataRetorno ? e.dataRetorno.split('-').reverse().join('/') : '', 'Técnicos': (e.tecnicos || []).map(t => t.tecnicoNome).join('; '), 'Materiais': (e.materiais || []).filter(m => !m.ehAcessorio).map(m => `${m.materialNome} (${m.quantidade} ${m.unidade})`).join('; '), 'Observação': e.obs || '' })); const ws = window.XLSX.utils.json_to_sheet(dados); const wb = window.XLSX.utils.book_new(); window.XLSX.utils.book_append_sheet(wb, ws, 'ESCAV'); window.XLSX.writeFile(wb, `escav_${getDataHora()}.xlsx`); showToast('Excel gerado!'); } catch (err) { showToast('Erro Excel: ' + err.message, 'error'); } };
+window.exportarEscavPDF = function() { try { if (escavCache.length === 0) return showToast('Nenhuma ESCAV!', 'error'); const dados = escavCache.map(e => [e.tipo || '-', e.destino || '-', e.uf || '-', e.evento || '-', e.dataInicio ? e.dataInicio.split('-').reverse().join('/') : '-', e.dataRetorno ? e.dataRetorno.split('-').reverse().join('/') : '-', (e.tecnicos || []).map(t => t.tecnicoNome).join(', ') || '-', (e.materiais || []).filter(m => !m.ehAcessorio).length + ' ite(ns)']); const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'landscape' }); doc.setFontSize(16); doc.text('Histórico ESCAV', 14, 18); doc.autoTable({ head: [['Tipo', 'Destino', 'UF', 'Evento', 'Início', 'Retorno', 'Técnicos', 'Mat.']], body: dados, startY: 32, styles: { fontSize: 8, cellPadding: 2 }, headStyles: { fillColor: [37, 99, 235], textColor: 255 } }); doc.save(`escav_${getDataHora()}.pdf`); showToast('PDF gerado!'); } catch (err) { showToast('Erro PDF: ' + err.message, 'error'); } };
 window.exportarRelatorioMateriaisExcel = function() { try { if (materiaisCache.length === 0) return showToast('Nenhum material!', 'error'); const dados = materiaisCache.map(m => ({ 'Material': m.nome, 'Unidade': m.unidade || 'un', 'Existente': parseFloat(m.existente) || 0, 'Disponível': calcDisponivel(m), 'Em Serviço': parseFloat(m.emServico) || 0, 'Em ESCAV': parseFloat(m.emEscav) || 0, 'Em ERSPO': parseFloat(m.emERSPO) || 0, 'Empregados': calcEmpregados(m), 'Indisponível': parseFloat(m.indisponivel) || 0 })); const sumE = materiaisCache.reduce((s, m) => s + (parseFloat(m.existente) || 0), 0); const sumD = materiaisCache.reduce((s, m) => s + calcDisponivel(m), 0); const sumS = materiaisCache.reduce((s, m) => s + (parseFloat(m.emServico) || 0), 0); const sumEs = materiaisCache.reduce((s, m) => s + (parseFloat(m.emEscav) || 0), 0); const sumEr = materiaisCache.reduce((s, m) => s + (parseFloat(m.emERSPO) || 0), 0); const sumEm = materiaisCache.reduce((s, m) => s + calcEmpregados(m), 0); const sumI = materiaisCache.reduce((s, m) => s + (parseFloat(m.indisponivel) || 0), 0); dados.push({ 'Material': 'TOTAL GERAL', 'Unidade': '', 'Existente': sumE, 'Disponível': sumD, 'Em Serviço': sumS, 'Em ESCAV': sumEs, 'Em ERSPO': sumEr, 'Empregados': sumEm, 'Indisponível': sumI }); const ws = window.XLSX.utils.json_to_sheet(dados); const wb = window.XLSX.utils.book_new(); window.XLSX.utils.book_append_sheet(wb, ws, 'Gestão de Materiais'); window.XLSX.writeFile(wb, `relatorio_gestao_materiais_${getDataHora()}.xlsx`); showToast('Excel gerado!'); } catch (err) { showToast('Erro Excel: ' + err.message, 'error'); } };
 window.exportarRelatorioMateriaisPDF = function() { try { if (materiaisCache.length === 0) return showToast('Nenhum material!', 'error'); const dados = materiaisCache.map(m => [m.nome, m.unidade || 'un', parseFloat(m.existente) || 0, calcDisponivel(m), parseFloat(m.emServico) || 0, parseFloat(m.emEscav) || 0, parseFloat(m.emERSPO) || 0, calcEmpregados(m), parseFloat(m.indisponivel) || 0]); const sumE = materiaisCache.reduce((s, m) => s + (parseFloat(m.existente) || 0), 0); const sumD = materiaisCache.reduce((s, m) => s + calcDisponivel(m), 0); const sumS = materiaisCache.reduce((s, m) => s + (parseFloat(m.emServico) || 0), 0); const sumEs = materiaisCache.reduce((s, m) => s + (parseFloat(m.emEscav) || 0), 0); const sumEr = materiaisCache.reduce((s, m) => s + (parseFloat(m.emERSPO) || 0), 0); const sumEm = materiaisCache.reduce((s, m) => s + calcEmpregados(m), 0); const sumI = materiaisCache.reduce((s, m) => s + (parseFloat(m.indisponivel) || 0), 0); dados.push(['TOTAL GERAL', '', sumE, sumD, sumS, sumEs, sumEr, sumEm, sumI]); const { jsPDF } = window.jspdf; const doc = new jsPDF({ orientation: 'landscape' }); doc.setFontSize(16); doc.text('Relatório de Gestão de Materiais', 14, 18); doc.autoTable({ head: [['Material', 'Un', 'Existente', 'Disponível', 'Em Serviço', 'Em ESCAV', 'Em ERSPO', 'Empregados', 'Indisponível']], body: dados, startY: 32, styles: { fontSize: 8, cellPadding: 2, halign: 'center' }, headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' }, columnStyles: { 0: { halign: 'left', fontStyle: 'bold' } } }); doc.save(`relatorio_gestao_materiais_${getDataHora()}.pdf`); showToast('PDF gerado!'); } catch (err) { showToast('Erro PDF: ' + err.message, 'error'); } };
+window.exportarMetricasExcel = function() {
+  try {
+    if (materiaisCache.length === 0) return showToast('Nenhum material!', 'error');
+    const dados = materiaisCache.map(m => ({ 'Material': m.nome, 'Unidade': m.unidade || 'un', 'Existente': parseFloat(m.existente) || 0, 'Disponível': calcDisponivel(m), 'Em Serviço': parseFloat(m.emServico) || 0, 'Em ESCAV': parseFloat(m.emEscav) || 0, 'Em ERSPO': parseFloat(m.emERSPO) || 0, 'Empregados': calcEmpregados(m), 'Indisponível': parseFloat(m.indisponivel) || 0, '% Disponível': parseFloat(m.existente) > 0 ? ((calcDisponivel(m) / parseFloat(m.existente)) * 100).toFixed(1) + '%' : '0%' }));
+    const ws = window.XLSX.utils.json_to_sheet(dados);
+    const wb = window.XLSX.utils.book_new();
+    window.XLSX.utils.book_append_sheet(wb, ws, 'Métricas');
+    window.XLSX.writeFile(wb, `metricas_${new Date().toISOString().slice(0,10)}.xlsx`);
+    showToast('Excel gerado!');
+  } catch (err) { showToast('Erro Excel: ' + err.message, 'error'); }
+};
+
+window.exportarMetricasPDF = function() {
+  try {
+    if (materiaisCache.length === 0) return showToast('Nenhum material!', 'error');
+    const dados = materiaisCache.map(m => [m.nome, m.unidade || 'un', parseFloat(m.existente) || 0, calcDisponivel(m), parseFloat(m.emServico) || 0, parseFloat(m.emEscav) || 0, parseFloat(m.emERSPO) || 0, calcEmpregados(m), parseFloat(m.indisponivel) || 0]);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape' });
+    doc.setFontSize(16); doc.text('Relação de Materiais - Métricas', 14, 18);
+    doc.autoTable({ head: [['Material', 'Un', 'Exist', 'Disp', 'Serv', 'ESCAV', 'ERSPO', 'Empr', 'Indisp']], body: dados, startY: 32, styles: { fontSize: 8, cellPadding: 2 }, headStyles: { fillColor: [37, 99, 235], textColor: 255 } });
+    doc.save(`metricas_${new Date().toISOString().slice(0,10)}.pdf`);
+    showToast('PDF gerado!');
+  } catch (err) { showToast('Erro PDF: ' + err.message, 'error'); }
+};
 
 window.exportarBackupJSON = function() { try { const backup = { versao: '5.0', exportadoEm: new Date().toISOString(), exportadoPor: currentUser?.displayName || currentUser?.email || '', dados: { materiais: materiaisCache, tecnicos: tecnicosCache, escav: escavCache.filter(e => !e._antigo), usuarios: usuariosCache, servicosDiarios: servicosDiariosCache } }; baixarArquivo(JSON.stringify(backup, null, 2), `backup_${getDataHora()}.json`, 'application/json'); showToast('Backup gerado!'); } catch (err) { showToast('Erro: ' + err.message, 'error'); } };
 window.importarBackup = async function(event) { const file = event.target.files[0]; if (!file) return; if (!confirm('ADICIONAR dados do backup?')) { event.target.value = ''; return; } try { const text = await file.text(); const backup = JSON.parse(text); if (!backup.dados) throw new Error('Arquivo inválido'); let count = 0; for (const m of (backup.dados.materiais || [])) { const { id, ...d } = m; await addDoc(collection(db, 'materiais'), migrarMaterial(d)); count++; } for (const t of (backup.dados.tecnicos || [])) { const { id, ...d } = t; await addDoc(collection(db, 'tecnicos'), d); count++; } const escavData = backup.dados.escav || backup.dados.viagens || []; for (const e of escavData) { const { id, ...d } = e; await addDoc(collection(db, 'escav'), d); count++; } for (const s of (backup.dados.servicosDiarios || [])) { const { id, ...d } = s; await addDoc(collection(db, 'servicosDiarios'), d); count++; } showToast(`${count} registros importados!`); } catch (err) { showToast('Erro: ' + err.message, 'error'); } event.target.value = ''; };
@@ -2428,6 +2974,7 @@ window.importarBackup = async function(event) { const file = event.target.files[
 // Event listeners dos modais
 document.getElementById('modalEscav').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalEscav'); });
 document.getElementById('modalNovoMaterial').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalNovoMaterial'); });
+document.getElementById('modalEditarMaterial').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalEditarMaterial'); });
 document.getElementById('modalAdicionarUsuario').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalAdicionarUsuario'); });
 document.getElementById('modalTrocarSenha').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalTrocarSenha'); });
 document.getElementById('modalNovoServico').addEventListener('click', function(e) { if (e.target === this) fecharModal('modalNovoServico'); });
