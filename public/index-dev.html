@@ -1641,8 +1641,13 @@ window.renderServicoDiario = function() {
           </div>
           <div class="cautela-materiais">`;
         if (c.materiais && c.materiais.length > 0) {
-          c.materiais.filter(m => !m.ehAcessorio).forEach(m => { html += `<div class="cautela-material-tag"><strong>${m.materialNome}</strong><br>Série: ${m.serie || '-'} | Qtd: ${m.quantidade} ${m.unidade || ''}</div>`; });
-        } else { html += '<em style="color:var(--text-light);font-size:0.85rem">Nenhum material adicionado</em>'; }
+  c.materiais.forEach(m => { 
+    const prefixo = m.ehAcessorio ? '🔌 ' : '';
+    const nomeExibicao = m.nomeAcessorio ? `${m.materialNome} (${m.nomeAcessorio})` : m.materialNome;
+    const estiloExtra = m.ehAcessorio ? ' style="background:#fef3c7;border-color:#f59e0b"' : '';
+    html += `<div class="cautela-material-tag"${estiloExtra}><strong>${prefixo}${nomeExibicao}</strong><br>Série: ${m.serie || '-'} | Qtd: ${m.quantidade} ${m.unidade || ''}</div>`; 
+  });
+} else { html += '<em style="color:var(--text-light);font-size:0.85rem">Nenhum material adicionado</em>'; }
         html += `</div><div style="margin-top:8px;font-size:0.8rem;color:var(--text-light)">📤 Aberta por: <strong>${c.abertaPorNome || '-'}</strong> em ${c.abertaEm ? new Date(c.abertaEm).toLocaleString('pt-BR') : '-'}`;
         if (c.encerradaPor) html += `<br>📥 Encerrada por: <strong>${c.encerradaPorNome}</strong> em ${new Date(c.encerradaEm).toLocaleString('pt-BR')}`;
         html += `</div>`;
